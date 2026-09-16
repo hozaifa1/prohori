@@ -1,0 +1,15 @@
+[project]
+name = "prohori"
+version = "0.1.0"
+description = "Agentic crack metrology with OpenCV 5 on AWS Graviton"
+requires-python = ">=3.12"
+dependencies = [
+  "opencv-contrib-python-headless==5.0.0.93",
+  "numpy",
+]
+
+[project.optional-dependencies]
+dev = ["pytest", "reportlab", "matplotlib"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]

@@ -1,0 +1,9 @@
+__pycache__/
+*.pyc
+.venv/
+.env
+*.pem
+data/raw/
+data/datasets/
+eval/runs/
+.aws/
