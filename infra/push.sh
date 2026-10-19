@@ -8,12 +8,13 @@ command -v "$AWS" >/dev/null || AWS="/c/Program Files/Amazon/AWSCLIV2/aws.exe"
 cd "$(dirname "$0")/.."
 source infra/state.env
 export AWS_REGION="$REGION"
-SHA=$(git rev-parse --short HEAD)
+REF="${REF:-HEAD}"   # e.g. REF=demo-2026-10-21 to redeploy the demo build
+SHA=$(git rev-parse --short "$REF^{commit}")
 REL=$(date -u +%Y%m%d%H%M%S)-$SHA
 TAR="infra/.gen/$REL.tgz"
 
 # Only committed code ships: uncommitted work in progress never reaches the live endpoint.
-git archive --format=tar.gz -o "$TAR" HEAD src service models pyproject.toml
+git archive --format=tar.gz -o "$TAR" "$REF" src service models pyproject.toml
 "$AWS" s3 cp "$TAR" "s3://$BUCKET/deploy/$REL.tgz" --only-show-errors
 
 SSH="ssh -i $KEY -o StrictHostKeyChecking=accept-new -o ConnectTimeout=15 ubuntu@$EIP"
