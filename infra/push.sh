@@ -8,12 +8,12 @@ command -v "$AWS" >/dev/null || AWS="/c/Program Files/Amazon/AWSCLIV2/aws.exe"
 cd "$(dirname "$0")/.."
 source infra/state.env
 export AWS_REGION="$REGION"
-SHA=$(git rev-parse --short HEAD)$(git diff --quiet HEAD -- src service || echo -dirty)
+SHA=$(git rev-parse --short HEAD)
 REL=$(date -u +%Y%m%d%H%M%S)-$SHA
 TAR="infra/.gen/$REL.tgz"
 
-# Tracked + new (non-ignored) files under the runtime dirs only.
-git ls-files -co --exclude-standard src service models pyproject.toml | tar -czf "$TAR" -T -
+# Only committed code ships: uncommitted work in progress never reaches the live endpoint.
+git archive --format=tar.gz -o "$TAR" HEAD src service models pyproject.toml
 "$AWS" s3 cp "$TAR" "s3://$BUCKET/deploy/$REL.tgz" --only-show-errors
 
 SSH="ssh -i $KEY -o StrictHostKeyChecking=accept-new -o ConnectTimeout=15 ubuntu@$EIP"
