@@ -1,5 +1,5 @@
 /* Prohori service worker: caches the app shell only. Never touches /api/* or /health. */
-const CACHE = "prohori-shell-v2";
+const CACHE = "prohori-shell-v3";
 const SHELL = [
   "/",
   "/static/style.css",

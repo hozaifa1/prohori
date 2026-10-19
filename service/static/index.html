@@ -43,6 +43,8 @@
         <div id="cam-msg" class="cam-msg" hidden></div>
         <div class="stage-tip" id="stage-tip">Keep the printed board and the crack in frame</div>
       </div>
+      <p class="cam-info" id="cam-info" aria-live="polite" hidden></p>
+      <p class="cam-hint" id="cam-hint" role="note" hidden></p>
 
       <div class="controls">
         <button id="btn-demo" class="btn tool" type="button">
@@ -63,6 +65,11 @@
       </div>
 
       <div class="opts">
+        <label class="field joint" for="joint">
+          <svg class="ic" aria-hidden="true"><use href="/static/icons.svg#i-tag"/></svg>
+          <input id="joint" type="text" inputmode="text" maxlength="64" autocomplete="off" autocapitalize="off" spellcheck="false"
+                 placeholder="Joint ID (optional), e.g. B2-wall-north" aria-label="Joint ID, optional. Keeps a history for this crack.">
+        </label>
         <label for="file-gallery" class="btn quiet gallery">
           <svg class="ic" aria-hidden="true"><use href="/static/icons.svg#i-image-square"/></svg>
           <span>Choose from gallery</span>
@@ -115,9 +122,12 @@
         <p class="banner-meta" id="banner-meta"></p>
       </div>
 
+      <div id="esc" class="esc" role="status" hidden></div>
+
       <div id="hero" class="hero" aria-live="polite"></div>
       <div id="gate" class="gate"></div>
       <div id="cracks" class="picker" aria-label="All measured cracks"></div>
+      <section id="joint-card" class="jcard" aria-label="Joint history" hidden></section>
       <div id="chips" class="gauges" aria-label="Capture quality"></div>
     </div>
 

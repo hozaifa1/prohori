@@ -7,6 +7,11 @@
   const MIN_BLUR_VAR = 150;
   const MAX_TILT_DEG = 45;
   const ICONS = "/static/icons.svg#i-";
+  // Printed ChArUco board: 7 x 5 squares of 20 mm = 140 x 100 mm (src/prohori/board.py).
+  const BOARD_LONG_MM = 140;
+  const BOARD_SHORT_MM = 100;
+  const MAX_BOARD_FILL = 0.6; // a board filling more than this share of the frame leaves no room for the crack
+  const JOINT_RE = /^[A-Za-z0-9_-]{1,64}$/;
 
   const ACTIONS = {
     reshoot_steadier: { title: "Hold steadier", tone: "warn", icon: "hand-palm" },
@@ -39,6 +44,9 @@
     cracks: [],
     sel: 0,
     certified: false,
+    cam: null,          // {w, h, photoW, photoH} from the live track
+    imageCapture: null,
+    lastCapture: null,  // {live, w, h, via} of the frame that was just sent
   };
 
   // ---------------------------------------------------------------- helpers
@@ -142,34 +150,105 @@
     video.srcObject = stream;
     $("cam-msg").hidden = true;
     $("stage-tip").hidden = false;
+    const track = stream.getVideoTracks()[0];
     try {
-      const track = stream.getVideoTracks()[0];
+      const st = track.getSettings ? track.getSettings() : {};
+      state.cam = { w: st.width || 0, h: st.height || 0, photoW: 0, photoH: 0 };
+      console.info("[prohori] getUserMedia track settings", JSON.stringify(st));
+      showCamInfo();
+    } catch { /* optional */ }
+    try {
       const caps = track.getCapabilities ? track.getCapabilities() : {};
       if (caps.focusMode && caps.focusMode.includes("continuous")) {
         await track.applyConstraints({ advanced: [{ focusMode: "continuous" }] });
       }
     } catch { /* optional */ }
+    // ImageCapture.takePhoto() gives the full sensor resolution (the video stream is usually 720p-1080p).
+    try {
+      if (typeof ImageCapture === "function") {
+        state.imageCapture = new ImageCapture(track);
+        state.imageCapture.getPhotoCapabilities().then((pc) => {
+          const w = pc.imageWidth && pc.imageWidth.max, h = pc.imageHeight && pc.imageHeight.max;
+          if (state.cam && w && h) {
+            state.cam.photoW = w; state.cam.photoH = h;
+            console.info("[prohori] photo capabilities (max)", w, "x", h);
+            showCamInfo();
+          }
+        }).catch(() => {});
+      }
+    } catch { state.imageCapture = null; }
     video.play().catch(() => {});
   }
 
   function stopCamera() {
     if (state.stream) { state.stream.getTracks().forEach((t) => t.stop()); state.stream = null; }
     video.srcObject = null;
+    state.imageCapture = null;
+  }
+
+  // Would a frame of w x h plausibly reach the 8 px/mm gate? Estimate: the board must fill most of the frame.
+  function tooSmallToCertify(w, h) {
+    if (!w || !h) return false;
+    const long = Math.max(w, h), short = Math.min(w, h);
+    const fill = Math.max(MIN_PX_PER_MM * BOARD_LONG_MM / long, MIN_PX_PER_MM * BOARD_SHORT_MM / short);
+    return fill > MAX_BOARD_FILL;
+  }
+  const smallHint = (w, h) => `Live camera is ${w}×${h} — for the sharpest result use Upload photo (native camera)`;
+
+  // Small mono line under the viewfinder: what the browser really gave us (and a gentle hint if it is too little).
+  function showCamInfo(captured) {
+    const info = $("cam-info"), hint = $("cam-hint");
+    const c = state.cam;
+    if (!c || !c.w) { info.hidden = true; hint.hidden = true; return; }
+    const parts = [`Live camera ${c.w}×${c.h}`];
+    if (c.photoW) parts.push(`photo up to ${c.photoW}×${c.photoH}`);
+    if (captured) parts.push(`last shot ${captured.w}×${captured.h} via ${captured.via}`);
+    info.textContent = parts.join(" · ");
+    info.hidden = false;
+    // what a shutter press would produce: the still (if takePhoto works) or the video frame
+    const w = captured ? captured.w : (c.photoW || c.w), h = captured ? captured.h : (c.photoH || c.h);
+    const small = tooSmallToCertify(w, h);
+    hint.textContent = small ? smallHint(w, h) : "";
+    hint.hidden = !small;
+  }
+
+  function blobToJpeg(canvas, q) {
+    return new Promise((resolve, reject) => canvas.toBlob((b) => (b ? resolve(b) : reject(new Error("Could not capture a frame."))), "image/jpeg", q));
+  }
+
+  async function bitmapSize(blob) {
+    try {
+      const bmp = await createImageBitmap(blob);
+      const s = { w: bmp.width, h: bmp.height };
+      if (bmp.close) bmp.close();
+      return s;
+    } catch { return { w: 0, h: 0 }; }
+  }
+
+  // Full-resolution still when the browser supports ImageCapture, else a grab of the video frame.
+  async function captureStill() {
+    if (!state.stream || !video.videoWidth) throw new Error("The camera is not ready yet. Use Upload photo instead.");
+    if (state.imageCapture && state.cam) {
+      try {
+        const opts = state.cam.photoW && state.cam.photoH ? { imageWidth: state.cam.photoW, imageHeight: state.cam.photoH } : undefined;
+        const blob = await state.imageCapture.takePhoto(opts);
+        if (blob && blob.size) {
+          const s = await bitmapSize(blob);
+          return { blob, w: s.w, h: s.h, via: "takePhoto" };
+        }
+      } catch (e) {
+        console.warn("[prohori] takePhoto failed, using the video frame", e && e.name);
+      }
+    }
+    const c = document.createElement("canvas");
+    c.width = video.videoWidth; c.height = video.videoHeight;
+    c.getContext("2d").drawImage(video, 0, 0, c.width, c.height);
+    return { blob: await blobToJpeg(c, 0.92), w: c.width, h: c.height, via: "frame grab" };
   }
 
   document.addEventListener("visibilitychange", () => {
     if (document.hidden) stopCamera(); else if (state.view === "capture") startCamera();
   });
-
-  function captureFrame() {
-    return new Promise((resolve, reject) => {
-      if (!state.stream || !video.videoWidth) { reject(new Error("The camera is not ready yet. Use Upload photo instead.")); return; }
-      const c = document.createElement("canvas");
-      c.width = video.videoWidth; c.height = video.videoHeight;
-      c.getContext("2d").drawImage(video, 0, 0, c.width, c.height);
-      c.toBlob((b) => (b ? resolve(b) : reject(new Error("Could not capture a frame."))), "image/jpeg", 0.92);
-    });
-  }
 
   // Huge gallery photos: shrink client-side so we stay under the server limit.
   async function shrinkIfHuge(file) {
@@ -190,8 +269,11 @@
     $("btn-shutter").disabled = on;
   }
 
-  async function measure(blob, name) {
+  async function measure(blob, name, meta) {
     if (state.busy) return;
+    const joint = jointValue();
+    if (joint === false) { toast("Joint ID: use letters, digits, - or _ (up to 64)."); return; }
+    state.lastCapture = meta || { live: false, w: 0, h: 0, via: "upload" };
     setBusy(true, "Uploading frame");
     const t0 = performance.now();
     const tick = setInterval(() => {
@@ -205,6 +287,7 @@
       body.append("image", blob, name || "frame.jpg");
       if (state.sessionId) body.append("session_id", state.sessionId);
       body.append("policy", $("policy").value);
+      if (joint) body.append("joint_id", joint);
       const r = await fetch("/api/measure", { method: "POST", body, signal: ctrl.signal });
       let data = null;
       try { data = await r.json(); } catch { /* non-JSON error */ }
@@ -221,6 +304,13 @@
       clearInterval(tick); clearTimeout(to);
       setBusy(false);
     }
+  }
+
+  // Joint ID: "" when empty, false when invalid, else the trimmed id. Remembered per device.
+  function jointValue() {
+    const v = $("joint").value.trim();
+    if (!v) return "";
+    return JOINT_RE.test(v) ? v : false;
   }
 
   // ----------------------------------------------------------------- render
@@ -326,6 +416,9 @@
     if (d.model) meta.append(metaSpan("model", d.model));
     if (num(d.latency_ms)) meta.append(metaSpan("agent", `${fmtMs(d.latency_ms)} ms`));
     meta.append(metaSpan("server", `${Math.round(data.server_ms)} ms`), metaSpan("round trip", `${(roundTripMs / 1000).toFixed(1)} s`));
+    const red = data.redaction;
+    if (red && red.faces > 0) meta.append(metaSpan("faces blurred", String(red.faces)));
+    if (red && red.status === "unavailable") meta.append(h("span", { class: "warnmeta", text: "face blur unavailable, image not stored" }));
 
     // overlay
     const wrap = $("overlay-wrap");
@@ -347,6 +440,13 @@
         g.append(h("div", { class: "reason" }, icon("warning"), h("div", null, reasonText(r))));
       }
     }
+    // a small live-camera frame is the usual reason for "too low resolution": say so, gently
+    const lc = state.lastCapture;
+    if (lc && lc.live && lc.w && tooSmallToCertify(lc.w, lc.h) && gate.certified !== true) {
+      g.append(h("div", { class: "reason soft" }, icon("info"), h("div", null, smallHint(lc.w, lc.h))));
+    }
+    renderEscalation(data.escalation);
+    renderJoint(data.joint);
 
     // measurements
     state.cracks = Array.isArray(m.cracks) ? m.cracks : [];
@@ -354,6 +454,109 @@
     state.certified = gate.certified === true && !m.error;
     renderHero(false);
     renderPicker();
+  }
+
+  // ------------------------------------------------- escalation + joint history
+  const WHY = {
+    abandon_and_log: "The agent could not get a certifiable reading.",
+    widening: "Wider than last visit, beyond measurement uncertainty.",
+    trend: "Visits show a steady widening trend.",
+  };
+
+  function renderEscalation(e) {
+    const box = $("esc");
+    box.replaceChildren();
+    box.hidden = true;
+    if (!e) return;
+    let title, sub;
+    if (e.escalated) {
+      title = "Escalated to engineer";
+      sub = (e.why || []).map((w) => WHY[w]).filter(Boolean).join(" ");
+      if (e.sns === "failed") sub += " The e-mail could not be sent; the request is logged.";
+      else if (e.sns === "local_only") sub += " Logged here; no notification channel is set.";
+      sub += " Review requested, not a safety verdict.";
+    } else if (e.suppressed === "rate_limit") {
+      title = "Engineer already notified";
+      sub = "A review request for this joint went out within the last hour.";
+    } else return;
+    box.append(icon("hard-hat"), h("div", null, h("b", { text: title }), h("span", { text: sub.trim() })));
+    box.hidden = false;
+  }
+
+  function signed(x, d = 2) { return `${x >= 0 ? "+" : "−"}${Math.abs(x).toFixed(d)}`; }
+  function agoText(days) {
+    if (!num(days)) return "";
+    if (days < 1) return `${Math.max(1, Math.round(days * 24))} h ago`;
+    return `${Math.round(days)} day${Math.round(days) === 1 ? "" : "s"} ago`;
+  }
+
+  // visits: [{width_mm, uncertainty_mm}], drawn as dots with +/- u bars; the last one is today's.
+  function sparkline(visits) {
+    const W = 300, H = 76, padX = 14, padY = 10;
+    const svg = document.createElementNS(SVGNS, "svg");
+    svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+    svg.setAttribute("class", "spark");
+    svg.setAttribute("role", "img");
+    svg.setAttribute("aria-label", "Width at each visit with its uncertainty");
+    const lo = Math.min(...visits.map((v) => v.width_mm - (v.uncertainty_mm || 0)));
+    const hi = Math.max(...visits.map((v) => v.width_mm + (v.uncertainty_mm || 0)));
+    const span = Math.max(hi - lo, 0.05);
+    const x = (i) => (visits.length === 1 ? W / 2 : padX + (i * (W - 2 * padX)) / (visits.length - 1));
+    const y = (w) => H - padY - ((w - lo) / span) * (H - 2 * padY);
+    const mk = (tag, attrs) => { const e = document.createElementNS(SVGNS, tag); for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, v); return e; };
+    if (visits.length > 1) {
+      svg.append(mk("polyline", { class: "sp-line", points: visits.map((v, i) => `${x(i)},${y(v.width_mm)}`).join(" ") }));
+    }
+    visits.forEach((v, i) => {
+      const u = v.uncertainty_mm || 0;
+      svg.append(mk("line", { class: "sp-bar", x1: x(i), x2: x(i), y1: y(v.width_mm + u), y2: y(v.width_mm - u) }));
+      svg.append(mk("circle", { class: "sp-dot" + (i === visits.length - 1 ? " now" : ""), cx: x(i), cy: y(v.width_mm), r: i === visits.length - 1 ? 6 : 4.5 }));
+    });
+    return svg;
+  }
+
+  function renderJoint(j) {
+    const card = $("joint-card");
+    card.replaceChildren();
+    card.hidden = true;
+    if (!j || !j.id || !(j.n_visits > 0)) return;
+    const visits = (j.visits || []).filter((v) => num(v.width_mm));
+    const ch = j.change, tr = j.trend;
+
+    card.append(h("div", { class: "jc-top" },
+      h("span", { class: "jc-id" }, icon("tag"), `Joint ${j.id}`),
+      h("span", { class: "jc-n", text: `${j.n_visits} visit${j.n_visits === 1 ? "" : "s"}` })));
+
+    if (ch && num(ch.delta_mm)) {
+      const tone = ch.significant ? (ch.direction === "wider" ? "bad" : "ok") : "flat";
+      const label = ch.significant ? (ch.direction === "wider" ? "Wider, beyond uncertainty" : "Narrower, beyond uncertainty") : "Within measurement uncertainty";
+      card.append(h("div", { class: "jc-change " + tone },
+        h("div", { class: "jc-delta" }, h("span", { class: "n", text: signed(ch.delta_mm) }), h("span", { class: "u", text: "mm" })),
+        h("div", { class: "jc-what" }, h("b", { text: label }),
+          h("span", { text: `since last visit${num(ch.days) ? `, ${agoText(ch.days)}` : ""}` }))));
+      if (num(ch.threshold_mm)) {
+        card.append(h("p", { class: "jc-rule", text: nb(`A change counts only above ±${fmt(ch.threshold_mm)} mm (${Math.round((ch.level || 0.9) * 100)}% combined uncertainty of both visits).`) }));
+      }
+    } else if (j.n_visits === 1) {
+      card.append(h("p", { class: "jc-first", text: j.logged ? "First certified visit saved. Measure again next visit to see change." : "No certified visit saved yet." }));
+    }
+
+    if (visits.length) card.append(sparkline(visits));
+
+    if (tr && num(tr.slope_mm_per_30d)) {
+      const t = tr.significant ? (tr.direction === "widening" ? "bad" : "ok") : "flat";
+      card.append(h("div", { class: "jc-trend " + t },
+        icon("trend-up"),
+        h("div", null,
+          h("b", { text: `${signed(tr.slope_mm_per_30d)} mm per 30 days` }),
+          h("span", { text: nb(`${tr.n} visits, ${Math.round((tr.level || 0.9) * 100)}% interval ${signed(tr.slope_lo_mm_per_30d)} to ${signed(tr.slope_hi_mm_per_30d)}. ${tr.significant ? "Interval excludes zero." : "Not distinguishable from no change."}`) }))));
+    } else if (j.n_visits >= 1 && j.n_visits < 3) {
+      card.append(h("p", { class: "jc-need", text: `Trend appears after 3 visits (${3 - j.n_visits} more).` }));
+    }
+
+    if (j.logged === false) card.append(h("p", { class: "jc-need", text: "This capture was not certified, so it was not added to the history." }));
+    card.append(h("p", { class: "jc-foot", text: "Durability guidance, not a structural verdict. Same joint is assumed; the crack is not re-identified between visits." }));
+    card.hidden = false;
   }
 
   // ------------------------------------------------------------------ trace
@@ -410,6 +613,9 @@
       const first = (s.cracks || [])[0];
       if (first && num(first.width_mm)) obs.append(h("span", { class: "ochip" }, `${first.id ?? "width"}`, h("b", { text: `${fmt(first.width_mm)} mm` })));
       obs.append(h("span", { class: "ochip" + (s.gate && s.gate.certified ? "" : " fail") }, "gate", h("b", { text: s.gate && s.gate.certified ? "certified" : "not certified" })));
+      if (num(s.faces_redacted) && s.faces_redacted > 0) obs.append(h("span", { class: "ochip" }, "faces blurred", h("b", { text: String(s.faces_redacted) })));
+      if (s.joint_id) obs.append(h("span", { class: "ochip" }, "joint", h("b", { text: s.joint_id }), s.joint_logged ? h("span", { class: "d good", text: "saved" }) : null));
+      if (s.escalation && s.escalation.escalated) obs.append(h("span", { class: "ochip fail" }, "escalated", h("b", { text: "to engineer" })));
 
       // what the agent decided
       const act = h("div", { class: "act " + (info.tone === "info" ? "" : info.tone) },
@@ -480,8 +686,19 @@
 
   $("btn-shutter").addEventListener("click", async () => {
     if (state.busy) return;
-    try { await measure(await captureFrame(), "frame.jpg"); }
-    catch (e) { toast(e.message || "Capture failed."); }
+    try {
+      const shot = await captureStill();
+      console.info("[prohori] captured", shot.w, "x", shot.h, "via", shot.via);
+      showCamInfo(shot);
+      await measure(await shrinkIfHuge(shot.blob), "frame.jpg", { live: true, w: shot.w, h: shot.h, via: shot.via });
+    } catch (e) { toast(e.message || "Capture failed."); }
+  });
+  const jointEl = $("joint");
+  jointEl.value = pref.get("prohori.joint", "");
+  jointEl.addEventListener("input", () => {
+    const v = jointEl.value.replace(/\s+/g, "-").replace(/[^A-Za-z0-9_-]/g, "").slice(0, 64);
+    if (v !== jointEl.value) jointEl.value = v;
+    pref.set("prohori.joint", v);
   });
   $("file-cam").addEventListener("change", (e) => handleFile(e.target));
   $("file-gallery").addEventListener("change", (e) => handleFile(e.target));

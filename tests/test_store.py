@@ -113,3 +113,77 @@ def test_aws_failures_never_raise(monkeypatch):
         assert p.endswith("0000.jpg")
         with open(p, "rb") as f:
             assert f.read() == b"x"
+
+
+# ---- per-joint history, escalation log, approvals ---------------------------------------------------
+def test_normalize_joint_id():
+    assert store.normalize_joint_id("  Wall-A1_2 ") == "wall-a1_2"
+    for bad in ("", " ", "a b", "../x", "a#b", "x" * 65, "-lead", None, "ü"):
+        assert store.normalize_joint_id(bad) is None
+
+
+def test_joint_history_local_roundtrip(tmp_path):
+    for i, w in enumerate((0.30, 0.35, 0.41)):
+        store.log_measurement("j1", {"ts": f"2026-09-0{i + 1}T09:00:00+00:00", "width_mm": w,
+                                     "session_id": f"sess{i}", "step": i})
+    store.log_measurement("j2", {"width_mm": 9.9})
+    h = store.get_joint_history("j1")
+    assert [r["width_mm"] for r in h] == [0.30, 0.35, 0.41]
+    assert all(r["joint_id"] == "j1" and r["pk"] == "joint#j1" for r in h)
+    # caller fields that collide with the table's key names are preserved under src_*
+    assert h[0]["src_session_id"] == "sess0" and h[0]["src_step"] == 0
+    assert store.get_joint_history("j2")[0]["width_mm"] == 9.9
+    assert store.get_joint_history("never") == []
+    assert (tmp_path / "records" / "joint__j1.jsonl").exists()
+    assert len(store.get_joint_history("j1", limit=2)) == 2
+
+
+def test_approval_roundtrip_local(tmp_path):
+    assert store.get_approval("tok") is None
+    assert store.put_approval("tok", {"status": "pending", "x": 1.5})
+    assert store.get_approval("tok") == {"status": "pending", "x": 1.5}
+    store.put_approval("tok", {"status": "reviewed"})
+    assert store.get_approval("tok")["status"] == "reviewed"
+
+
+def test_joint_history_ddb_roundtrip(aws, tmp_path):
+    import boto3
+    for i in range(3):
+        store.log_measurement("wall-1", {"width_mm": 0.3 + 0.05 * i, "uncertainty_mm": 0.02,
+                                         "session_id": f"s{i}"})
+    for p in (tmp_path / "records").glob("*.jsonl"):
+        p.unlink()  # prove the read comes from DynamoDB
+    h = store.get_joint_history("wall-1")
+    assert [round(r["width_mm"], 2) for r in h] == [0.30, 0.35, 0.40]
+    assert isinstance(h[0]["width_mm"], float) and h[0]["pk"] == "joint#wall-1" and "ttl" not in h[0]
+    assert h[0]["sk"] < h[1]["sk"] < h[2]["sk"]
+    raw = boto3.resource("dynamodb", region_name="us-east-1").Table("prohori-traces").query(
+        KeyConditionExpression=boto3.dynamodb.conditions.Key("session_id").eq("joint#wall-1"))["Items"]
+    assert len(raw) == 3 and raw[0]["ttl"] > 0 and raw[0]["src_session_id"] == "s0"
+    # newest first + limit
+    assert store.list_records("joint#wall-1", newest_first=True, limit=1)[0]["src_session_id"] == "s2"
+    # joint records live in their own partition: they are not part of any session trace
+    assert store.get_trace("wall-1") == []
+
+
+def test_approval_ddb_roundtrip(aws, tmp_path):
+    store.put_approval("secret-token", {"status": "pending", "message": "m", "n": 2.5})
+    for p in (tmp_path / "approvals").glob("*.json"):
+        p.unlink()
+    got = store.get_approval("secret-token")
+    assert got == {"status": "pending", "message": "m", "n": 2.5}
+    store.put_approval("secret-token", {**got, "status": "reviewed"})
+    assert store.get_approval("secret-token")["status"] == "reviewed"
+    assert store.get_approval("other") is None
+
+
+def test_joint_functions_never_raise_when_ddb_is_broken(monkeypatch):
+    from moto import mock_aws
+    with mock_aws():  # table does not exist
+        monkeypatch.setenv("PROHORI_DDB_TABLE", "nope")
+        store._reset_clients()
+        rec = store.log_measurement("j9", {"width_mm": 0.4})
+        assert rec["pk"] == "joint#j9"
+        assert [r["width_mm"] for r in store.get_joint_history("j9")] == [0.4]  # local fallback
+        assert store.put_approval("t9", {"status": "pending"})
+        assert store.get_approval("t9")["status"] == "pending"

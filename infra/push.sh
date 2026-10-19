@@ -13,7 +13,7 @@ REL=$(date -u +%Y%m%d%H%M%S)-$SHA
 TAR="infra/.gen/$REL.tgz"
 
 # Tracked + new (non-ignored) files under the runtime dirs only.
-git ls-files -co --exclude-standard src service pyproject.toml | tar -czf "$TAR" -T -
+git ls-files -co --exclude-standard src service models pyproject.toml | tar -czf "$TAR" -T -
 "$AWS" s3 cp "$TAR" "s3://$BUCKET/deploy/$REL.tgz" --only-show-errors
 
 SSH="ssh -i $KEY -o StrictHostKeyChecking=accept-new -o ConnectTimeout=15 ubuntu@$EIP"
@@ -25,7 +25,10 @@ mkdir -p \$D
 aws s3 cp s3://$BUCKET/deploy/$REL.tgz /tmp/$REL.tgz --only-show-errors
 tar -xzf /tmp/$REL.tgz -C \$D && rm /tmp/$REL.tgz
 /opt/prohori/venv/bin/pip install -q -r \$D/service/requirements.txt
-sed -i '/^PROHORI_VERSION=/d' /etc/prohori.env && echo PROHORI_VERSION=$SHA >> /etc/prohori.env
+setenv() { sed -i "/^\$1=/d" /etc/prohori.env; echo "\$1=\$2" >> /etc/prohori.env; }
+setenv PROHORI_VERSION $SHA
+setenv PROHORI_SNS_TOPIC_ARN "${TOPIC:-}"
+setenv PROHORI_PUBLIC_URL https://$HOST
 chown -R prohori:prohori /opt/prohori
 ln -sfn \$D /opt/prohori/current
 systemctl restart prohori

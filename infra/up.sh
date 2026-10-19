@@ -54,6 +54,14 @@ if ! "$AWS" dynamodb describe-table --table-name "$TABLE" >/dev/null 2>&1; then
     --time-to-live-specification Enabled=true,AttributeName=ttl >/dev/null
 fi
 
+echo "== SNS escalation topic"
+TOPIC=$("$AWS" sns create-topic --name "$NAME-escalations" --attributes KmsMasterKeyId=alias/aws/sns \
+  --query TopicArn --output text)
+if [ "$("$AWS" sns list-subscriptions-by-topic --topic-arn "$TOPIC" --query 'length(Subscriptions)' --output text)" = 0 ]; then
+  # The engineer must click the confirmation link AWS emails once.
+  "$AWS" sns subscribe --topic-arn "$TOPIC" --protocol email --notification-endpoint "$ALERT_EMAIL" >/dev/null
+fi
+
 echo "== IAM role $ROLE (least privilege)"
 cat > infra/.gen/trust.json <<'EOF'
 {"Version":"2012-10-17","Statement":[{"Effect":"Allow","Principal":{"Service":"ec2.amazonaws.com"},"Action":"sts:AssumeRole"}]}
@@ -67,6 +75,7 @@ cat > infra/.gen/policy.json <<EOF
    "arn:aws:bedrock:*::foundation-model/amazon.nova-*"]},
  {"Sid":"Traces","Effect":"Allow","Action":["dynamodb:PutItem","dynamodb:Query","dynamodb:GetItem"],
   "Resource":"arn:aws:dynamodb:$REGION:$ACCT:table/$TABLE"},
+ {"Sid":"Escalate","Effect":"Allow","Action":["sns:Publish"],"Resource":"$TOPIC"},
  {"Sid":"Evidence","Effect":"Allow","Action":["s3:PutObject"],"Resource":"arn:aws:s3:::$BUCKET/evidence/*"},
  {"Sid":"Deploy","Effect":"Allow","Action":["s3:GetObject"],"Resource":"arn:aws:s3:::$BUCKET/deploy/*"}
 ]}
@@ -143,5 +152,6 @@ IID=$IID
 EIP=$EIP
 HOST=$HOST
 KEY=$KEY
+TOPIC=$TOPIC
 EOF
 echo "== done: https://$HOST  (instance $IID)"

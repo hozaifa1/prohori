@@ -7,6 +7,7 @@ from __future__ import annotations
 import base64
 import collections
 import datetime as _dt
+from html import escape as html_escape
 import json
 import logging
 import math
@@ -26,7 +27,7 @@ import cv2
 import numpy as np
 from fastapi import FastAPI, File, Form, Request, UploadFile
 from fastapi.concurrency import run_in_threadpool
-from fastapi.responses import FileResponse, JSONResponse
+from fastapi.responses import FileResponse, HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
 HERE = Path(__file__).resolve().parent
@@ -47,6 +48,7 @@ MAX_OVERLAY_SIDE = 1280
 OVERLAY_JPEG_QUALITY = 80
 RATE_LIMIT_PER_MIN = int(os.environ.get("PROHORI_RATE_LIMIT", "30"))
 SESSION_RE = re.compile(r"^[A-Za-z0-9_-]{1,64}$")
+JOINT_ID_HELP = "joint_id must be 1-64 characters: letters, digits, '-' or '_'."
 VALID_POLICIES = ("llm", "rules")
 
 # --------------------------------------------------------------------------
@@ -124,6 +126,13 @@ except (ImportError, AttributeError):  # pragma: no cover
 
     def save_evidence(session_id: str, step_idx: int, jpeg_bytes: bytes) -> str | None:
         return None
+
+
+# History, redaction and escalation live in the package (no local fallbacks: they are part of the product).
+from prohori import escalate as escalate_mod  # noqa: E402
+from prohori import history as history_mod  # noqa: E402
+from prohori import redact as redact_mod  # noqa: E402
+from prohori import store as store_mod  # noqa: E402
 
 
 # --------------------------------------------------------------------------
@@ -341,9 +350,63 @@ def version() -> str:
 _STEP_LOCK = threading.Lock()
 
 
-def run_pipeline(data: bytes, session_id: str, policy: str, t0: float) -> dict:
+def _primary_crack(cracks: list[dict], need_uncertainty: bool = True, prefer_id: Any = None) -> dict | None:
+    """The crack a joint's history follows. Crack ids are stable on the test panel and a single crack in the
+    field, so prefer the crack with the same id as at the last visit; otherwise the first listed crack, which is
+    the one the PWA shows as the headline number. No image-based re-identification between visits is done."""
+    ok = []
+    for c in cracks or []:
+        w, u = c.get("width_mm"), c.get("uncertainty_mm")
+        if not isinstance(w, (int, float)) or not math.isfinite(w):
+            continue
+        if need_uncertainty and not (isinstance(u, (int, float)) and math.isfinite(u) and u >= 0):
+            continue
+        ok.append(c)
+    if prefer_id is not None:
+        for c in ok:
+            if c.get("id") == prefer_id:
+                return c
+    return ok[0] if ok else None
+
+
+def _joint_block(joint_id: str, session_id: str, step_idx: int, result: dict, observation: dict, gate: dict,
+                 cracks: list[dict], evidence: str | None) -> tuple[dict, dict | None]:
+    """Log this capture for the joint when it is certified, then summarise the joint's history.
+    Returns (public block, history summary). Never raises."""
+    block: dict[str, Any] = {"id": joint_id, "logged": False}
+    try:
+        records = store_mod.get_joint_history(joint_id)
+        certified = bool(gate.get("certified")) and not result.get("error")
+        prev_id = records[-1].get("crack_id") if records else None
+        crack = _primary_crack(cracks, prefer_id=prev_id) if certified else None
+        logged = None
+        if crack is not None:
+            logged = store_mod.log_measurement(joint_id, {
+                "ts": _dt.datetime.now(_dt.timezone.utc).isoformat(timespec="seconds"),
+                "inspection_session": session_id, "inspection_step": step_idx,
+                "width_mm": crack.get("width_mm"), "uncertainty_mm": crack.get("uncertainty_mm"),
+                "px_per_mm": observation.get("px_per_mm"), "crack_id": crack.get("id"),
+                "n_cracks": len(cracks), "evidence": evidence,
+            })
+            records = records + [logged]
+            block["logged"] = True
+        summary = history_mod.summarize(records, current_session=session_id if logged else None)
+        block.update({k: summary[k] for k in ("n_visits", "level", "latest", "previous", "change",
+                                               "change_vs_first", "trend", "visits")})
+        return block, summary
+    except Exception:
+        log.exception("joint history failed")
+        block["error"] = "history unavailable"
+        return block, None
+
+
+def run_pipeline(data: bytes, session_id: str, policy: str, t0: float, joint_id: str | None = None) -> dict:
     image = decode_image(data)
     h, w = image.shape[:2]
+
+    # Privacy first: faces are detected on the original frame and blurred in the copy that is drawn on,
+    # returned to the client and persisted. Measurement itself still uses the untouched pixels in memory.
+    red = redact_mod.redact_faces(image)
 
     result = to_jsonable(analyze(image, panel_mode=True))
     observation = result.get("observation") or {}
@@ -366,17 +429,39 @@ def run_pipeline(data: bytes, session_id: str, policy: str, t0: float) -> dict:
         }
 
     try:
-        overlay_jpeg = encode_overlay(draw_overlay(image, result))
+        overlay_jpeg = encode_overlay(draw_overlay(red.image, result))
     except Exception:
         log.exception("overlay failed")
-        overlay_jpeg = encode_overlay(image)
+        overlay_jpeg = encode_overlay(red.image)
     overlay_b64 = base64.b64encode(overlay_jpeg).decode("ascii")
 
     evidence = None
+    persisted = False
+    if red.safe_to_persist:
+        try:
+            evidence = save_evidence(session_id, step_idx, overlay_jpeg)
+            persisted = bool(evidence)
+        except Exception:
+            log.exception("save_evidence failed")
+    else:
+        log.warning("evidence NOT persisted: face redaction status=%s", red.status)
+    redaction = {**red.summary(), "persisted": persisted}
+
+    joint = summary = None
+    if joint_id:
+        joint, summary = _joint_block(joint_id, session_id, step_idx, result, observation, gate, cracks, evidence)
+
+    escalation = None
     try:
-        evidence = save_evidence(session_id, step_idx, overlay_jpeg)
+        why = escalate_mod.triggers(decision, summary)
+        if why:
+            escalation = escalate_mod.escalate(
+                session_id=session_id, joint_id=joint_id, why=why,
+                crack=_primary_crack(cracks, need_uncertainty=False), gate=gate, observation=observation,
+                summary=summary, decision=decision)
     except Exception:
-        log.exception("save_evidence failed")
+        log.exception("escalation failed")
+        escalation = {"escalated": False, "error": "escalation failed"}
 
     measurement = dict(result)
     measurement["cracks"] = slim_cracks(cracks)
@@ -396,6 +481,11 @@ def run_pipeline(data: bytes, session_id: str, policy: str, t0: float) -> dict:
         "action": decision.get("action"),
         "timing_ms": result.get("timing_ms"),
         "evidence": evidence,
+        "redaction": redaction,
+        "faces_redacted": red.faces,
+        "joint_id": joint_id,
+        "joint_logged": bool(joint and joint.get("logged")),
+        "escalation": escalation,
         "server_ms": round((time.perf_counter() - t0) * 1000, 1),
     }
     try:
@@ -410,6 +500,9 @@ def run_pipeline(data: bytes, session_id: str, policy: str, t0: float) -> dict:
         "measurement": measurement,
         "decision": decision,
         "overlay_jpeg_b64": overlay_b64,
+        "redaction": redaction,
+        "joint": joint,
+        "escalation": escalation,
         "server_ms": round((time.perf_counter() - t0) * 1000, 1),
     }
 
@@ -439,6 +532,8 @@ async def health() -> dict:
         "instance": inst,
         "version": ver,
         "impl": {"measure": MEASURE_IMPL, "agent": AGENT_IMPL, "store": STORE_IMPL},
+        "redaction": "yunet" if redact_mod.model_path().is_file() else "unavailable",
+        "escalation_topic": bool(os.environ.get("PROHORI_SNS_TOPIC_ARN")),
     }
 
 
@@ -452,6 +547,7 @@ async def api_measure(
     image: UploadFile = File(...),
     session_id: str | None = Form(None),
     policy: str = Form(os.environ.get("PROHORI_DEFAULT_POLICY", "rules")),
+    joint_id: str | None = Form(None),
 ):
     t0 = time.perf_counter()
     ip = request.client.host if request.client else "unknown"
@@ -466,6 +562,12 @@ async def api_measure(
     if not SESSION_RE.match(session_id):
         return _err(400, "invalid session_id.")
 
+    joint = None
+    if joint_id is not None and joint_id.strip():
+        joint = store_mod.normalize_joint_id(joint_id)
+        if joint is None:
+            return _err(400, JOINT_ID_HELP)
+
     data = await image.read(MAX_UPLOAD_BYTES + 1)
     if len(data) > MAX_UPLOAD_BYTES:
         return _err(413, "Image too large (max 15 MB).")
@@ -473,7 +575,7 @@ async def api_measure(
         return _err(400, "Empty upload.")
 
     try:
-        payload = await run_in_threadpool(run_pipeline, data, session_id, policy, t0)
+        payload = await run_in_threadpool(run_pipeline, data, session_id, policy, t0, joint)
     except ValueError as exc:
         return _err(400, str(exc))
     except Exception as exc:
@@ -488,6 +590,83 @@ async def api_trace(session_id: str):
         return _err(400, "invalid session_id.")
     steps = await run_in_threadpool(session_history, session_id)
     return JSONResponse(to_jsonable(steps))
+
+
+@app.get("/api/joint/{joint_id}")
+async def api_joint(request: Request, joint_id: str):
+    """History of certified measurements for one joint, with uncertainty-aware change and trend."""
+    ip = request.client.host if request.client else "unknown"
+    if rate_limited(ip):
+        return _err(429, "Too many requests, slow down.")
+    jid = store_mod.normalize_joint_id(joint_id)
+    if jid is None:
+        return _err(400, JOINT_ID_HELP)
+    records = await run_in_threadpool(store_mod.get_joint_history, jid)
+    summary = history_mod.summarize(records)
+    return JSONResponse(to_jsonable({"joint_id": jid, **summary,
+                                     "note": "Durability guidance, not a structural-capacity criterion."}))
+
+
+# --- human approval of an escalation ---------------------------------------------------------
+_PAGE_CSS = (
+    ":root{color-scheme:light dark;--bg:#e9edf1;--sf:#f6f8fa;--tx:#0e1823;--mu:#475565;--ln:#c3cdd7;--ink:#0f1b26;--on:#f4f7fa;--ok:#0b6636}"
+    "@media(prefers-color-scheme:dark){:root{--bg:#0a121a;--sf:#111c27;--tx:#e8eef4;--mu:#9db0c1;--ln:#263648;--ink:#e8eef4;--on:#0a121a;--ok:#5ee08f}}"
+    "body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.45 system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;padding:20px 16px}"
+    "main{max-width:640px;margin:0 auto}h1{font-size:1.6rem;letter-spacing:-.03em;margin:.2em 0 .4em}"
+    "h2{font-size:.78rem;letter-spacing:.18em;color:var(--mu);margin:0}"
+    "pre{white-space:pre-wrap;overflow-wrap:anywhere;background:var(--sf);border:1.5px solid var(--ln);border-radius:14px;padding:14px;font:.84rem/1.45 ui-monospace,Consolas,monospace}"
+    "button{font:inherit;font-weight:650;min-height:56px;width:100%;border-radius:14px;border:0;background:var(--ink);color:var(--on);cursor:pointer}"
+    ".ok{color:var(--ok);font-weight:700}.mu{color:var(--mu)}"
+)
+_NOT_FOUND = "<h1>Link not found</h1><p class=mu>This review link is invalid or has expired.</p>"
+
+
+def _page(title: str, body: str, status: int = 200) -> HTMLResponse:
+    html = (f"<!doctype html><html lang=en><head><meta charset=utf-8>"
+            f"<meta name=viewport content='width=device-width,initial-scale=1'><meta name=robots content=noindex>"
+            f"<title>{title}</title><style>{_PAGE_CSS}</style></head><body><main><h2>PROHORI</h2>{body}</main></body></html>")
+    return HTMLResponse(html, status_code=status, headers={
+        "Cache-Control": "no-store", "Referrer-Policy": "no-referrer", "X-Robots-Tag": "noindex"})
+
+
+def _approval_body(rec: dict, token: str, just_done: bool = False) -> str:
+    esc = html_escape
+    reviewed = rec.get("status") == "reviewed"
+    if just_done:
+        head = "<h1>Review recorded</h1><p class=ok>Thank you. This escalation is marked as reviewed.</p>"
+    elif reviewed:
+        head = "<h1>Already reviewed</h1><p class=ok>This escalation is marked as reviewed.</p>"
+    else:
+        head = ("<h1>Engineering review requested</h1>"
+                "<p class=mu>Read the message, then confirm that a qualified person has looked at this joint.</p>")
+    when = f"<p class=mu>Reviewed at {esc(str(rec.get('reviewed')))}</p>" if reviewed and rec.get("reviewed") else ""
+    form = ("" if reviewed else
+            f"<form method=post action='/api/approve/{esc(token)}'><button type=submit>I have reviewed this</button></form>")
+    return f"{head}{when}<pre>{esc(str(rec.get('message', '')))}</pre>{form}"
+
+
+@app.get("/api/approve/{token}", include_in_schema=False)
+async def approve_page(request: Request, token: str):
+    """Shows the escalation and a confirm button. Opening the link alone never approves (mail scanners and
+    link previews fetch GET URLs); the review is recorded by the POST below."""
+    ip = request.client.host if request.client else "unknown"
+    if rate_limited(ip):
+        return _page("Slow down", "<h1>Too many requests</h1>", 429)
+    rec = await run_in_threadpool(escalate_mod.get_review, token)
+    if rec is None:
+        return _page("Not found", _NOT_FOUND, 404)
+    return _page("Prohori review", _approval_body(rec, token))
+
+
+@app.post("/api/approve/{token}", include_in_schema=False)
+async def approve_confirm(request: Request, token: str):
+    ip = request.client.host if request.client else "unknown"
+    if rate_limited(ip):
+        return _page("Slow down", "<h1>Too many requests</h1>", 429)
+    rec = await run_in_threadpool(escalate_mod.mark_reviewed, token)
+    if rec is None:
+        return _page("Not found", _NOT_FOUND, 404)
+    return _page("Review recorded", _approval_body(rec, token, just_done=True))
 
 
 @app.get("/api/samples")

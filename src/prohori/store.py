@@ -12,6 +12,16 @@ Infra constants (for CloudFormation / CDK / console setup)
                     SSE-S3 (AES256), block public access ON.
   Region          : env PROHORI_AWS_REGION (default us-east-1).
   Local override  : env PROHORI_DATA_DIR (default <repo>/data).
+
+Per-joint history, the escalation log and approval records share the SAME table (no new infra).
+The partition key attribute is still "session_id" and the sort key attribute still "step",
+holding different values:
+  joint history   : session_id = "joint#<joint_id>",              step = ISO-8601 UTC timestamp
+  escalation log  : session_id = "escalation#<joint_or_session>", step = ISO-8601 UTC timestamp
+  approval record : session_id = "approval#<token>",              step = "record"
+Session ids are restricted to [A-Za-z0-9_-] by the service, so "#" can never collide with a
+session-trace partition. Local fallback: JSONL per partition under <data>/records/, one JSON
+file per approval under <data>/approvals/.
 """
 from __future__ import annotations
 
@@ -45,6 +55,11 @@ DDB_TTL_ATTRIBUTE = "ttl"
 TTL_DAYS = 90
 STEP_WIDTH = 4  # zero-padding of step index in the sort key and evidence key
 EVIDENCE_PREFIX = "evidence"
+JOINT_PREFIX = "joint#"
+ESCALATION_PREFIX = "escalation#"
+APPROVAL_PREFIX = "approval#"
+APPROVAL_SK = "record"
+JOINT_RE = re.compile(r"^[a-z0-9][a-z0-9_-]{0,63}$")
 
 ENV_TABLE = "PROHORI_DDB_TABLE"
 ENV_BUCKET = "PROHORI_S3_BUCKET"
@@ -279,3 +294,158 @@ def save_evidence(session_id: str, step_idx: int, jpeg_bytes: bytes) -> str:
     except Exception as e:
         log.warning("local evidence write failed: %s", e)
         return ""
+
+
+# ---- generic keyed records (joint history, escalation log, approvals) -----------------------
+def normalize_joint_id(joint_id: Any) -> str | None:
+    """Validate and normalise a joint id slug (lower-case [a-z0-9_-], 1..64 chars). None if invalid."""
+    j = str(joint_id or "").strip().lower()
+    return j if JOINT_RE.match(j) else None
+
+
+def _now_sk() -> str:
+    return datetime.now(timezone.utc).isoformat(timespec="microseconds")
+
+
+def _records_path(pk: str) -> Path:
+    return _data_dir() / "records" / f"{_safe_id(pk.replace('#', '__'))}.jsonl"
+
+
+def _approval_path(token: str) -> Path:
+    return _data_dir() / "approvals" / f"{_safe_id(token)}.json"
+
+
+def append_record(pk: str, record: dict, sk: str | None = None) -> dict:
+    """Append one immutable record under partition ``pk`` (sort key = timestamp unless given).
+    Local JSONL always; DynamoDB too when configured. Never raises. Returns the stored record."""
+    try:
+        safe = to_json_safe(record)
+    except Exception as e:  # pragma: no cover
+        log.warning("record not serialisable: %s", e)
+        safe = {"error": "unserialisable record"}
+    sk = sk or _now_sk()
+    # "session_id"/"step" are the DynamoDB key attribute names: keep the caller's values under other names.
+    safe = {("src_" + k if k in ("session_id", "step", "pk", "sk") else k): v for k, v in safe.items()}
+    rec = {**safe, "pk": pk, "sk": sk}
+    try:
+        path = _records_path(pk)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        with _lock, path.open("a", encoding="utf-8") as f:
+            f.write(json.dumps(rec, separators=(",", ":")) + "\n")
+    except Exception as e:
+        log.warning("local record write failed: %s", e)
+    try:
+        table = _ddb_table()
+        if table is not None:
+            table.put_item(Item=to_ddb({**safe, "session_id": pk, "step": sk,
+                                        "ttl": int(time.time()) + TTL_DAYS * 86400}))
+    except Exception as e:
+        log.warning("DynamoDB put_item failed (record kept locally): %s", e)
+    return rec
+
+
+def list_records(pk: str, *, newest_first: bool = False, limit: int | None = None) -> list[dict]:
+    """Records under partition ``pk`` in sort-key order (DynamoDB if configured and non-empty,
+    else the local JSONL). Returned dicts carry "pk" and "sk"; never raises."""
+    out: list[dict] = []
+    try:
+        table = _ddb_table()
+        if table is not None:
+            from boto3.dynamodb.conditions import Key
+
+            kwargs: dict[str, Any] = {"KeyConditionExpression": Key("session_id").eq(pk),
+                                      "ScanIndexForward": not newest_first}
+            if limit:
+                kwargs["Limit"] = int(limit)
+            items: list[dict] = []
+            while True:
+                resp = table.query(**kwargs)
+                items.extend(resp.get("Items", []))
+                lek = resp.get("LastEvaluatedKey")
+                if not lek or (limit and len(items) >= limit):
+                    break
+                kwargs["ExclusiveStartKey"] = lek
+            for it in items:
+                d = from_ddb(it)
+                d.pop("ttl", None)
+                d["pk"] = d.pop("session_id", pk)
+                d["sk"] = d.pop("step", "")
+                out.append(d)
+    except Exception as e:
+        log.warning("DynamoDB query failed, using local records: %s", e)
+        out = []
+    if not out:
+        path = _records_path(pk)
+        if path.exists():
+            try:
+                with path.open("r", encoding="utf-8") as f:
+                    for line in f:
+                        line = line.strip()
+                        if line:
+                            try:
+                                out.append(json.loads(line))
+                            except json.JSONDecodeError:
+                                log.warning("skipping corrupt record line in %s", path)
+            except OSError as e:
+                log.warning("cannot read records %s: %s", path, e)
+        out.sort(key=lambda d: d.get("sk", ""), reverse=newest_first)
+    if limit:
+        out = out[: int(limit)]
+    return out
+
+
+# ---- per-joint history ------------------------------------------------------------------------
+def log_measurement(joint_id: str, record: dict) -> dict:
+    """Store one certified measurement for a joint (width, uncertainty, px/mm, session, ...).
+    ``joint_id`` must already be a normalised slug. Never raises."""
+    return append_record(f"{JOINT_PREFIX}{joint_id}", {**record, "joint_id": joint_id})
+
+
+def get_joint_history(joint_id: str, limit: int | None = None) -> list[dict]:
+    """All stored measurements of a joint, oldest first."""
+    return list_records(f"{JOINT_PREFIX}{joint_id}", limit=limit)
+
+
+# ---- approval records (human review of an escalation) --------------------------------------
+def put_approval(token: str, record: dict) -> bool:
+    """Create or replace the approval record keyed by its secret token. False if nothing could be written."""
+    ok = False
+    try:
+        safe = to_json_safe(record)
+        path = _approval_path(token)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        with _lock:
+            path.write_text(json.dumps(safe, separators=(",", ":")), encoding="utf-8")
+        ok = True
+    except Exception as e:
+        log.warning("local approval write failed: %s", e)
+    try:
+        table = _ddb_table()
+        if table is not None:
+            table.put_item(Item=to_ddb({**to_json_safe(record), "session_id": f"{APPROVAL_PREFIX}{token}",
+                                        "step": APPROVAL_SK, "ttl": int(time.time()) + TTL_DAYS * 86400}))
+            ok = True
+    except Exception as e:
+        log.warning("DynamoDB approval put failed: %s", e)
+    return ok
+
+
+def get_approval(token: str) -> dict | None:
+    try:
+        table = _ddb_table()
+        if table is not None:
+            it = table.get_item(Key={"session_id": f"{APPROVAL_PREFIX}{token}", "step": APPROVAL_SK}).get("Item")
+            if it:
+                d = from_ddb(it)
+                for k in ("ttl", "session_id", "step"):
+                    d.pop(k, None)
+                return d
+    except Exception as e:
+        log.warning("DynamoDB approval get failed, trying local: %s", e)
+    path = _approval_path(token)
+    try:
+        if path.exists():
+            return json.loads(path.read_text(encoding="utf-8"))
+    except Exception as e:
+        log.warning("cannot read approval %s: %s", path, e)
+    return None

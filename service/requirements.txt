@@ -4,3 +4,4 @@ python-multipart>=0.0.9
 numpy>=1.26
 opencv-contrib-python-headless==5.0.0.93
 boto3>=1.34
+# tests only: pytest httpx moto[dynamodb,s3,sns,sqs]
