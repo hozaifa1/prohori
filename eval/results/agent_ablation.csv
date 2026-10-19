@@ -1,0 +1,638 @@
+table,policy,subset,metric,estimate,ci_lo,ci_hi,n
+test,P0 random,single (S),recovery@3,0.3000,0.1000,0.5000,20
+test,P0 random,single (S),recovery@6,0.3500,0.1500,0.5500,20
+test,P0 random,single (S),correct_outcome,0.3500,0.1500,0.5500,20
+test,P0 random,single (S),abandon_rate,0.4500,0.2500,0.6500,20
+test,P0 random,single (S),widen_rate,0.0000,0.0000,0.0000,20
+test,P0 random,single (S),turns_to_certified_median,3.0000,1.0000,3.0000,7
+test,P0 random,single (S),turns_to_certified_mean,2.4286,1.4000,3.5714,7
+test,P0 random,single (S),action_acc_acceptable,0.1029,0.0429,0.1831,68
+test,P0 random,single (S),action_acc_strict,0.1029,0.0429,0.1831,68
+test,P0 random,single (S),addresses_a_failure,0.1176,0.0462,0.2157,68
+test,P0 random,single (S),wrong_action_rate,0.8971,0.8169,0.9571,68
+test,P0 random,single (S),escalation_precision_vs_rule,0.2222,0.0000,0.5000,9
+test,P0 random,single (S),escalation_recall_vs_rule,0.1111,0.0000,0.2778,18
+test,P0 random,single (S),usable@3_posthoc,0.3000,0.1000,0.5000,20
+test,P0 random,compound (X+C2+C3),recovery@3,0.0208,0.0000,0.0625,48
+test,P0 random,compound (X+C2+C3),recovery@6,0.1042,0.0208,0.1875,48
+test,P0 random,compound (X+C2+C3),correct_outcome,0.1042,0.0208,0.1875,48
+test,P0 random,compound (X+C2+C3),abandon_rate,0.6042,0.4583,0.7292,48
+test,P0 random,compound (X+C2+C3),widen_rate,0.1042,0.0208,0.2083,48
+test,P0 random,compound (X+C2+C3),turns_to_certified_median,6.0000,3.0000,6.0000,5
+test,P0 random,compound (X+C2+C3),turns_to_certified_mean,5.0000,3.5000,6.0000,5
+test,P0 random,compound (X+C2+C3),action_acc_acceptable,0.1667,0.1173,0.2189,174
+test,P0 random,compound (X+C2+C3),action_acc_strict,0.1552,0.1050,0.2090,174
+test,P0 random,compound (X+C2+C3),addresses_a_failure,0.2471,0.1913,0.3059,174
+test,P0 random,compound (X+C2+C3),wrong_action_rate,0.8333,0.7811,0.8827,174
+test,P0 random,compound (X+C2+C3),escalation_precision_vs_rule,0.2759,0.1176,0.4483,29
+test,P0 random,compound (X+C2+C3),escalation_recall_vs_rule,0.1455,0.0600,0.2619,55
+test,P0 random,compound (X+C2+C3),usable@3_posthoc,0.0625,0.0000,0.1458,48
+test,P0 random,recoverable (S+X+C2+C3),recovery@3,0.1029,0.0441,0.1765,68
+test,P0 random,recoverable (S+X+C2+C3),recovery@6,0.1765,0.0882,0.2647,68
+test,P0 random,recoverable (S+X+C2+C3),correct_outcome,0.1765,0.0882,0.2647,68
+test,P0 random,recoverable (S+X+C2+C3),abandon_rate,0.5588,0.4412,0.6765,68
+test,P0 random,recoverable (S+X+C2+C3),widen_rate,0.0735,0.0147,0.1471,68
+test,P0 random,recoverable (S+X+C2+C3),turns_to_certified_median,3.0000,2.0000,5.5000,12
+test,P0 random,recoverable (S+X+C2+C3),turns_to_certified_mean,3.5000,2.4000,4.6000,12
+test,P0 random,recoverable (S+X+C2+C3),action_acc_acceptable,0.1488,0.1073,0.1935,242
+test,P0 random,recoverable (S+X+C2+C3),action_acc_strict,0.1405,0.0987,0.1860,242
+test,P0 random,recoverable (S+X+C2+C3),addresses_a_failure,0.2107,0.1594,0.2643,242
+test,P0 random,recoverable (S+X+C2+C3),wrong_action_rate,0.8512,0.8065,0.8927,242
+test,P0 random,recoverable (S+X+C2+C3),escalation_precision_vs_rule,0.2632,0.1282,0.4118,38
+test,P0 random,recoverable (S+X+C2+C3),escalation_recall_vs_rule,0.1370,0.0649,0.2281,73
+test,P0 random,recoverable (S+X+C2+C3),usable@3_posthoc,0.1324,0.0588,0.2206,68
+test,P0 random,hopeless (H),recovery@3,0.0000,0.0000,0.0000,16
+test,P0 random,hopeless (H),recovery@6,0.0000,0.0000,0.0000,16
+test,P0 random,hopeless (H),correct_outcome,0.5625,0.3125,0.8125,16
+test,P0 random,hopeless (H),abandon_rate,0.5625,0.3125,0.8125,16
+test,P0 random,hopeless (H),widen_rate,0.1875,0.0000,0.3750,16
+test,P0 random,hopeless (H),turns_to_certified_median,nan,nan,nan,16
+test,P0 random,hopeless (H),turns_to_certified_mean,nan,nan,nan,16
+test,P0 random,hopeless (H),action_acc_acceptable,0.1774,0.0968,0.2632,62
+test,P0 random,hopeless (H),action_acc_strict,0.1613,0.0769,0.2540,62
+test,P0 random,hopeless (H),addresses_a_failure,0.2258,0.1194,0.3333,62
+test,P0 random,hopeless (H),wrong_action_rate,0.8226,0.7368,0.9032,62
+test,P0 random,hopeless (H),escalation_precision_vs_rule,0.5556,0.2000,0.8889,9
+test,P0 random,hopeless (H),escalation_recall_vs_rule,0.2500,0.0769,0.5263,20
+test,P0 random,hopeless (H),usable@3_posthoc,0.1875,0.0000,0.3750,16
+test,P0 random,constrained (M),recovery@3,0.0000,0.0000,0.0000,16
+test,P0 random,constrained (M),recovery@6,0.0000,0.0000,0.0000,16
+test,P0 random,constrained (M),correct_outcome,0.5000,0.2500,0.7500,16
+test,P0 random,constrained (M),abandon_rate,0.4375,0.1875,0.6875,16
+test,P0 random,constrained (M),widen_rate,0.5000,0.2500,0.7500,16
+test,P0 random,constrained (M),turns_to_certified_median,nan,nan,nan,16
+test,P0 random,constrained (M),turns_to_certified_mean,nan,nan,nan,16
+test,P0 random,constrained (M),action_acc_acceptable,0.1346,0.0426,0.2258,52
+test,P0 random,constrained (M),action_acc_strict,0.1154,0.0227,0.2115,52
+test,P0 random,constrained (M),addresses_a_failure,0.1731,0.0750,0.2593,52
+test,P0 random,constrained (M),wrong_action_rate,0.8654,0.7742,0.9574,52
+test,P0 random,constrained (M),escalation_precision_vs_rule,0.0000,0.0000,0.0000,7
+test,P0 random,constrained (M),escalation_recall_vs_rule,0.0000,0.0000,0.0000,4
+test,P0 random,constrained (M),usable@3_posthoc,0.2500,0.0625,0.5000,16
+test,P0 random,all,recovery@3,0.0700,0.0300,0.1200,100
+test,P0 random,all,recovery@6,0.1200,0.0600,0.1900,100
+test,P0 random,all,correct_outcome,0.2900,0.2000,0.3800,100
+test,P0 random,all,abandon_rate,0.5400,0.4400,0.6400,100
+test,P0 random,all,widen_rate,0.1600,0.0900,0.2300,100
+test,P0 random,all,turns_to_certified_median,3.0000,1.0000,5.5000,12
+test,P0 random,all,turns_to_certified_mean,3.5000,2.4167,4.5833,12
+test,P0 random,all,action_acc_acceptable,0.1517,0.1176,0.1872,356
+test,P0 random,all,action_acc_strict,0.1404,0.1057,0.1763,356
+test,P0 random,all,addresses_a_failure,0.2079,0.1667,0.2493,356
+test,P0 random,all,wrong_action_rate,0.8483,0.8128,0.8824,356
+test,P0 random,all,escalation_precision_vs_rule,0.2778,0.1628,0.4038,54
+test,P0 random,all,escalation_recall_vs_rule,0.1546,0.0891,0.2371,97
+test,P0 random,all,usable@3_posthoc,0.1600,0.0900,0.2400,100
+test,P0 random,all,escalation_precision_vs_truth,0.1667,0.0727,0.2727,54
+test,P0 random,all,escalation_recall_vs_truth,0.5625,0.3077,0.8125,16
+test,P0 random,all,false_abandon_of_recoverable,0.5588,0.4394,0.6769,68
+test,P0 random,all,instr_within_140,1.0000,1.0000,1.0000,356
+test,P0 random,all,instr_cites_number,0.0000,0.0000,0.0000,356
+test,P0 random,all,instr_matches_action,0.8455,0.8112,0.8792,356
+test,P0 random,all,fallback_steps,0.0000,nan,nan,356
+test,P1 rules,single (S),recovery@3,0.9500,0.8500,1.0000,20
+test,P1 rules,single (S),recovery@6,0.9500,0.8500,1.0000,20
+test,P1 rules,single (S),correct_outcome,0.9500,0.8500,1.0000,20
+test,P1 rules,single (S),abandon_rate,0.0500,0.0000,0.1500,20
+test,P1 rules,single (S),widen_rate,0.0000,0.0000,0.0000,20
+test,P1 rules,single (S),turns_to_certified_median,1.0000,1.0000,1.0000,19
+test,P1 rules,single (S),turns_to_certified_mean,1.2105,1.0500,1.4000,19
+test,P1 rules,single (S),action_acc_acceptable,0.9259,0.8065,1.0000,27
+test,P1 rules,single (S),action_acc_strict,0.9259,0.8065,1.0000,27
+test,P1 rules,single (S),addresses_a_failure,1.0000,1.0000,1.0000,27
+test,P1 rules,single (S),wrong_action_rate,0.0741,0.0000,0.1935,27
+test,P1 rules,single (S),escalation_precision_vs_rule,1.0000,1.0000,1.0000,1
+test,P1 rules,single (S),escalation_recall_vs_rule,1.0000,1.0000,1.0000,1
+test,P1 rules,single (S),usable@3_posthoc,0.9500,0.8500,1.0000,20
+test,P1 rules,compound (X+C2+C3),recovery@3,0.6250,0.4792,0.7500,48
+test,P1 rules,compound (X+C2+C3),recovery@6,0.6250,0.4792,0.7500,48
+test,P1 rules,compound (X+C2+C3),correct_outcome,0.6250,0.4792,0.7500,48
+test,P1 rules,compound (X+C2+C3),abandon_rate,0.3333,0.2083,0.4792,48
+test,P1 rules,compound (X+C2+C3),widen_rate,0.0417,0.0000,0.1042,48
+test,P1 rules,compound (X+C2+C3),turns_to_certified_median,2.0000,2.0000,2.0000,30
+test,P1 rules,compound (X+C2+C3),turns_to_certified_mean,2.1000,1.8800,2.3143,30
+test,P1 rules,compound (X+C2+C3),action_acc_acceptable,0.6917,0.6063,0.7803,133
+test,P1 rules,compound (X+C2+C3),action_acc_strict,0.6466,0.5695,0.7287,133
+test,P1 rules,compound (X+C2+C3),addresses_a_failure,0.9850,0.9627,1.0000,133
+test,P1 rules,compound (X+C2+C3),wrong_action_rate,0.3083,0.2197,0.3937,133
+test,P1 rules,compound (X+C2+C3),escalation_precision_vs_rule,0.8750,0.6875,1.0000,16
+test,P1 rules,compound (X+C2+C3),escalation_recall_vs_rule,1.0000,1.0000,1.0000,14
+test,P1 rules,compound (X+C2+C3),usable@3_posthoc,0.6667,0.5208,0.7917,48
+test,P1 rules,recoverable (S+X+C2+C3),recovery@3,0.7206,0.6176,0.8235,68
+test,P1 rules,recoverable (S+X+C2+C3),recovery@6,0.7206,0.6176,0.8235,68
+test,P1 rules,recoverable (S+X+C2+C3),correct_outcome,0.7206,0.6176,0.8235,68
+test,P1 rules,recoverable (S+X+C2+C3),abandon_rate,0.2500,0.1471,0.3529,68
+test,P1 rules,recoverable (S+X+C2+C3),widen_rate,0.0294,0.0000,0.0735,68
+test,P1 rules,recoverable (S+X+C2+C3),turns_to_certified_median,2.0000,1.0000,2.0000,49
+test,P1 rules,recoverable (S+X+C2+C3),turns_to_certified_mean,1.7551,1.5610,1.9556,49
+test,P1 rules,recoverable (S+X+C2+C3),action_acc_acceptable,0.7312,0.6573,0.8101,160
+test,P1 rules,recoverable (S+X+C2+C3),action_acc_strict,0.6937,0.6243,0.7697,160
+test,P1 rules,recoverable (S+X+C2+C3),addresses_a_failure,0.9875,0.9689,1.0000,160
+test,P1 rules,recoverable (S+X+C2+C3),wrong_action_rate,0.2688,0.1899,0.3427,160
+test,P1 rules,recoverable (S+X+C2+C3),escalation_precision_vs_rule,0.8824,0.7059,1.0000,17
+test,P1 rules,recoverable (S+X+C2+C3),escalation_recall_vs_rule,1.0000,1.0000,1.0000,15
+test,P1 rules,recoverable (S+X+C2+C3),usable@3_posthoc,0.7500,0.6471,0.8529,68
+test,P1 rules,hopeless (H),recovery@3,0.0000,0.0000,0.0000,16
+test,P1 rules,hopeless (H),recovery@6,0.0000,0.0000,0.0000,16
+test,P1 rules,hopeless (H),correct_outcome,1.0000,1.0000,1.0000,16
+test,P1 rules,hopeless (H),abandon_rate,1.0000,1.0000,1.0000,16
+test,P1 rules,hopeless (H),widen_rate,0.0000,0.0000,0.0000,16
+test,P1 rules,hopeless (H),turns_to_certified_median,nan,nan,nan,16
+test,P1 rules,hopeless (H),turns_to_certified_mean,nan,nan,nan,16
+test,P1 rules,hopeless (H),action_acc_acceptable,0.6562,0.5625,0.7812,64
+test,P1 rules,hopeless (H),action_acc_strict,0.6406,0.5469,0.7500,64
+test,P1 rules,hopeless (H),addresses_a_failure,1.0000,1.0000,1.0000,64
+test,P1 rules,hopeless (H),wrong_action_rate,0.3438,0.2188,0.4375,64
+test,P1 rules,hopeless (H),escalation_precision_vs_rule,1.0000,1.0000,1.0000,16
+test,P1 rules,hopeless (H),escalation_recall_vs_rule,1.0000,1.0000,1.0000,16
+test,P1 rules,hopeless (H),usable@3_posthoc,0.0000,0.0000,0.0000,16
+test,P1 rules,constrained (M),recovery@3,0.0625,0.0000,0.1875,16
+test,P1 rules,constrained (M),recovery@6,0.0625,0.0000,0.1875,16
+test,P1 rules,constrained (M),correct_outcome,0.8750,0.6875,1.0000,16
+test,P1 rules,constrained (M),abandon_rate,0.0625,0.0000,0.1875,16
+test,P1 rules,constrained (M),widen_rate,0.8750,0.6875,1.0000,16
+test,P1 rules,constrained (M),turns_to_certified_median,1.0000,1.0000,1.0000,1
+test,P1 rules,constrained (M),turns_to_certified_mean,1.0000,1.0000,1.0000,1
+test,P1 rules,constrained (M),action_acc_acceptable,0.9787,0.9362,1.0000,47
+test,P1 rules,constrained (M),action_acc_strict,0.9574,0.8980,1.0000,47
+test,P1 rules,constrained (M),addresses_a_failure,0.9787,0.9362,1.0000,47
+test,P1 rules,constrained (M),wrong_action_rate,0.0213,0.0000,0.0638,47
+test,P1 rules,constrained (M),escalation_precision_vs_rule,0.0000,0.0000,0.0000,1
+test,P1 rules,constrained (M),escalation_recall_vs_rule,nan,nan,nan,0
+test,P1 rules,constrained (M),usable@3_posthoc,0.9375,0.8125,1.0000,16
+test,P1 rules,all,recovery@3,0.5000,0.4000,0.6000,100
+test,P1 rules,all,recovery@6,0.5000,0.4000,0.6000,100
+test,P1 rules,all,correct_outcome,0.7900,0.7100,0.8700,100
+test,P1 rules,all,abandon_rate,0.3400,0.2500,0.4300,100
+test,P1 rules,all,widen_rate,0.1600,0.0900,0.2400,100
+test,P1 rules,all,turns_to_certified_median,2.0000,1.0000,2.0000,50
+test,P1 rules,all,turns_to_certified_mean,1.7400,1.5500,1.9298,50
+test,P1 rules,all,action_acc_acceptable,0.7565,0.6979,0.8175,271
+test,P1 rules,all,action_acc_strict,0.7269,0.6705,0.7852,271
+test,P1 rules,all,addresses_a_failure,0.9889,0.9749,1.0000,271
+test,P1 rules,all,wrong_action_rate,0.2435,0.1825,0.3021,271
+test,P1 rules,all,escalation_precision_vs_rule,0.9118,0.8049,1.0000,34
+test,P1 rules,all,escalation_recall_vs_rule,1.0000,1.0000,1.0000,31
+test,P1 rules,all,usable@3_posthoc,0.6600,0.5700,0.7500,100
+test,P1 rules,all,escalation_precision_vs_truth,0.4706,0.3030,0.6410,34
+test,P1 rules,all,escalation_recall_vs_truth,1.0000,1.0000,1.0000,16
+test,P1 rules,all,false_abandon_of_recoverable,0.2500,0.1493,0.3571,68
+test,P1 rules,all,instr_within_140,1.0000,1.0000,1.0000,271
+test,P1 rules,all,instr_cites_number,0.9114,0.8763,0.9444,271
+test,P1 rules,all,instr_matches_action,1.0000,1.0000,1.0000,271
+test,P1 rules,all,fallback_steps,0.0000,nan,nan,271
+test,P2 LLM (Nova Lite),single (S),recovery@3,1.0000,1.0000,1.0000,20
+test,P2 LLM (Nova Lite),single (S),recovery@6,1.0000,1.0000,1.0000,20
+test,P2 LLM (Nova Lite),single (S),correct_outcome,1.0000,1.0000,1.0000,20
+test,P2 LLM (Nova Lite),single (S),abandon_rate,0.0000,0.0000,0.0000,20
+test,P2 LLM (Nova Lite),single (S),widen_rate,0.0000,0.0000,0.0000,20
+test,P2 LLM (Nova Lite),single (S),turns_to_certified_median,1.0000,1.0000,1.0000,20
+test,P2 LLM (Nova Lite),single (S),turns_to_certified_mean,1.3000,1.1000,1.5500,20
+test,P2 LLM (Nova Lite),single (S),action_acc_acceptable,0.9615,0.8929,1.0000,26
+test,P2 LLM (Nova Lite),single (S),action_acc_strict,0.9615,0.8929,1.0000,26
+test,P2 LLM (Nova Lite),single (S),addresses_a_failure,0.9615,0.8929,1.0000,26
+test,P2 LLM (Nova Lite),single (S),wrong_action_rate,0.0385,0.0000,0.1071,26
+test,P2 LLM (Nova Lite),single (S),escalation_precision_vs_rule,nan,nan,nan,0
+test,P2 LLM (Nova Lite),single (S),escalation_recall_vs_rule,nan,nan,nan,0
+test,P2 LLM (Nova Lite),single (S),usable@3_posthoc,1.0000,1.0000,1.0000,20
+test,P2 LLM (Nova Lite),compound (X+C2+C3),recovery@3,0.8542,0.7500,0.9375,48
+test,P2 LLM (Nova Lite),compound (X+C2+C3),recovery@6,0.8542,0.7500,0.9375,48
+test,P2 LLM (Nova Lite),compound (X+C2+C3),correct_outcome,0.8542,0.7500,0.9375,48
+test,P2 LLM (Nova Lite),compound (X+C2+C3),abandon_rate,0.1458,0.0625,0.2500,48
+test,P2 LLM (Nova Lite),compound (X+C2+C3),widen_rate,0.0000,0.0000,0.0000,48
+test,P2 LLM (Nova Lite),compound (X+C2+C3),turns_to_certified_median,2.0000,2.0000,2.0000,41
+test,P2 LLM (Nova Lite),compound (X+C2+C3),turns_to_certified_mean,2.2195,2.0256,2.4048,41
+test,P2 LLM (Nova Lite),compound (X+C2+C3),action_acc_acceptable,0.7311,0.6525,0.8108,119
+test,P2 LLM (Nova Lite),compound (X+C2+C3),action_acc_strict,0.6975,0.6210,0.7778,119
+test,P2 LLM (Nova Lite),compound (X+C2+C3),addresses_a_failure,0.9076,0.8537,0.9580,119
+test,P2 LLM (Nova Lite),compound (X+C2+C3),wrong_action_rate,0.2689,0.1892,0.3475,119
+test,P2 LLM (Nova Lite),compound (X+C2+C3),escalation_precision_vs_rule,1.0000,1.0000,1.0000,7
+test,P2 LLM (Nova Lite),compound (X+C2+C3),escalation_recall_vs_rule,1.0000,1.0000,1.0000,7
+test,P2 LLM (Nova Lite),compound (X+C2+C3),usable@3_posthoc,0.8542,0.7500,0.9375,48
+test,P2 LLM (Nova Lite),recoverable (S+X+C2+C3),recovery@3,0.8971,0.8235,0.9559,68
+test,P2 LLM (Nova Lite),recoverable (S+X+C2+C3),recovery@6,0.8971,0.8235,0.9559,68
+test,P2 LLM (Nova Lite),recoverable (S+X+C2+C3),correct_outcome,0.8971,0.8235,0.9559,68
+test,P2 LLM (Nova Lite),recoverable (S+X+C2+C3),abandon_rate,0.1029,0.0441,0.1765,68
+test,P2 LLM (Nova Lite),recoverable (S+X+C2+C3),widen_rate,0.0000,0.0000,0.0000,68
+test,P2 LLM (Nova Lite),recoverable (S+X+C2+C3),turns_to_certified_median,2.0000,2.0000,2.0000,61
+test,P2 LLM (Nova Lite),recoverable (S+X+C2+C3),turns_to_certified_mean,1.9180,1.7377,2.1000,61
+test,P2 LLM (Nova Lite),recoverable (S+X+C2+C3),action_acc_acceptable,0.7724,0.7032,0.8433,145
+test,P2 LLM (Nova Lite),recoverable (S+X+C2+C3),action_acc_strict,0.7448,0.6752,0.8162,145
+test,P2 LLM (Nova Lite),recoverable (S+X+C2+C3),addresses_a_failure,0.9172,0.8707,0.9612,145
+test,P2 LLM (Nova Lite),recoverable (S+X+C2+C3),wrong_action_rate,0.2276,0.1567,0.2968,145
+test,P2 LLM (Nova Lite),recoverable (S+X+C2+C3),escalation_precision_vs_rule,1.0000,1.0000,1.0000,7
+test,P2 LLM (Nova Lite),recoverable (S+X+C2+C3),escalation_recall_vs_rule,1.0000,1.0000,1.0000,7
+test,P2 LLM (Nova Lite),recoverable (S+X+C2+C3),usable@3_posthoc,0.8971,0.8235,0.9559,68
+test,P2 LLM (Nova Lite),hopeless (H),recovery@3,0.0000,0.0000,0.0000,16
+test,P2 LLM (Nova Lite),hopeless (H),recovery@6,0.0000,0.0000,0.0000,16
+test,P2 LLM (Nova Lite),hopeless (H),correct_outcome,1.0000,1.0000,1.0000,16
+test,P2 LLM (Nova Lite),hopeless (H),abandon_rate,1.0000,1.0000,1.0000,16
+test,P2 LLM (Nova Lite),hopeless (H),widen_rate,0.0000,0.0000,0.0000,16
+test,P2 LLM (Nova Lite),hopeless (H),turns_to_certified_median,nan,nan,nan,16
+test,P2 LLM (Nova Lite),hopeless (H),turns_to_certified_mean,nan,nan,nan,16
+test,P2 LLM (Nova Lite),hopeless (H),action_acc_acceptable,0.8281,0.7812,0.8906,64
+test,P2 LLM (Nova Lite),hopeless (H),action_acc_strict,0.7812,0.7188,0.8438,64
+test,P2 LLM (Nova Lite),hopeless (H),addresses_a_failure,0.8281,0.7812,0.8906,64
+test,P2 LLM (Nova Lite),hopeless (H),wrong_action_rate,0.1719,0.1094,0.2188,64
+test,P2 LLM (Nova Lite),hopeless (H),escalation_precision_vs_rule,1.0000,1.0000,1.0000,16
+test,P2 LLM (Nova Lite),hopeless (H),escalation_recall_vs_rule,1.0000,1.0000,1.0000,16
+test,P2 LLM (Nova Lite),hopeless (H),usable@3_posthoc,0.0000,0.0000,0.0000,16
+test,P2 LLM (Nova Lite),constrained (M),recovery@3,0.0625,0.0000,0.1875,16
+test,P2 LLM (Nova Lite),constrained (M),recovery@6,0.0625,0.0000,0.1875,16
+test,P2 LLM (Nova Lite),constrained (M),correct_outcome,0.9375,0.8125,1.0000,16
+test,P2 LLM (Nova Lite),constrained (M),abandon_rate,0.0000,0.0000,0.0000,16
+test,P2 LLM (Nova Lite),constrained (M),widen_rate,0.9375,0.8125,1.0000,16
+test,P2 LLM (Nova Lite),constrained (M),turns_to_certified_median,1.0000,1.0000,1.0000,1
+test,P2 LLM (Nova Lite),constrained (M),turns_to_certified_mean,1.0000,1.0000,1.0000,1
+test,P2 LLM (Nova Lite),constrained (M),action_acc_acceptable,0.8846,0.8000,0.9608,52
+test,P2 LLM (Nova Lite),constrained (M),action_acc_strict,0.8654,0.7679,0.9600,52
+test,P2 LLM (Nova Lite),constrained (M),addresses_a_failure,0.9808,0.9412,1.0000,52
+test,P2 LLM (Nova Lite),constrained (M),wrong_action_rate,0.1154,0.0392,0.2000,52
+test,P2 LLM (Nova Lite),constrained (M),escalation_precision_vs_rule,nan,nan,nan,0
+test,P2 LLM (Nova Lite),constrained (M),escalation_recall_vs_rule,nan,nan,nan,0
+test,P2 LLM (Nova Lite),constrained (M),usable@3_posthoc,0.6250,0.3750,0.8750,16
+test,P2 LLM (Nova Lite),all,recovery@3,0.6200,0.5200,0.7100,100
+test,P2 LLM (Nova Lite),all,recovery@6,0.6200,0.5200,0.7100,100
+test,P2 LLM (Nova Lite),all,correct_outcome,0.9200,0.8600,0.9700,100
+test,P2 LLM (Nova Lite),all,abandon_rate,0.2300,0.1500,0.3100,100
+test,P2 LLM (Nova Lite),all,widen_rate,0.1500,0.0800,0.2200,100
+test,P2 LLM (Nova Lite),all,turns_to_certified_median,2.0000,2.0000,2.0000,62
+test,P2 LLM (Nova Lite),all,turns_to_certified_mean,1.9032,1.7164,2.0833,62
+test,P2 LLM (Nova Lite),all,action_acc_acceptable,0.8084,0.7621,0.8542,261
+test,P2 LLM (Nova Lite),all,action_acc_strict,0.7778,0.7303,0.8250,261
+test,P2 LLM (Nova Lite),all,addresses_a_failure,0.9080,0.8764,0.9394,261
+test,P2 LLM (Nova Lite),all,wrong_action_rate,0.1916,0.1458,0.2379,261
+test,P2 LLM (Nova Lite),all,escalation_precision_vs_rule,1.0000,1.0000,1.0000,23
+test,P2 LLM (Nova Lite),all,escalation_recall_vs_rule,1.0000,1.0000,1.0000,23
+test,P2 LLM (Nova Lite),all,usable@3_posthoc,0.7100,0.6200,0.8000,100
+test,P2 LLM (Nova Lite),all,escalation_precision_vs_truth,0.6957,0.5000,0.8750,23
+test,P2 LLM (Nova Lite),all,escalation_recall_vs_truth,1.0000,1.0000,1.0000,16
+test,P2 LLM (Nova Lite),all,false_abandon_of_recoverable,0.1029,0.0357,0.1803,68
+test,P2 LLM (Nova Lite),all,instr_within_140,1.0000,1.0000,1.0000,261
+test,P2 LLM (Nova Lite),all,instr_cites_number,0.5670,0.4943,0.6388,261
+test,P2 LLM (Nova Lite),all,instr_matches_action,0.9962,0.9880,1.0000,261
+test,P2 LLM (Nova Lite),all,fallback_steps,0.0000,nan,nan,261
+test,P* label rule (ceiling),single (S),recovery@3,1.0000,1.0000,1.0000,20
+test,P* label rule (ceiling),single (S),recovery@6,1.0000,1.0000,1.0000,20
+test,P* label rule (ceiling),single (S),correct_outcome,1.0000,1.0000,1.0000,20
+test,P* label rule (ceiling),single (S),abandon_rate,0.0000,0.0000,0.0000,20
+test,P* label rule (ceiling),single (S),widen_rate,0.0000,0.0000,0.0000,20
+test,P* label rule (ceiling),single (S),turns_to_certified_median,1.0000,1.0000,1.0000,20
+test,P* label rule (ceiling),single (S),turns_to_certified_mean,1.2500,1.1000,1.4500,20
+test,P* label rule (ceiling),single (S),action_acc_acceptable,1.0000,1.0000,1.0000,25
+test,P* label rule (ceiling),single (S),action_acc_strict,1.0000,1.0000,1.0000,25
+test,P* label rule (ceiling),single (S),addresses_a_failure,1.0000,1.0000,1.0000,25
+test,P* label rule (ceiling),single (S),wrong_action_rate,0.0000,0.0000,0.0000,25
+test,P* label rule (ceiling),single (S),escalation_precision_vs_rule,nan,nan,nan,0
+test,P* label rule (ceiling),single (S),escalation_recall_vs_rule,nan,nan,nan,0
+test,P* label rule (ceiling),single (S),usable@3_posthoc,1.0000,1.0000,1.0000,20
+test,P* label rule (ceiling),compound (X+C2+C3),recovery@3,0.8750,0.7708,0.9583,48
+test,P* label rule (ceiling),compound (X+C2+C3),recovery@6,0.8750,0.7708,0.9583,48
+test,P* label rule (ceiling),compound (X+C2+C3),correct_outcome,0.8750,0.7708,0.9583,48
+test,P* label rule (ceiling),compound (X+C2+C3),abandon_rate,0.0625,0.0000,0.1458,48
+test,P* label rule (ceiling),compound (X+C2+C3),widen_rate,0.0625,0.0000,0.1458,48
+test,P* label rule (ceiling),compound (X+C2+C3),turns_to_certified_median,2.0000,2.0000,2.0000,42
+test,P* label rule (ceiling),compound (X+C2+C3),turns_to_certified_mean,2.2143,2.0250,2.4000,42
+test,P* label rule (ceiling),compound (X+C2+C3),action_acc_acceptable,1.0000,1.0000,1.0000,114
+test,P* label rule (ceiling),compound (X+C2+C3),action_acc_strict,1.0000,1.0000,1.0000,114
+test,P* label rule (ceiling),compound (X+C2+C3),addresses_a_failure,1.0000,1.0000,1.0000,114
+test,P* label rule (ceiling),compound (X+C2+C3),wrong_action_rate,0.0000,0.0000,0.0000,114
+test,P* label rule (ceiling),compound (X+C2+C3),escalation_precision_vs_rule,1.0000,1.0000,1.0000,3
+test,P* label rule (ceiling),compound (X+C2+C3),escalation_recall_vs_rule,1.0000,1.0000,1.0000,3
+test,P* label rule (ceiling),compound (X+C2+C3),usable@3_posthoc,0.9375,0.8542,1.0000,48
+test,P* label rule (ceiling),recoverable (S+X+C2+C3),recovery@3,0.9118,0.8382,0.9706,68
+test,P* label rule (ceiling),recoverable (S+X+C2+C3),recovery@6,0.9118,0.8382,0.9706,68
+test,P* label rule (ceiling),recoverable (S+X+C2+C3),correct_outcome,0.9118,0.8382,0.9706,68
+test,P* label rule (ceiling),recoverable (S+X+C2+C3),abandon_rate,0.0441,0.0000,0.1029,68
+test,P* label rule (ceiling),recoverable (S+X+C2+C3),widen_rate,0.0441,0.0000,0.1029,68
+test,P* label rule (ceiling),recoverable (S+X+C2+C3),turns_to_certified_median,2.0000,2.0000,2.0000,62
+test,P* label rule (ceiling),recoverable (S+X+C2+C3),turns_to_certified_mean,1.9032,1.7230,2.0820,62
+test,P* label rule (ceiling),recoverable (S+X+C2+C3),action_acc_acceptable,1.0000,1.0000,1.0000,139
+test,P* label rule (ceiling),recoverable (S+X+C2+C3),action_acc_strict,1.0000,1.0000,1.0000,139
+test,P* label rule (ceiling),recoverable (S+X+C2+C3),addresses_a_failure,1.0000,1.0000,1.0000,139
+test,P* label rule (ceiling),recoverable (S+X+C2+C3),wrong_action_rate,0.0000,0.0000,0.0000,139
+test,P* label rule (ceiling),recoverable (S+X+C2+C3),escalation_precision_vs_rule,1.0000,1.0000,1.0000,3
+test,P* label rule (ceiling),recoverable (S+X+C2+C3),escalation_recall_vs_rule,1.0000,1.0000,1.0000,3
+test,P* label rule (ceiling),recoverable (S+X+C2+C3),usable@3_posthoc,0.9559,0.8971,1.0000,68
+test,P* label rule (ceiling),hopeless (H),recovery@3,0.0000,0.0000,0.0000,16
+test,P* label rule (ceiling),hopeless (H),recovery@6,0.0000,0.0000,0.0000,16
+test,P* label rule (ceiling),hopeless (H),correct_outcome,1.0000,1.0000,1.0000,16
+test,P* label rule (ceiling),hopeless (H),abandon_rate,1.0000,1.0000,1.0000,16
+test,P* label rule (ceiling),hopeless (H),widen_rate,0.0000,0.0000,0.0000,16
+test,P* label rule (ceiling),hopeless (H),turns_to_certified_median,nan,nan,nan,16
+test,P* label rule (ceiling),hopeless (H),turns_to_certified_mean,nan,nan,nan,16
+test,P* label rule (ceiling),hopeless (H),action_acc_acceptable,1.0000,1.0000,1.0000,64
+test,P* label rule (ceiling),hopeless (H),action_acc_strict,1.0000,1.0000,1.0000,64
+test,P* label rule (ceiling),hopeless (H),addresses_a_failure,1.0000,1.0000,1.0000,64
+test,P* label rule (ceiling),hopeless (H),wrong_action_rate,0.0000,0.0000,0.0000,64
+test,P* label rule (ceiling),hopeless (H),escalation_precision_vs_rule,1.0000,1.0000,1.0000,16
+test,P* label rule (ceiling),hopeless (H),escalation_recall_vs_rule,1.0000,1.0000,1.0000,16
+test,P* label rule (ceiling),hopeless (H),usable@3_posthoc,0.0000,0.0000,0.0000,16
+test,P* label rule (ceiling),constrained (M),recovery@3,0.0625,0.0000,0.1875,16
+test,P* label rule (ceiling),constrained (M),recovery@6,0.0625,0.0000,0.1875,16
+test,P* label rule (ceiling),constrained (M),correct_outcome,0.9375,0.8125,1.0000,16
+test,P* label rule (ceiling),constrained (M),abandon_rate,0.0000,0.0000,0.0000,16
+test,P* label rule (ceiling),constrained (M),widen_rate,0.9375,0.8125,1.0000,16
+test,P* label rule (ceiling),constrained (M),turns_to_certified_median,1.0000,1.0000,1.0000,1
+test,P* label rule (ceiling),constrained (M),turns_to_certified_mean,1.0000,1.0000,1.0000,1
+test,P* label rule (ceiling),constrained (M),action_acc_acceptable,1.0000,1.0000,1.0000,48
+test,P* label rule (ceiling),constrained (M),action_acc_strict,1.0000,1.0000,1.0000,48
+test,P* label rule (ceiling),constrained (M),addresses_a_failure,1.0000,1.0000,1.0000,48
+test,P* label rule (ceiling),constrained (M),wrong_action_rate,0.0000,0.0000,0.0000,48
+test,P* label rule (ceiling),constrained (M),escalation_precision_vs_rule,nan,nan,nan,0
+test,P* label rule (ceiling),constrained (M),escalation_recall_vs_rule,nan,nan,nan,0
+test,P* label rule (ceiling),constrained (M),usable@3_posthoc,0.8750,0.6875,1.0000,16
+test,P* label rule (ceiling),all,recovery@3,0.6300,0.5300,0.7200,100
+test,P* label rule (ceiling),all,recovery@6,0.6300,0.5300,0.7200,100
+test,P* label rule (ceiling),all,correct_outcome,0.9300,0.8800,0.9800,100
+test,P* label rule (ceiling),all,abandon_rate,0.1900,0.1200,0.2700,100
+test,P* label rule (ceiling),all,widen_rate,0.1800,0.1100,0.2600,100
+test,P* label rule (ceiling),all,turns_to_certified_median,2.0000,2.0000,2.0000,63
+test,P* label rule (ceiling),all,turns_to_certified_mean,1.8889,1.7115,2.0656,63
+test,P* label rule (ceiling),all,action_acc_acceptable,1.0000,1.0000,1.0000,251
+test,P* label rule (ceiling),all,action_acc_strict,1.0000,1.0000,1.0000,251
+test,P* label rule (ceiling),all,addresses_a_failure,1.0000,1.0000,1.0000,251
+test,P* label rule (ceiling),all,wrong_action_rate,0.0000,0.0000,0.0000,251
+test,P* label rule (ceiling),all,escalation_precision_vs_rule,1.0000,1.0000,1.0000,19
+test,P* label rule (ceiling),all,escalation_recall_vs_rule,1.0000,1.0000,1.0000,19
+test,P* label rule (ceiling),all,usable@3_posthoc,0.7900,0.7100,0.8700,100
+test,P* label rule (ceiling),all,escalation_precision_vs_truth,0.8421,0.6667,1.0000,19
+test,P* label rule (ceiling),all,escalation_recall_vs_truth,1.0000,1.0000,1.0000,16
+test,P* label rule (ceiling),all,false_abandon_of_recoverable,0.0441,0.0000,0.0968,68
+test,P* label rule (ceiling),all,instr_within_140,1.0000,1.0000,1.0000,251
+test,P* label rule (ceiling),all,instr_cites_number,0.0000,0.0000,0.0000,251
+test,P* label rule (ceiling),all,instr_matches_action,0.8845,0.8450,0.9213,251
+test,P* label rule (ceiling),all,fallback_steps,0.0000,nan,nan,251
+secondary_big_free_policies,P0 random,single (S),recovery@3,0.2500,0.1900,0.3100,200
+secondary_big_free_policies,P0 random,single (S),recovery@6,0.2950,0.2350,0.3600,200
+secondary_big_free_policies,P0 random,single (S),correct_outcome,0.2950,0.2350,0.3600,200
+secondary_big_free_policies,P0 random,single (S),abandon_rate,0.3500,0.2850,0.4150,200
+secondary_big_free_policies,P0 random,single (S),widen_rate,0.2150,0.1600,0.2750,200
+secondary_big_free_policies,P0 random,single (S),turns_to_certified_median,2.0000,1.0000,2.0000,59
+secondary_big_free_policies,P0 random,single (S),turns_to_certified_mean,2.1356,1.8182,2.4769,59
+secondary_big_free_policies,P0 random,single (S),action_acc_acceptable,0.1316,0.1048,0.1616,547
+secondary_big_free_policies,P0 random,single (S),action_acc_strict,0.1280,0.1014,0.1582,547
+secondary_big_free_policies,P0 random,single (S),addresses_a_failure,0.1664,0.1368,0.1996,547
+secondary_big_free_policies,P0 random,single (S),wrong_action_rate,0.8684,0.8384,0.8952,547
+secondary_big_free_policies,P0 random,single (S),escalation_precision_vs_rule,0.1714,0.0857,0.2639,70
+secondary_big_free_policies,P0 random,single (S),escalation_recall_vs_rule,0.0976,0.0490,0.1545,123
+secondary_big_free_policies,P0 random,single (S),usable@3_posthoc,0.4350,0.3650,0.5000,200
+secondary_big_free_policies,P0 random,compound (X+C2+C3),recovery@3,0.0813,0.0563,0.1062,480
+secondary_big_free_policies,P0 random,compound (X+C2+C3),recovery@6,0.1688,0.1354,0.2021,480
+secondary_big_free_policies,P0 random,compound (X+C2+C3),correct_outcome,0.1688,0.1354,0.2021,480
+secondary_big_free_policies,P0 random,compound (X+C2+C3),abandon_rate,0.5000,0.4562,0.5458,480
+secondary_big_free_policies,P0 random,compound (X+C2+C3),widen_rate,0.1500,0.1187,0.1833,480
+secondary_big_free_policies,P0 random,compound (X+C2+C3),turns_to_certified_median,4.0000,3.0000,4.0000,81
+secondary_big_free_policies,P0 random,compound (X+C2+C3),turns_to_certified_mean,3.6667,3.3797,3.9634,81
+secondary_big_free_policies,P0 random,compound (X+C2+C3),action_acc_acceptable,0.1567,0.1397,0.1740,1678
+secondary_big_free_policies,P0 random,compound (X+C2+C3),action_acc_strict,0.1466,0.1307,0.1629,1678
+secondary_big_free_policies,P0 random,compound (X+C2+C3),addresses_a_failure,0.2563,0.2353,0.2783,1678
+secondary_big_free_policies,P0 random,compound (X+C2+C3),wrong_action_rate,0.8433,0.8260,0.8603,1678
+secondary_big_free_policies,P0 random,compound (X+C2+C3),escalation_precision_vs_rule,0.2917,0.2346,0.3512,240
+secondary_big_free_policies,P0 random,compound (X+C2+C3),escalation_recall_vs_rule,0.1505,0.1185,0.1850,465
+secondary_big_free_policies,P0 random,compound (X+C2+C3),usable@3_posthoc,0.1792,0.1458,0.2146,480
+secondary_big_free_policies,P0 random,recoverable (S+X+C2+C3),recovery@3,0.1309,0.1059,0.1574,680
+secondary_big_free_policies,P0 random,recoverable (S+X+C2+C3),recovery@6,0.2059,0.1765,0.2368,680
+secondary_big_free_policies,P0 random,recoverable (S+X+C2+C3),correct_outcome,0.2059,0.1765,0.2368,680
+secondary_big_free_policies,P0 random,recoverable (S+X+C2+C3),abandon_rate,0.4559,0.4176,0.4941,680
+secondary_big_free_policies,P0 random,recoverable (S+X+C2+C3),widen_rate,0.1691,0.1412,0.1985,680
+secondary_big_free_policies,P0 random,recoverable (S+X+C2+C3),turns_to_certified_median,3.0000,2.0000,3.0000,140
+secondary_big_free_policies,P0 random,recoverable (S+X+C2+C3),turns_to_certified_mean,3.0214,2.7692,3.2756,140
+secondary_big_free_policies,P0 random,recoverable (S+X+C2+C3),action_acc_acceptable,0.1506,0.1361,0.1658,2225
+secondary_big_free_policies,P0 random,recoverable (S+X+C2+C3),action_acc_strict,0.1420,0.1282,0.1566,2225
+secondary_big_free_policies,P0 random,recoverable (S+X+C2+C3),addresses_a_failure,0.2342,0.2160,0.2531,2225
+secondary_big_free_policies,P0 random,recoverable (S+X+C2+C3),wrong_action_rate,0.8494,0.8342,0.8639,2225
+secondary_big_free_policies,P0 random,recoverable (S+X+C2+C3),escalation_precision_vs_rule,0.2645,0.2163,0.3131,310
+secondary_big_free_policies,P0 random,recoverable (S+X+C2+C3),escalation_recall_vs_rule,0.1395,0.1120,0.1695,588
+secondary_big_free_policies,P0 random,recoverable (S+X+C2+C3),usable@3_posthoc,0.2544,0.2221,0.2882,680
+secondary_big_free_policies,P0 random,hopeless (H),recovery@3,0.0000,0.0000,0.0000,160
+secondary_big_free_policies,P0 random,hopeless (H),recovery@6,0.0000,0.0000,0.0000,160
+secondary_big_free_policies,P0 random,hopeless (H),correct_outcome,0.5625,0.4875,0.6375,160
+secondary_big_free_policies,P0 random,hopeless (H),abandon_rate,0.5625,0.4875,0.6375,160
+secondary_big_free_policies,P0 random,hopeless (H),widen_rate,0.1187,0.0688,0.1688,160
+secondary_big_free_policies,P0 random,hopeless (H),turns_to_certified_median,nan,nan,nan,160
+secondary_big_free_policies,P0 random,hopeless (H),turns_to_certified_mean,nan,nan,nan,160
+secondary_big_free_policies,P0 random,hopeless (H),action_acc_acceptable,0.1589,0.1287,0.1902,623
+secondary_big_free_policies,P0 random,hopeless (H),action_acc_strict,0.1525,0.1231,0.1831,623
+secondary_big_free_policies,P0 random,hopeless (H),addresses_a_failure,0.2360,0.2044,0.2679,623
+secondary_big_free_policies,P0 random,hopeless (H),wrong_action_rate,0.8411,0.8098,0.8713,623
+secondary_big_free_policies,P0 random,hopeless (H),escalation_precision_vs_rule,0.4000,0.3012,0.5000,90
+secondary_big_free_policies,P0 random,hopeless (H),escalation_recall_vs_rule,0.1622,0.1157,0.2150,222
+secondary_big_free_policies,P0 random,hopeless (H),usable@3_posthoc,0.1000,0.0563,0.1500,160
+secondary_big_free_policies,P0 random,constrained (M),recovery@3,0.0000,0.0000,0.0000,160
+secondary_big_free_policies,P0 random,constrained (M),recovery@6,0.0000,0.0000,0.0000,160
+secondary_big_free_policies,P0 random,constrained (M),correct_outcome,0.4938,0.4125,0.5687,160
+secondary_big_free_policies,P0 random,constrained (M),abandon_rate,0.3937,0.3187,0.4688,160
+secondary_big_free_policies,P0 random,constrained (M),widen_rate,0.4938,0.4125,0.5687,160
+secondary_big_free_policies,P0 random,constrained (M),turns_to_certified_median,nan,nan,nan,160
+secondary_big_free_policies,P0 random,constrained (M),turns_to_certified_mean,nan,nan,nan,160
+secondary_big_free_policies,P0 random,constrained (M),action_acc_acceptable,0.1338,0.1040,0.1648,456
+secondary_big_free_policies,P0 random,constrained (M),action_acc_strict,0.1294,0.1007,0.1591,456
+secondary_big_free_policies,P0 random,constrained (M),addresses_a_failure,0.1776,0.1418,0.2134,456
+secondary_big_free_policies,P0 random,constrained (M),wrong_action_rate,0.8662,0.8352,0.8960,456
+secondary_big_free_policies,P0 random,constrained (M),escalation_precision_vs_rule,0.0317,0.0000,0.0820,63
+secondary_big_free_policies,P0 random,constrained (M),escalation_recall_vs_rule,0.0833,0.0000,0.2273,24
+secondary_big_free_policies,P0 random,constrained (M),usable@3_posthoc,0.3875,0.3125,0.4625,160
+secondary_big_free_policies,P0 random,all,recovery@3,0.0890,0.0720,0.1070,1000
+secondary_big_free_policies,P0 random,all,recovery@6,0.1400,0.1190,0.1620,1000
+secondary_big_free_policies,P0 random,all,correct_outcome,0.3090,0.2800,0.3380,1000
+secondary_big_free_policies,P0 random,all,abandon_rate,0.4630,0.4320,0.4930,1000
+secondary_big_free_policies,P0 random,all,widen_rate,0.2130,0.1880,0.2390,1000
+secondary_big_free_policies,P0 random,all,turns_to_certified_median,3.0000,2.0000,3.0000,140
+secondary_big_free_policies,P0 random,all,turns_to_certified_mean,3.0214,2.7704,3.2771,140
+secondary_big_free_policies,P0 random,all,action_acc_acceptable,0.1498,0.1375,0.1621,3304
+secondary_big_free_policies,P0 random,all,action_acc_strict,0.1423,0.1305,0.1540,3304
+secondary_big_free_policies,P0 random,all,addresses_a_failure,0.2267,0.2120,0.2414,3304
+secondary_big_free_policies,P0 random,all,wrong_action_rate,0.8502,0.8379,0.8625,3304
+secondary_big_free_policies,P0 random,all,escalation_precision_vs_rule,0.2592,0.2191,0.2987,463
+secondary_big_free_policies,P0 random,all,escalation_recall_vs_rule,0.1439,0.1202,0.1688,834
+secondary_big_free_policies,P0 random,all,usable@3_posthoc,0.2510,0.2250,0.2780,1000
+secondary_big_free_policies,P0 random,all,escalation_precision_vs_truth,0.1944,0.1593,0.2301,463
+secondary_big_free_policies,P0 random,all,escalation_recall_vs_truth,0.5625,0.4837,0.6370,160
+secondary_big_free_policies,P0 random,all,false_abandon_of_recoverable,0.4559,0.4186,0.4928,680
+secondary_big_free_policies,P0 random,all,instr_within_140,1.0000,1.0000,1.0000,3304
+secondary_big_free_policies,P0 random,all,instr_cites_number,0.0000,0.0000,0.0000,3304
+secondary_big_free_policies,P0 random,all,instr_matches_action,0.8496,0.8373,0.8616,3304
+secondary_big_free_policies,P0 random,all,fallback_steps,0.0000,nan,nan,3304
+secondary_big_free_policies,P1 rules,single (S),recovery@3,0.9350,0.9000,0.9650,200
+secondary_big_free_policies,P1 rules,single (S),recovery@6,0.9350,0.9000,0.9650,200
+secondary_big_free_policies,P1 rules,single (S),correct_outcome,0.9350,0.9000,0.9650,200
+secondary_big_free_policies,P1 rules,single (S),abandon_rate,0.0550,0.0250,0.0900,200
+secondary_big_free_policies,P1 rules,single (S),widen_rate,0.0100,0.0000,0.0250,200
+secondary_big_free_policies,P1 rules,single (S),turns_to_certified_median,1.0000,1.0000,1.0000,187
+secondary_big_free_policies,P1 rules,single (S),turns_to_certified_mean,1.1604,1.1033,1.2240,187
+secondary_big_free_policies,P1 rules,single (S),action_acc_acceptable,0.9026,0.8625,0.9431,267
+secondary_big_free_policies,P1 rules,single (S),action_acc_strict,0.8989,0.8592,0.9393,267
+secondary_big_free_policies,P1 rules,single (S),addresses_a_failure,0.9963,0.9885,1.0000,267
+secondary_big_free_policies,P1 rules,single (S),wrong_action_rate,0.0974,0.0569,0.1375,267
+secondary_big_free_policies,P1 rules,single (S),escalation_precision_vs_rule,0.9091,0.7000,1.0000,11
+secondary_big_free_policies,P1 rules,single (S),escalation_recall_vs_rule,1.0000,1.0000,1.0000,10
+secondary_big_free_policies,P1 rules,single (S),usable@3_posthoc,0.9450,0.9100,0.9750,200
+secondary_big_free_policies,P1 rules,compound (X+C2+C3),recovery@3,0.7021,0.6604,0.7417,480
+secondary_big_free_policies,P1 rules,compound (X+C2+C3),recovery@6,0.7021,0.6604,0.7417,480
+secondary_big_free_policies,P1 rules,compound (X+C2+C3),correct_outcome,0.7021,0.6604,0.7417,480
+secondary_big_free_policies,P1 rules,compound (X+C2+C3),abandon_rate,0.2479,0.2104,0.2875,480
+secondary_big_free_policies,P1 rules,compound (X+C2+C3),widen_rate,0.0500,0.0312,0.0688,480
+secondary_big_free_policies,P1 rules,compound (X+C2+C3),turns_to_certified_median,2.0000,2.0000,2.0000,337
+secondary_big_free_policies,P1 rules,compound (X+C2+C3),turns_to_certified_mean,2.1157,2.0499,2.1818,337
+secondary_big_free_policies,P1 rules,compound (X+C2+C3),action_acc_acceptable,0.7534,0.7279,0.7790,1261
+secondary_big_free_policies,P1 rules,compound (X+C2+C3),action_acc_strict,0.7248,0.7001,0.7498,1261
+secondary_big_free_policies,P1 rules,compound (X+C2+C3),addresses_a_failure,0.9921,0.9869,0.9967,1261
+secondary_big_free_policies,P1 rules,compound (X+C2+C3),wrong_action_rate,0.2466,0.2210,0.2721,1261
+secondary_big_free_policies,P1 rules,compound (X+C2+C3),escalation_precision_vs_rule,0.9160,0.8629,0.9621,119
+secondary_big_free_policies,P1 rules,compound (X+C2+C3),escalation_recall_vs_rule,1.0000,1.0000,1.0000,109
+secondary_big_free_policies,P1 rules,compound (X+C2+C3),usable@3_posthoc,0.7521,0.7125,0.7896,480
+secondary_big_free_policies,P1 rules,recoverable (S+X+C2+C3),recovery@3,0.7706,0.7382,0.8029,680
+secondary_big_free_policies,P1 rules,recoverable (S+X+C2+C3),recovery@6,0.7706,0.7382,0.8029,680
+secondary_big_free_policies,P1 rules,recoverable (S+X+C2+C3),correct_outcome,0.7706,0.7382,0.8029,680
+secondary_big_free_policies,P1 rules,recoverable (S+X+C2+C3),abandon_rate,0.1912,0.1618,0.2206,680
+secondary_big_free_policies,P1 rules,recoverable (S+X+C2+C3),widen_rate,0.0382,0.0250,0.0529,680
+secondary_big_free_policies,P1 rules,recoverable (S+X+C2+C3),turns_to_certified_median,2.0000,2.0000,2.0000,524
+secondary_big_free_policies,P1 rules,recoverable (S+X+C2+C3),turns_to_certified_mean,1.7748,1.7140,1.8365,524
+secondary_big_free_policies,P1 rules,recoverable (S+X+C2+C3),action_acc_acceptable,0.7795,0.7577,0.8016,1528
+secondary_big_free_policies,P1 rules,recoverable (S+X+C2+C3),action_acc_strict,0.7552,0.7333,0.7775,1528
+secondary_big_free_policies,P1 rules,recoverable (S+X+C2+C3),addresses_a_failure,0.9928,0.9883,0.9967,1528
+secondary_big_free_policies,P1 rules,recoverable (S+X+C2+C3),wrong_action_rate,0.2205,0.1984,0.2423,1528
+secondary_big_free_policies,P1 rules,recoverable (S+X+C2+C3),escalation_precision_vs_rule,0.9154,0.8647,0.9595,130
+secondary_big_free_policies,P1 rules,recoverable (S+X+C2+C3),escalation_recall_vs_rule,1.0000,1.0000,1.0000,119
+secondary_big_free_policies,P1 rules,recoverable (S+X+C2+C3),usable@3_posthoc,0.8088,0.7794,0.8382,680
+secondary_big_free_policies,P1 rules,hopeless (H),recovery@3,0.0000,0.0000,0.0000,160
+secondary_big_free_policies,P1 rules,hopeless (H),recovery@6,0.0000,0.0000,0.0000,160
+secondary_big_free_policies,P1 rules,hopeless (H),correct_outcome,0.9625,0.9313,0.9875,160
+secondary_big_free_policies,P1 rules,hopeless (H),abandon_rate,0.9625,0.9313,0.9875,160
+secondary_big_free_policies,P1 rules,hopeless (H),widen_rate,0.0375,0.0125,0.0688,160
+secondary_big_free_policies,P1 rules,hopeless (H),turns_to_certified_median,nan,nan,nan,160
+secondary_big_free_policies,P1 rules,hopeless (H),turns_to_certified_mean,nan,nan,nan,160
+secondary_big_free_policies,P1 rules,hopeless (H),action_acc_acceptable,0.6625,0.6218,0.7039,634
+secondary_big_free_policies,P1 rules,hopeless (H),action_acc_strict,0.6278,0.5915,0.6646,634
+secondary_big_free_policies,P1 rules,hopeless (H),addresses_a_failure,1.0000,1.0000,1.0000,634
+secondary_big_free_policies,P1 rules,hopeless (H),wrong_action_rate,0.3375,0.2961,0.3782,634
+secondary_big_free_policies,P1 rules,hopeless (H),escalation_precision_vs_rule,1.0000,1.0000,1.0000,154
+secondary_big_free_policies,P1 rules,hopeless (H),escalation_recall_vs_rule,1.0000,1.0000,1.0000,154
+secondary_big_free_policies,P1 rules,hopeless (H),usable@3_posthoc,0.0375,0.0125,0.0688,160
+secondary_big_free_policies,P1 rules,constrained (M),recovery@3,0.0625,0.0250,0.1000,160
+secondary_big_free_policies,P1 rules,constrained (M),recovery@6,0.0625,0.0250,0.1000,160
+secondary_big_free_policies,P1 rules,constrained (M),correct_outcome,0.8562,0.8000,0.9062,160
+secondary_big_free_policies,P1 rules,constrained (M),abandon_rate,0.0813,0.0437,0.1250,160
+secondary_big_free_policies,P1 rules,constrained (M),widen_rate,0.8562,0.8000,0.9062,160
+secondary_big_free_policies,P1 rules,constrained (M),turns_to_certified_median,1.5000,1.0000,2.0000,10
+secondary_big_free_policies,P1 rules,constrained (M),turns_to_certified_mean,1.5000,1.1667,1.8333,10
+secondary_big_free_policies,P1 rules,constrained (M),action_acc_acceptable,0.9728,0.9587,0.9854,478
+secondary_big_free_policies,P1 rules,constrained (M),action_acc_strict,0.9435,0.9196,0.9645,478
+secondary_big_free_policies,P1 rules,constrained (M),addresses_a_failure,0.9728,0.9587,0.9854,478
+secondary_big_free_policies,P1 rules,constrained (M),wrong_action_rate,0.0272,0.0146,0.0413,478
+secondary_big_free_policies,P1 rules,constrained (M),escalation_precision_vs_rule,0.0000,0.0000,0.0000,13
+secondary_big_free_policies,P1 rules,constrained (M),escalation_recall_vs_rule,nan,nan,nan,0
+secondary_big_free_policies,P1 rules,constrained (M),usable@3_posthoc,0.9187,0.8750,0.9563,160
+secondary_big_free_policies,P1 rules,all,recovery@3,0.5340,0.5030,0.5650,1000
+secondary_big_free_policies,P1 rules,all,recovery@6,0.5340,0.5030,0.5650,1000
+secondary_big_free_policies,P1 rules,all,correct_outcome,0.8150,0.7910,0.8390,1000
+secondary_big_free_policies,P1 rules,all,abandon_rate,0.2970,0.2690,0.3250,1000
+secondary_big_free_policies,P1 rules,all,widen_rate,0.1690,0.1460,0.1920,1000
+secondary_big_free_policies,P1 rules,all,turns_to_certified_median,2.0000,2.0000,2.0000,534
+secondary_big_free_policies,P1 rules,all,turns_to_certified_mean,1.7697,1.7091,1.8302,534
+secondary_big_free_policies,P1 rules,all,action_acc_acceptable,0.7864,0.7685,0.8042,2640
+secondary_big_free_policies,P1 rules,all,action_acc_strict,0.7587,0.7413,0.7763,2640
+secondary_big_free_policies,P1 rules,all,addresses_a_failure,0.9909,0.9873,0.9942,2640
+secondary_big_free_policies,P1 rules,all,wrong_action_rate,0.2136,0.1958,0.2315,2640
+secondary_big_free_policies,P1 rules,all,escalation_precision_vs_rule,0.9192,0.8874,0.9484,297
+secondary_big_free_policies,P1 rules,all,escalation_recall_vs_rule,1.0000,1.0000,1.0000,273
+secondary_big_free_policies,P1 rules,all,usable@3_posthoc,0.7030,0.6750,0.7310,1000
+secondary_big_free_policies,P1 rules,all,escalation_precision_vs_truth,0.5185,0.4620,0.5759,297
+secondary_big_free_policies,P1 rules,all,escalation_recall_vs_truth,0.9625,0.9310,0.9881,160
+secondary_big_free_policies,P1 rules,all,false_abandon_of_recoverable,0.1912,0.1619,0.2214,680
+secondary_big_free_policies,P1 rules,all,instr_within_140,1.0000,1.0000,1.0000,2640
+secondary_big_free_policies,P1 rules,all,instr_cites_number,0.9098,0.8991,0.9204,2640
+secondary_big_free_policies,P1 rules,all,instr_matches_action,1.0000,1.0000,1.0000,2640
+secondary_big_free_policies,P1 rules,all,fallback_steps,0.0000,nan,nan,2640
+secondary_big_free_policies,P* label rule (ceiling),single (S),recovery@3,0.9850,0.9650,1.0000,200
+secondary_big_free_policies,P* label rule (ceiling),single (S),recovery@6,0.9850,0.9650,1.0000,200
+secondary_big_free_policies,P* label rule (ceiling),single (S),correct_outcome,0.9850,0.9650,1.0000,200
+secondary_big_free_policies,P* label rule (ceiling),single (S),abandon_rate,0.0000,0.0000,0.0000,200
+secondary_big_free_policies,P* label rule (ceiling),single (S),widen_rate,0.0150,0.0000,0.0350,200
+secondary_big_free_policies,P* label rule (ceiling),single (S),turns_to_certified_median,1.0000,1.0000,1.0000,197
+secondary_big_free_policies,P* label rule (ceiling),single (S),turns_to_certified_mean,1.2081,1.1457,1.2778,197
+secondary_big_free_policies,P* label rule (ceiling),single (S),action_acc_acceptable,1.0000,1.0000,1.0000,248
+secondary_big_free_policies,P* label rule (ceiling),single (S),action_acc_strict,1.0000,1.0000,1.0000,248
+secondary_big_free_policies,P* label rule (ceiling),single (S),addresses_a_failure,1.0000,1.0000,1.0000,248
+secondary_big_free_policies,P* label rule (ceiling),single (S),wrong_action_rate,0.0000,0.0000,0.0000,248
+secondary_big_free_policies,P* label rule (ceiling),single (S),escalation_precision_vs_rule,nan,nan,nan,0
+secondary_big_free_policies,P* label rule (ceiling),single (S),escalation_recall_vs_rule,nan,nan,nan,0
+secondary_big_free_policies,P* label rule (ceiling),single (S),usable@3_posthoc,0.9950,0.9850,1.0000,200
+secondary_big_free_policies,P* label rule (ceiling),compound (X+C2+C3),recovery@3,0.8021,0.7667,0.8375,480
+secondary_big_free_policies,P* label rule (ceiling),compound (X+C2+C3),recovery@6,0.8021,0.7667,0.8375,480
+secondary_big_free_policies,P* label rule (ceiling),compound (X+C2+C3),correct_outcome,0.8021,0.7667,0.8375,480
+secondary_big_free_policies,P* label rule (ceiling),compound (X+C2+C3),abandon_rate,0.1250,0.0958,0.1542,480
+secondary_big_free_policies,P* label rule (ceiling),compound (X+C2+C3),widen_rate,0.0729,0.0500,0.0979,480
+secondary_big_free_policies,P* label rule (ceiling),compound (X+C2+C3),turns_to_certified_median,2.0000,2.0000,2.0000,385
+secondary_big_free_policies,P* label rule (ceiling),compound (X+C2+C3),turns_to_certified_mean,2.1403,2.0771,2.2005,385
+secondary_big_free_policies,P* label rule (ceiling),compound (X+C2+C3),action_acc_acceptable,1.0000,1.0000,1.0000,1180
+secondary_big_free_policies,P* label rule (ceiling),compound (X+C2+C3),action_acc_strict,1.0000,1.0000,1.0000,1180
+secondary_big_free_policies,P* label rule (ceiling),compound (X+C2+C3),addresses_a_failure,1.0000,1.0000,1.0000,1180
+secondary_big_free_policies,P* label rule (ceiling),compound (X+C2+C3),wrong_action_rate,0.0000,0.0000,0.0000,1180
+secondary_big_free_policies,P* label rule (ceiling),compound (X+C2+C3),escalation_precision_vs_rule,1.0000,1.0000,1.0000,60
+secondary_big_free_policies,P* label rule (ceiling),compound (X+C2+C3),escalation_recall_vs_rule,1.0000,1.0000,1.0000,60
+secondary_big_free_policies,P* label rule (ceiling),compound (X+C2+C3),usable@3_posthoc,0.8521,0.8187,0.8833,480
+secondary_big_free_policies,P* label rule (ceiling),recoverable (S+X+C2+C3),recovery@3,0.8559,0.8294,0.8824,680
+secondary_big_free_policies,P* label rule (ceiling),recoverable (S+X+C2+C3),recovery@6,0.8559,0.8294,0.8824,680
+secondary_big_free_policies,P* label rule (ceiling),recoverable (S+X+C2+C3),correct_outcome,0.8559,0.8294,0.8824,680
+secondary_big_free_policies,P* label rule (ceiling),recoverable (S+X+C2+C3),abandon_rate,0.0882,0.0676,0.1103,680
+secondary_big_free_policies,P* label rule (ceiling),recoverable (S+X+C2+C3),widen_rate,0.0559,0.0382,0.0735,680
+secondary_big_free_policies,P* label rule (ceiling),recoverable (S+X+C2+C3),turns_to_certified_median,2.0000,2.0000,2.0000,582
+secondary_big_free_policies,P* label rule (ceiling),recoverable (S+X+C2+C3),turns_to_certified_mean,1.8247,1.7660,1.8825,582
+secondary_big_free_policies,P* label rule (ceiling),recoverable (S+X+C2+C3),action_acc_acceptable,1.0000,1.0000,1.0000,1428
+secondary_big_free_policies,P* label rule (ceiling),recoverable (S+X+C2+C3),action_acc_strict,1.0000,1.0000,1.0000,1428
+secondary_big_free_policies,P* label rule (ceiling),recoverable (S+X+C2+C3),addresses_a_failure,1.0000,1.0000,1.0000,1428
+secondary_big_free_policies,P* label rule (ceiling),recoverable (S+X+C2+C3),wrong_action_rate,0.0000,0.0000,0.0000,1428
+secondary_big_free_policies,P* label rule (ceiling),recoverable (S+X+C2+C3),escalation_precision_vs_rule,1.0000,1.0000,1.0000,60
+secondary_big_free_policies,P* label rule (ceiling),recoverable (S+X+C2+C3),escalation_recall_vs_rule,1.0000,1.0000,1.0000,60
+secondary_big_free_policies,P* label rule (ceiling),recoverable (S+X+C2+C3),usable@3_posthoc,0.8941,0.8706,0.9162,680
+secondary_big_free_policies,P* label rule (ceiling),hopeless (H),recovery@3,0.0000,0.0000,0.0000,160
+secondary_big_free_policies,P* label rule (ceiling),hopeless (H),recovery@6,0.0000,0.0000,0.0000,160
+secondary_big_free_policies,P* label rule (ceiling),hopeless (H),correct_outcome,0.9688,0.9375,0.9938,160
+secondary_big_free_policies,P* label rule (ceiling),hopeless (H),abandon_rate,0.9688,0.9375,0.9938,160
+secondary_big_free_policies,P* label rule (ceiling),hopeless (H),widen_rate,0.0312,0.0063,0.0625,160
+secondary_big_free_policies,P* label rule (ceiling),hopeless (H),turns_to_certified_median,nan,nan,nan,160
+secondary_big_free_policies,P* label rule (ceiling),hopeless (H),turns_to_certified_mean,nan,nan,nan,160
+secondary_big_free_policies,P* label rule (ceiling),hopeless (H),action_acc_acceptable,1.0000,1.0000,1.0000,635
+secondary_big_free_policies,P* label rule (ceiling),hopeless (H),action_acc_strict,1.0000,1.0000,1.0000,635
+secondary_big_free_policies,P* label rule (ceiling),hopeless (H),addresses_a_failure,1.0000,1.0000,1.0000,635
+secondary_big_free_policies,P* label rule (ceiling),hopeless (H),wrong_action_rate,0.0000,0.0000,0.0000,635
+secondary_big_free_policies,P* label rule (ceiling),hopeless (H),escalation_precision_vs_rule,1.0000,1.0000,1.0000,155
+secondary_big_free_policies,P* label rule (ceiling),hopeless (H),escalation_recall_vs_rule,1.0000,1.0000,1.0000,155
+secondary_big_free_policies,P* label rule (ceiling),hopeless (H),usable@3_posthoc,0.0312,0.0063,0.0625,160
+secondary_big_free_policies,P* label rule (ceiling),constrained (M),recovery@3,0.0563,0.0250,0.0938,160
+secondary_big_free_policies,P* label rule (ceiling),constrained (M),recovery@6,0.0563,0.0250,0.0938,160
+secondary_big_free_policies,P* label rule (ceiling),constrained (M),correct_outcome,0.9437,0.9062,0.9750,160
+secondary_big_free_policies,P* label rule (ceiling),constrained (M),abandon_rate,0.0000,0.0000,0.0000,160
+secondary_big_free_policies,P* label rule (ceiling),constrained (M),widen_rate,0.9437,0.9062,0.9750,160
+secondary_big_free_policies,P* label rule (ceiling),constrained (M),turns_to_certified_median,1.0000,1.0000,2.0000,9
+secondary_big_free_policies,P* label rule (ceiling),constrained (M),turns_to_certified_mean,1.4444,1.1111,1.8000,9
+secondary_big_free_policies,P* label rule (ceiling),constrained (M),action_acc_acceptable,1.0000,1.0000,1.0000,478
+secondary_big_free_policies,P* label rule (ceiling),constrained (M),action_acc_strict,1.0000,1.0000,1.0000,478
+secondary_big_free_policies,P* label rule (ceiling),constrained (M),addresses_a_failure,1.0000,1.0000,1.0000,478
+secondary_big_free_policies,P* label rule (ceiling),constrained (M),wrong_action_rate,0.0000,0.0000,0.0000,478
+secondary_big_free_policies,P* label rule (ceiling),constrained (M),escalation_precision_vs_rule,nan,nan,nan,0
+secondary_big_free_policies,P* label rule (ceiling),constrained (M),escalation_recall_vs_rule,nan,nan,nan,0
+secondary_big_free_policies,P* label rule (ceiling),constrained (M),usable@3_posthoc,0.9250,0.8812,0.9625,160
+secondary_big_free_policies,P* label rule (ceiling),all,recovery@3,0.5910,0.5600,0.6220,1000
+secondary_big_free_policies,P* label rule (ceiling),all,recovery@6,0.5910,0.5600,0.6220,1000
+secondary_big_free_policies,P* label rule (ceiling),all,correct_outcome,0.8880,0.8680,0.9070,1000
+secondary_big_free_policies,P* label rule (ceiling),all,abandon_rate,0.2150,0.1890,0.2410,1000
+secondary_big_free_policies,P* label rule (ceiling),all,widen_rate,0.1940,0.1700,0.2190,1000
+secondary_big_free_policies,P* label rule (ceiling),all,turns_to_certified_median,2.0000,2.0000,2.0000,591
+secondary_big_free_policies,P* label rule (ceiling),all,turns_to_certified_mean,1.8190,1.7611,1.8767,591
+secondary_big_free_policies,P* label rule (ceiling),all,action_acc_acceptable,1.0000,1.0000,1.0000,2541
+secondary_big_free_policies,P* label rule (ceiling),all,action_acc_strict,1.0000,1.0000,1.0000,2541
+secondary_big_free_policies,P* label rule (ceiling),all,addresses_a_failure,1.0000,1.0000,1.0000,2541
+secondary_big_free_policies,P* label rule (ceiling),all,wrong_action_rate,0.0000,0.0000,0.0000,2541
+secondary_big_free_policies,P* label rule (ceiling),all,escalation_precision_vs_rule,1.0000,1.0000,1.0000,215
+secondary_big_free_policies,P* label rule (ceiling),all,escalation_recall_vs_rule,1.0000,1.0000,1.0000,215
+secondary_big_free_policies,P* label rule (ceiling),all,usable@3_posthoc,0.7610,0.7350,0.7880,1000
+secondary_big_free_policies,P* label rule (ceiling),all,escalation_precision_vs_truth,0.7209,0.6591,0.7811,215
+secondary_big_free_policies,P* label rule (ceiling),all,escalation_recall_vs_truth,0.9688,0.9392,0.9936,160
+secondary_big_free_policies,P* label rule (ceiling),all,false_abandon_of_recoverable,0.0882,0.0675,0.1103,680
+secondary_big_free_policies,P* label rule (ceiling),all,instr_within_140,1.0000,1.0000,1.0000,2541
+secondary_big_free_policies,P* label rule (ceiling),all,instr_cites_number,0.0000,0.0000,0.0000,2541
+secondary_big_free_policies,P* label rule (ceiling),all,instr_matches_action,0.8638,0.8507,0.8764,2541
+secondary_big_free_policies,P* label rule (ceiling),all,fallback_steps,0.0000,nan,nan,2541

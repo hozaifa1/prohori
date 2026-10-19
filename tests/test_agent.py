@@ -228,3 +228,32 @@ def test_decide_llm_without_credentials_is_safe(monkeypatch):
 def test_rules_uncertified_without_reasons_means_no_crack():
     r = rules_decide(obs(), {"certified": False, "reasons": []}, [], [])
     assert r["action"] == "reposition_marker" and "crack" in r["instruction"].lower()
+
+
+# ------------------------------------------------------------------ derived fields added for the P2 ablation
+def test_payload_has_derived_margins_and_attempt_flags():
+    o = obs(px_per_mm=7.2, blur_var=120.0)
+    g = gate("low_resolution", "blurry")
+    p = agent.build_user_payload(o, g, CRACK, [])
+    cc = p["current_capture"]
+    assert cc["board_found"] is True and cc["crack_measured"] is True and cc["all_failures_marginal"] is True
+    checks = {c["check"]: c for c in cc["failing_checks"]}
+    assert checks["low_resolution"]["percent_past_threshold"] == 10 and checks["blurry"]["percent_past_threshold"] == 20
+    assert p["widen_now_allowed"] is False and p["abandon_now_allowed"] is False
+    h = _hist(2, "move_closer", ("low_resolution",), obs(px_per_mm=7.4))
+    assert agent.build_user_payload(o, g, CRACK, h)["widen_now_allowed"] is True
+    h3 = _hist(3, "move_closer", ("low_resolution",), obs(px_per_mm=3.0))
+    far = agent.build_user_payload(obs(px_per_mm=3.0), gate("low_resolution"), CRACK, h3)
+    assert far["abandon_now_allowed"] is True and far["widen_now_allowed"] is False
+
+
+def test_payload_board_not_found_has_no_fake_checks():
+    o = obs(corners=2, px_per_mm=0.0, obliquity_deg=0.0, glare_frac=0.0, crack_px_extent=0, blur_var=500.0)
+    cc = agent.build_user_payload(o, gate("too_few_corners"), [], [])["current_capture"]
+    assert cc["board_found"] is False and cc["crack_measured"] is False
+    assert "failing_checks" not in cc and "all_failures_marginal" not in cc
+
+
+def test_certified_capture_never_allows_widen_or_abandon():
+    p = agent.build_user_payload(obs(), gate(), CRACK, _hist(5))
+    assert p["widen_now_allowed"] is False and p["abandon_now_allowed"] is False

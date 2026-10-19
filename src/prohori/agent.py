@@ -72,6 +72,9 @@ OBSERVATION FIELDS
 - crack_px_extent: size of the detected crack in pixels (0/None = no crack found).
 - image_w, image_h: frame size.
 Values may be null or 0 when OpenCV could not compute them.
+- board_found, failing_checks, all_failures_marginal, crack_measured, widen_now_allowed, abandon_now_allowed: derived for you by code, not by OpenCV on pixels. widen_now_allowed and abandon_now_allowed already count the failed attempts for you. failing_checks lists every failed gate check with its value, its threshold and how many percent past the threshold it is. all_failures_marginal is true when every failed check is within 20% of its threshold. crack_measured is true when a crack width was measured.
+
+BOARD NOT FOUND (board_found=false, corners below about 7): OpenCV could not calibrate, so px_per_mm, obliquity_deg and glare_frac are reported as 0. Those zeros mean "not measured", not "fine": glare, a steep angle, a cropped board or blur can each have lost the board, and you cannot tell which from the board numbers. Only blur_var is still informative, and it is then the sharpness of the whole frame: below about 100 the frame itself is blurred.
 
 CERTIFICATION GATE (a capture is "certified" only if ALL pass)
 - corners >= {GATE_THRESHOLDS['min_corners']} (reason: too_few_corners)
@@ -83,17 +86,23 @@ The input gives you the gate result and the list of failed reasons. certified=fa
 
 ACTIONS
 - accept: the capture is certified; report the width. Use ONLY when gate.certified is true.
-- accept_with_widened_uncertainty: the gate fails only marginally (within ~20% of a threshold), the inspector already retried at least twice, and a crack was measured. Report it with a larger error bar.
+- accept_with_widened_uncertainty: the gate fails only marginally (all_failures_marginal is true), the inspector already retried at least twice (consecutive_failed_attempts_before_this >= 2), and a crack was measured (crack_measured is true). Report it with a larger error bar.
 - move_closer: fix low px/mm (reason low_resolution) when the board is otherwise found.
 - reshoot_steadier: fix blur (brace the phone, wait for focus, tap to focus, hold still).
 - relight: fix glare or poor light (tilt/shade the surface, change angle to the light, turn off flash).
 - reposition_marker: fix geometry or visibility: board missing, cropped, occluded or too few corners; also use it to fix obliquity (stand square to the wall so the camera faces the board plane).
-- abandon_and_log: give up on this crack and log the failure; use after about {MAX_FAILED_ATTEMPTS} failed attempts in history, or when nothing the operator can do will help.
+- abandon_and_log: give up on this crack and log the failure; use once consecutive_failed_attempts_before_this is {MAX_FAILED_ATTEMPTS - 1} or more (this capture is the {MAX_FAILED_ATTEMPTS}th failure).
 
 RULES
 1. Prefer the single action that fixes the dominant failure. Name the number that triggered it in the instruction, e.g. "Move closer: the board is only 6 px/mm, need 8 or more."
-2. Compound failures: decide which to fix first. If glare hides the crack or the board corners, fix glare first. If px/mm is low because of a steep angle, fix obliquity first. Otherwise fix the failure that is furthest from its threshold.
-3. Use history. Do not repeat an action that already failed twice in a row; try the next-most-important fix or escalate. After about {MAX_FAILED_ATTEMPTS} failed attempts, choose abandon_and_log.
+2. Compound failures: decide which to fix first, in this order.
+   a. Glare that is hiding the board (glare fails and corners is below 12): relight first.
+   b. Obliquity fails together with ANY other check: reposition_marker first. A steep angle lowers px/mm and corner detection, and re-aiming the phone changes the glare and the shake, so fixes made before it are often undone.
+   c. Otherwise the failures are independent: fix the one with the largest percent_past_threshold.
+2a. Board not found (board_found=false): if blur_var is below 100, reshoot_steadier. Otherwise reposition_marker. If last_actions ends with reposition_marker and the board is still not found, try relight, because glare may be hiding the board.
+3. Use history. Do not repeat an action that already failed twice in a row; try the next-most-important fix or escalate.
+3a. Marginal exit first: if widen_now_allowed is true, choose accept_with_widened_uncertainty. This beats a further retry and beats abandon_and_log.
+3b. Otherwise, never choose abandon_and_log unless abandon_now_allowed is true; when it is true, choose abandon_and_log.
 4. Never accept an uncertified capture. Never ask for another shot when gate.certified is true: choose accept.
 5. instruction: at most {INSTRUCTION_MAX} characters, plain words, imperative, for someone holding a phone on a ladder. No jargon, no emojis. rationale: one or two sentences for the audit trace, citing the numbers.
 Always answer by calling the choose_action tool."""
@@ -382,6 +391,42 @@ def _obs_for_llm(o: dict) -> dict:
     return out
 
 
+def _derived_for_llm(observation: dict, gate: dict, cracks: list) -> dict:
+    """Deterministic helper numbers so the model does not have to do threshold arithmetic."""
+    T = GATE_THRESHOLDS
+    o = observation or {}
+    board_found = bool(_num(o.get("px_per_mm")))
+    d: dict[str, Any] = {"board_found": board_found, "crack_measured": bool(cracks)}
+    reasons = _gate_reasons(gate)
+    checks = []
+    if board_found:
+        spec = {
+            "too_few_corners": ("corners", T["min_corners"], "min"),
+            "low_resolution": ("px_per_mm", T["min_px_per_mm"], "min"),
+            "blurry": ("blur_var", T["min_blur_var"], "min"),
+            "oblique": ("obliquity_deg", T["max_obliquity_deg"], "max"),
+            "glare": ("glare_frac", T["max_glare_frac"], "max"),
+        }
+        for r in reasons:
+            if r in spec:
+                key, thr, kind = spec[r]
+                v = _num(o.get(key))
+                if v is None:
+                    continue
+                past = (1 - v / thr) if kind == "min" else (v / thr - 1)
+                checks.append({"check": r, "value": round(v, 4), "threshold": thr, "percent_past_threshold": round(100 * past)})
+        d["failing_checks"] = checks
+        d["all_failures_marginal"] = bool(checks) and all(c["percent_past_threshold"] <= 100 * MARGINAL_FACTOR for c in checks)
+    return d
+
+
+def _attempt_flags(observation: dict, gate: dict, cracks: list, history: list[dict]) -> dict:
+    n = failed_attempts(history)
+    marginal = bool(cracks) and bool(_gate_reasons(gate)) and _marginal(observation, gate) and bool(_num((observation or {}).get("px_per_mm")))
+    return {"widen_now_allowed": n >= 2 and marginal and not _certified(gate),
+            "abandon_now_allowed": n >= MAX_FAILED_ATTEMPTS - 1 and not _certified(gate)}
+
+
 def build_user_payload(observation: dict, gate: dict, cracks: list, history: list[dict]) -> dict:
     """Everything the LLM gets: numbers only. polyline_px and true_width_mm are stripped."""
     cr = []
@@ -400,9 +445,11 @@ def build_user_payload(observation: dict, gate: dict, cracks: list, history: lis
             "observation": _obs_for_llm(observation),
             "gate": {"certified": _certified(gate), "reasons": _gate_reasons(gate)},
             "measured_cracks": cr,
+            **_derived_for_llm(observation, gate, cracks),
         },
         "history_oldest_first": hist,
         "consecutive_failed_attempts_before_this": failed_attempts(history),
+        **_attempt_flags(observation, gate, cracks, history),
         "last_actions": _last_actions(history)[-4:],
     }
 
