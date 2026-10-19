@@ -1,0 +1,289 @@
+estimator,calib,psf_sigma_px,bin,criterion,gate_ppm,pass_251.969,pass_8,pass_10,pass_12,pass_15,pass_20,pass_25
+cand_area,raw,0.75,0.30-0.50mm,"target(MAE,P95,bias,ratio,COV)",none,0,0,0,0,0,0,0
+cand_area,raw,0.75,0.30-0.50mm,MAE<=0.05mm,none,0,0,0,0,0,0,0
+cand_area,raw,0.75,0.30-0.50mm,"px-equiv(RMSE<=0.5px, w>=1px)",none,0,0,0,0,0,0,0
+cand_area,raw,0.75,<0.5mm,"target(MAE,P95,bias,ratio,COV)",none,0,0,0,0,0,0,0
+cand_area,raw,0.75,<0.5mm,MAE<=0.05mm,none,0,0,0,0,0,0,0
+cand_area,raw,0.75,<0.5mm,"px-equiv(RMSE<=0.5px, w>=1px)",none,0,0,0,0,0,0,0
+cand_area,cal_native,0.75,0.30-0.50mm,"target(MAE,P95,bias,ratio,COV)",none,0,0,0,0,0,0,0
+cand_area,cal_native,0.75,0.30-0.50mm,MAE<=0.05mm,none,0,0,0,0,0,0,0
+cand_area,cal_native,0.75,0.30-0.50mm,"px-equiv(RMSE<=0.5px, w>=1px)",none,0,0,0,0,0,0,0
+cand_area,cal_native,0.75,<0.5mm,"target(MAE,P95,bias,ratio,COV)",none,0,0,0,0,0,0,0
+cand_area,cal_native,0.75,<0.5mm,MAE<=0.05mm,251.969,1,0,0,0,0,0,0
+cand_area,cal_native,0.75,<0.5mm,"px-equiv(RMSE<=0.5px, w>=1px)",none,0,0,0,0,0,0,0
+cand_area,cal_refit,0.75,0.30-0.50mm,"target(MAE,P95,bias,ratio,COV)",none,0,0,0,0,0,0,0
+cand_area,cal_refit,0.75,0.30-0.50mm,MAE<=0.05mm,none,0,0,0,0,0,0,0
+cand_area,cal_refit,0.75,0.30-0.50mm,"px-equiv(RMSE<=0.5px, w>=1px)",none,0,0,0,0,0,0,0
+cand_area,cal_refit,0.75,<0.5mm,"target(MAE,P95,bias,ratio,COV)",none,0,0,0,0,0,0,0
+cand_area,cal_refit,0.75,<0.5mm,MAE<=0.05mm,251.969,1,0,0,0,0,0,0
+cand_area,cal_refit,0.75,<0.5mm,"px-equiv(RMSE<=0.5px, w>=1px)",none,0,0,0,0,0,0,0
+cand_area,added,0.75,0.30-0.50mm,"target(MAE,P95,bias,ratio,COV)",251.969,1,0,0,0,0,0,0
+cand_area,added,0.75,0.30-0.50mm,MAE<=0.05mm,20,1,0,0,0,0,1,1
+cand_area,added,0.75,0.30-0.50mm,"px-equiv(RMSE<=0.5px, w>=1px)",251.969,1,0,0,0,0,0,0
+cand_area,added,0.75,<0.5mm,"target(MAE,P95,bias,ratio,COV)",251.969,1,0,0,0,0,0,0
+cand_area,added,0.75,<0.5mm,MAE<=0.05mm,20,1,0,0,0,0,1,1
+cand_area,added,0.75,<0.5mm,"px-equiv(RMSE<=0.5px, w>=1px)",251.969,1,0,0,0,0,0,0
+cand_frac,raw,0.75,0.30-0.50mm,"target(MAE,P95,bias,ratio,COV)",251.969,1,0,0,0,0,0,0
+cand_frac,raw,0.75,0.30-0.50mm,MAE<=0.05mm,251.969,1,0,0,0,0,0,0
+cand_frac,raw,0.75,0.30-0.50mm,"px-equiv(RMSE<=0.5px, w>=1px)",none,0,0,0,0,0,0,0
+cand_frac,raw,0.75,<0.5mm,"target(MAE,P95,bias,ratio,COV)",none,0,0,0,0,0,0,0
+cand_frac,raw,0.75,<0.5mm,MAE<=0.05mm,251.969,1,0,0,0,0,0,0
+cand_frac,raw,0.75,<0.5mm,"px-equiv(RMSE<=0.5px, w>=1px)",none,0,0,0,0,0,0,0
+cand_frac,cal_native,0.75,0.30-0.50mm,"target(MAE,P95,bias,ratio,COV)",251.969,1,0,0,0,0,0,0
+cand_frac,cal_native,0.75,0.30-0.50mm,MAE<=0.05mm,251.969,1,0,0,0,0,0,0
+cand_frac,cal_native,0.75,0.30-0.50mm,"px-equiv(RMSE<=0.5px, w>=1px)",none,0,0,0,0,0,0,0
+cand_frac,cal_native,0.75,<0.5mm,"target(MAE,P95,bias,ratio,COV)",none,0,0,0,0,0,0,0
+cand_frac,cal_native,0.75,<0.5mm,MAE<=0.05mm,251.969,1,0,0,0,0,0,0
+cand_frac,cal_native,0.75,<0.5mm,"px-equiv(RMSE<=0.5px, w>=1px)",none,0,0,0,0,0,0,0
+cand_frac,cal_refit,0.75,0.30-0.50mm,"target(MAE,P95,bias,ratio,COV)",251.969,1,0,0,0,0,0,0
+cand_frac,cal_refit,0.75,0.30-0.50mm,MAE<=0.05mm,20,1,0,0,0,0,1,1
+cand_frac,cal_refit,0.75,0.30-0.50mm,"px-equiv(RMSE<=0.5px, w>=1px)",none,0,0,0,0,0,0,0
+cand_frac,cal_refit,0.75,<0.5mm,"target(MAE,P95,bias,ratio,COV)",none,0,0,0,0,0,0,0
+cand_frac,cal_refit,0.75,<0.5mm,MAE<=0.05mm,20,1,0,0,0,0,1,1
+cand_frac,cal_refit,0.75,<0.5mm,"px-equiv(RMSE<=0.5px, w>=1px)",none,0,0,0,0,0,0,0
+cand_frac,added,0.75,0.30-0.50mm,"target(MAE,P95,bias,ratio,COV)",251.969,1,0,0,0,0,0,0
+cand_frac,added,0.75,0.30-0.50mm,MAE<=0.05mm,251.969,1,0,0,0,0,0,0
+cand_frac,added,0.75,0.30-0.50mm,"px-equiv(RMSE<=0.5px, w>=1px)",251.969,1,0,0,0,0,0,0
+cand_frac,added,0.75,<0.5mm,"target(MAE,P95,bias,ratio,COV)",251.969,1,0,0,0,0,0,0
+cand_frac,added,0.75,<0.5mm,MAE<=0.05mm,251.969,1,0,0,0,0,0,0
+cand_frac,added,0.75,<0.5mm,"px-equiv(RMSE<=0.5px, w>=1px)",251.969,1,0,0,0,0,0,0
+glob_blend,raw,0.75,0.30-0.50mm,"target(MAE,P95,bias,ratio,COV)",none,0,0,0,0,0,0,0
+glob_blend,raw,0.75,0.30-0.50mm,MAE<=0.05mm,none,0,0,0,0,0,0,0
+glob_blend,raw,0.75,0.30-0.50mm,"px-equiv(RMSE<=0.5px, w>=1px)",none,0,0,0,0,0,0,0
+glob_blend,raw,0.75,<0.5mm,"target(MAE,P95,bias,ratio,COV)",none,0,0,0,0,0,0,0
+glob_blend,raw,0.75,<0.5mm,MAE<=0.05mm,none,0,0,0,0,0,0,0
+glob_blend,raw,0.75,<0.5mm,"px-equiv(RMSE<=0.5px, w>=1px)",none,0,0,0,0,0,0,0
+glob_blend,cal_native,0.75,0.30-0.50mm,"target(MAE,P95,bias,ratio,COV)",none,0,0,0,0,0,0,0
+glob_blend,cal_native,0.75,0.30-0.50mm,MAE<=0.05mm,none,0,0,0,0,0,0,0
+glob_blend,cal_native,0.75,0.30-0.50mm,"px-equiv(RMSE<=0.5px, w>=1px)",none,0,0,0,0,0,0,0
+glob_blend,cal_native,0.75,<0.5mm,"target(MAE,P95,bias,ratio,COV)",none,0,0,0,0,0,0,0
+glob_blend,cal_native,0.75,<0.5mm,MAE<=0.05mm,none,0,0,0,0,0,0,0
+glob_blend,cal_native,0.75,<0.5mm,"px-equiv(RMSE<=0.5px, w>=1px)",none,0,0,0,0,0,0,0
+glob_blend,cal_refit,0.75,0.30-0.50mm,"target(MAE,P95,bias,ratio,COV)",none,0,0,0,0,0,0,0
+glob_blend,cal_refit,0.75,0.30-0.50mm,MAE<=0.05mm,none,0,0,0,0,0,0,0
+glob_blend,cal_refit,0.75,0.30-0.50mm,"px-equiv(RMSE<=0.5px, w>=1px)",none,0,0,0,0,0,0,0
+glob_blend,cal_refit,0.75,<0.5mm,"target(MAE,P95,bias,ratio,COV)",none,0,0,0,0,0,0,0
+glob_blend,cal_refit,0.75,<0.5mm,MAE<=0.05mm,none,0,0,0,0,0,0,0
+glob_blend,cal_refit,0.75,<0.5mm,"px-equiv(RMSE<=0.5px, w>=1px)",none,0,0,0,0,0,0,0
+glob_blend,added,0.75,0.30-0.50mm,"target(MAE,P95,bias,ratio,COV)",251.969,1,0,0,0,0,0,0
+glob_blend,added,0.75,0.30-0.50mm,MAE<=0.05mm,251.969,1,0,0,0,0,0,0
+glob_blend,added,0.75,0.30-0.50mm,"px-equiv(RMSE<=0.5px, w>=1px)",251.969,1,0,0,0,0,0,0
+glob_blend,added,0.75,<0.5mm,"target(MAE,P95,bias,ratio,COV)",251.969,1,0,0,0,0,0,0
+glob_blend,added,0.75,<0.5mm,MAE<=0.05mm,251.969,1,0,0,0,0,0,0
+glob_blend,added,0.75,<0.5mm,"px-equiv(RMSE<=0.5px, w>=1px)",251.969,1,0,0,0,0,0,0
+glob_core,raw,0.75,0.30-0.50mm,"target(MAE,P95,bias,ratio,COV)",none,0,0,0,0,0,0,0
+glob_core,raw,0.75,0.30-0.50mm,MAE<=0.05mm,none,0,0,0,0,0,0,0
+glob_core,raw,0.75,0.30-0.50mm,"px-equiv(RMSE<=0.5px, w>=1px)",none,0,0,0,0,0,0,0
+glob_core,raw,0.75,<0.5mm,"target(MAE,P95,bias,ratio,COV)",none,0,0,0,0,0,0,0
+glob_core,raw,0.75,<0.5mm,MAE<=0.05mm,none,0,0,0,0,0,0,0
+glob_core,raw,0.75,<0.5mm,"px-equiv(RMSE<=0.5px, w>=1px)",none,0,0,0,0,0,0,0
+glob_core,cal_native,0.75,0.30-0.50mm,"target(MAE,P95,bias,ratio,COV)",none,0,0,0,0,0,0,0
+glob_core,cal_native,0.75,0.30-0.50mm,MAE<=0.05mm,none,0,0,0,0,0,0,0
+glob_core,cal_native,0.75,0.30-0.50mm,"px-equiv(RMSE<=0.5px, w>=1px)",none,0,0,0,0,0,0,0
+glob_core,cal_native,0.75,<0.5mm,"target(MAE,P95,bias,ratio,COV)",none,0,0,0,0,0,0,0
+glob_core,cal_native,0.75,<0.5mm,MAE<=0.05mm,none,0,0,0,0,0,0,0
+glob_core,cal_native,0.75,<0.5mm,"px-equiv(RMSE<=0.5px, w>=1px)",none,0,0,0,0,0,0,0
+glob_core,cal_refit,0.75,0.30-0.50mm,"target(MAE,P95,bias,ratio,COV)",none,0,0,0,0,0,0,0
+glob_core,cal_refit,0.75,0.30-0.50mm,MAE<=0.05mm,none,0,0,0,0,0,0,0
+glob_core,cal_refit,0.75,0.30-0.50mm,"px-equiv(RMSE<=0.5px, w>=1px)",none,0,0,0,0,0,0,0
+glob_core,cal_refit,0.75,<0.5mm,"target(MAE,P95,bias,ratio,COV)",none,0,0,0,0,0,0,0
+glob_core,cal_refit,0.75,<0.5mm,MAE<=0.05mm,none,0,0,0,0,0,0,0
+glob_core,cal_refit,0.75,<0.5mm,"px-equiv(RMSE<=0.5px, w>=1px)",none,0,0,0,0,0,0,0
+glob_core,added,0.75,0.30-0.50mm,"target(MAE,P95,bias,ratio,COV)",251.969,1,0,0,0,0,0,0
+glob_core,added,0.75,0.30-0.50mm,MAE<=0.05mm,251.969,1,0,0,0,0,0,0
+glob_core,added,0.75,0.30-0.50mm,"px-equiv(RMSE<=0.5px, w>=1px)",251.969,1,0,0,0,0,0,0
+glob_core,added,0.75,<0.5mm,"target(MAE,P95,bias,ratio,COV)",251.969,1,0,0,0,0,0,0
+glob_core,added,0.75,<0.5mm,MAE<=0.05mm,251.969,1,0,0,0,0,0,0
+glob_core,added,0.75,<0.5mm,"px-equiv(RMSE<=0.5px, w>=1px)",251.969,1,0,0,0,0,0,0
+glob_dt,raw,0.75,0.30-0.50mm,"target(MAE,P95,bias,ratio,COV)",none,0,0,0,0,0,0,0
+glob_dt,raw,0.75,0.30-0.50mm,MAE<=0.05mm,none,0,0,0,0,0,0,0
+glob_dt,raw,0.75,0.30-0.50mm,"px-equiv(RMSE<=0.5px, w>=1px)",none,0,0,0,0,0,0,0
+glob_dt,raw,0.75,<0.5mm,"target(MAE,P95,bias,ratio,COV)",none,0,0,0,0,0,0,0
+glob_dt,raw,0.75,<0.5mm,MAE<=0.05mm,none,0,0,0,0,0,0,0
+glob_dt,raw,0.75,<0.5mm,"px-equiv(RMSE<=0.5px, w>=1px)",none,0,0,0,0,0,0,0
+glob_dt,cal_native,0.75,0.30-0.50mm,"target(MAE,P95,bias,ratio,COV)",none,0,0,0,0,0,0,0
+glob_dt,cal_native,0.75,0.30-0.50mm,MAE<=0.05mm,none,0,0,0,0,0,0,0
+glob_dt,cal_native,0.75,0.30-0.50mm,"px-equiv(RMSE<=0.5px, w>=1px)",none,0,0,0,0,0,0,0
+glob_dt,cal_native,0.75,<0.5mm,"target(MAE,P95,bias,ratio,COV)",none,0,0,0,0,0,0,0
+glob_dt,cal_native,0.75,<0.5mm,MAE<=0.05mm,none,0,0,0,0,0,0,0
+glob_dt,cal_native,0.75,<0.5mm,"px-equiv(RMSE<=0.5px, w>=1px)",none,0,0,0,0,0,0,0
+glob_dt,cal_refit,0.75,0.30-0.50mm,"target(MAE,P95,bias,ratio,COV)",none,0,0,0,0,0,0,0
+glob_dt,cal_refit,0.75,0.30-0.50mm,MAE<=0.05mm,none,0,0,0,0,0,0,0
+glob_dt,cal_refit,0.75,0.30-0.50mm,"px-equiv(RMSE<=0.5px, w>=1px)",none,0,0,0,0,0,0,0
+glob_dt,cal_refit,0.75,<0.5mm,"target(MAE,P95,bias,ratio,COV)",none,0,0,0,0,0,0,0
+glob_dt,cal_refit,0.75,<0.5mm,MAE<=0.05mm,none,0,0,0,0,0,0,0
+glob_dt,cal_refit,0.75,<0.5mm,"px-equiv(RMSE<=0.5px, w>=1px)",none,0,0,0,0,0,0,0
+glob_dt,added,0.75,0.30-0.50mm,"target(MAE,P95,bias,ratio,COV)",251.969,1,0,0,0,0,0,0
+glob_dt,added,0.75,0.30-0.50mm,MAE<=0.05mm,251.969,1,0,0,0,0,0,0
+glob_dt,added,0.75,0.30-0.50mm,"px-equiv(RMSE<=0.5px, w>=1px)",251.969,1,0,0,0,0,0,0
+glob_dt,added,0.75,<0.5mm,"target(MAE,P95,bias,ratio,COV)",251.969,1,0,0,0,0,0,0
+glob_dt,added,0.75,<0.5mm,MAE<=0.05mm,251.969,1,0,0,0,0,0,0
+glob_dt,added,0.75,<0.5mm,"px-equiv(RMSE<=0.5px, w>=1px)",251.969,1,0,0,0,0,0,0
+glob_fwhm,raw,0.75,0.30-0.50mm,"target(MAE,P95,bias,ratio,COV)",none,0,0,0,0,0,0,0
+glob_fwhm,raw,0.75,0.30-0.50mm,MAE<=0.05mm,none,0,0,0,0,0,0,0
+glob_fwhm,raw,0.75,0.30-0.50mm,"px-equiv(RMSE<=0.5px, w>=1px)",none,0,0,0,0,0,0,0
+glob_fwhm,raw,0.75,<0.5mm,"target(MAE,P95,bias,ratio,COV)",none,0,0,0,0,0,0,0
+glob_fwhm,raw,0.75,<0.5mm,MAE<=0.05mm,none,0,0,0,0,0,0,0
+glob_fwhm,raw,0.75,<0.5mm,"px-equiv(RMSE<=0.5px, w>=1px)",none,0,0,0,0,0,0,0
+glob_fwhm,cal_native,0.75,0.30-0.50mm,"target(MAE,P95,bias,ratio,COV)",none,0,0,0,0,0,0,0
+glob_fwhm,cal_native,0.75,0.30-0.50mm,MAE<=0.05mm,none,0,0,0,0,0,0,0
+glob_fwhm,cal_native,0.75,0.30-0.50mm,"px-equiv(RMSE<=0.5px, w>=1px)",none,0,0,0,0,0,0,0
+glob_fwhm,cal_native,0.75,<0.5mm,"target(MAE,P95,bias,ratio,COV)",none,0,0,0,0,0,0,0
+glob_fwhm,cal_native,0.75,<0.5mm,MAE<=0.05mm,none,0,0,0,0,0,0,0
+glob_fwhm,cal_native,0.75,<0.5mm,"px-equiv(RMSE<=0.5px, w>=1px)",none,0,0,0,0,0,0,0
+glob_fwhm,cal_refit,0.75,0.30-0.50mm,"target(MAE,P95,bias,ratio,COV)",none,0,0,0,0,0,0,0
+glob_fwhm,cal_refit,0.75,0.30-0.50mm,MAE<=0.05mm,none,0,0,0,0,0,0,0
+glob_fwhm,cal_refit,0.75,0.30-0.50mm,"px-equiv(RMSE<=0.5px, w>=1px)",none,0,0,0,0,0,0,0
+glob_fwhm,cal_refit,0.75,<0.5mm,"target(MAE,P95,bias,ratio,COV)",none,0,0,0,0,0,0,0
+glob_fwhm,cal_refit,0.75,<0.5mm,MAE<=0.05mm,none,0,0,0,0,0,0,0
+glob_fwhm,cal_refit,0.75,<0.5mm,"px-equiv(RMSE<=0.5px, w>=1px)",none,0,0,0,0,0,0,0
+glob_fwhm,added,0.75,0.30-0.50mm,"target(MAE,P95,bias,ratio,COV)",251.969,1,0,0,0,0,0,0
+glob_fwhm,added,0.75,0.30-0.50mm,MAE<=0.05mm,251.969,1,0,0,0,0,0,0
+glob_fwhm,added,0.75,0.30-0.50mm,"px-equiv(RMSE<=0.5px, w>=1px)",251.969,1,0,0,0,0,0,0
+glob_fwhm,added,0.75,<0.5mm,"target(MAE,P95,bias,ratio,COV)",251.969,1,0,0,0,0,0,0
+glob_fwhm,added,0.75,<0.5mm,MAE<=0.05mm,251.969,1,0,0,0,0,0,0
+glob_fwhm,added,0.75,<0.5mm,"px-equiv(RMSE<=0.5px, w>=1px)",251.969,1,0,0,0,0,0,0
+glob_ink,raw,0.75,0.30-0.50mm,"target(MAE,P95,bias,ratio,COV)",none,0,0,0,0,0,0,0
+glob_ink,raw,0.75,0.30-0.50mm,MAE<=0.05mm,none,0,0,0,0,0,0,0
+glob_ink,raw,0.75,0.30-0.50mm,"px-equiv(RMSE<=0.5px, w>=1px)",none,0,0,0,0,0,0,0
+glob_ink,raw,0.75,<0.5mm,"target(MAE,P95,bias,ratio,COV)",none,0,0,0,0,0,0,0
+glob_ink,raw,0.75,<0.5mm,MAE<=0.05mm,none,0,0,0,0,0,0,0
+glob_ink,raw,0.75,<0.5mm,"px-equiv(RMSE<=0.5px, w>=1px)",none,0,0,0,0,0,0,0
+glob_ink,cal_native,0.75,0.30-0.50mm,"target(MAE,P95,bias,ratio,COV)",none,0,0,0,0,0,0,0
+glob_ink,cal_native,0.75,0.30-0.50mm,MAE<=0.05mm,none,0,0,0,0,0,0,0
+glob_ink,cal_native,0.75,0.30-0.50mm,"px-equiv(RMSE<=0.5px, w>=1px)",none,0,0,0,0,0,0,0
+glob_ink,cal_native,0.75,<0.5mm,"target(MAE,P95,bias,ratio,COV)",none,0,0,0,0,0,0,0
+glob_ink,cal_native,0.75,<0.5mm,MAE<=0.05mm,none,0,0,0,0,0,0,0
+glob_ink,cal_native,0.75,<0.5mm,"px-equiv(RMSE<=0.5px, w>=1px)",none,0,0,0,0,0,0,0
+glob_ink,cal_refit,0.75,0.30-0.50mm,"target(MAE,P95,bias,ratio,COV)",none,0,0,0,0,0,0,0
+glob_ink,cal_refit,0.75,0.30-0.50mm,MAE<=0.05mm,none,0,0,0,0,0,0,0
+glob_ink,cal_refit,0.75,0.30-0.50mm,"px-equiv(RMSE<=0.5px, w>=1px)",none,0,0,0,0,0,0,0
+glob_ink,cal_refit,0.75,<0.5mm,"target(MAE,P95,bias,ratio,COV)",none,0,0,0,0,0,0,0
+glob_ink,cal_refit,0.75,<0.5mm,MAE<=0.05mm,none,0,0,0,0,0,0,0
+glob_ink,cal_refit,0.75,<0.5mm,"px-equiv(RMSE<=0.5px, w>=1px)",none,0,0,0,0,0,0,0
+glob_ink,added,0.75,0.30-0.50mm,"target(MAE,P95,bias,ratio,COV)",251.969,1,0,0,0,0,0,0
+glob_ink,added,0.75,0.30-0.50mm,MAE<=0.05mm,251.969,1,0,0,0,0,0,0
+glob_ink,added,0.75,0.30-0.50mm,"px-equiv(RMSE<=0.5px, w>=1px)",251.969,1,0,0,0,0,0,0
+glob_ink,added,0.75,<0.5mm,"target(MAE,P95,bias,ratio,COV)",251.969,1,0,0,0,0,0,0
+glob_ink,added,0.75,<0.5mm,MAE<=0.05mm,251.969,1,0,0,0,0,0,0
+glob_ink,added,0.75,<0.5mm,"px-equiv(RMSE<=0.5px, w>=1px)",251.969,1,0,0,0,0,0,0
+loc_blend,raw,0.75,0.30-0.50mm,"target(MAE,P95,bias,ratio,COV)",none,0,0,0,0,0,0,0
+loc_blend,raw,0.75,0.30-0.50mm,MAE<=0.05mm,none,0,0,0,0,0,0,0
+loc_blend,raw,0.75,0.30-0.50mm,"px-equiv(RMSE<=0.5px, w>=1px)",none,0,0,0,0,0,0,0
+loc_blend,raw,0.75,<0.5mm,"target(MAE,P95,bias,ratio,COV)",none,0,0,0,0,0,0,0
+loc_blend,raw,0.75,<0.5mm,MAE<=0.05mm,none,0,0,0,0,0,0,0
+loc_blend,raw,0.75,<0.5mm,"px-equiv(RMSE<=0.5px, w>=1px)",none,0,0,0,0,0,0,0
+loc_blend,cal_native,0.75,0.30-0.50mm,"target(MAE,P95,bias,ratio,COV)",none,0,0,0,0,0,0,0
+loc_blend,cal_native,0.75,0.30-0.50mm,MAE<=0.05mm,none,0,0,0,0,0,0,0
+loc_blend,cal_native,0.75,0.30-0.50mm,"px-equiv(RMSE<=0.5px, w>=1px)",none,0,0,0,0,0,0,0
+loc_blend,cal_native,0.75,<0.5mm,"target(MAE,P95,bias,ratio,COV)",none,0,0,0,0,0,0,0
+loc_blend,cal_native,0.75,<0.5mm,MAE<=0.05mm,none,0,0,0,0,0,0,0
+loc_blend,cal_native,0.75,<0.5mm,"px-equiv(RMSE<=0.5px, w>=1px)",none,0,0,0,0,0,0,0
+loc_blend,cal_refit,0.75,0.30-0.50mm,"target(MAE,P95,bias,ratio,COV)",none,0,0,0,0,0,0,0
+loc_blend,cal_refit,0.75,0.30-0.50mm,MAE<=0.05mm,none,0,0,0,0,0,0,0
+loc_blend,cal_refit,0.75,0.30-0.50mm,"px-equiv(RMSE<=0.5px, w>=1px)",none,0,0,0,0,0,0,0
+loc_blend,cal_refit,0.75,<0.5mm,"target(MAE,P95,bias,ratio,COV)",none,0,0,0,0,0,0,0
+loc_blend,cal_refit,0.75,<0.5mm,MAE<=0.05mm,none,0,0,0,0,0,0,0
+loc_blend,cal_refit,0.75,<0.5mm,"px-equiv(RMSE<=0.5px, w>=1px)",none,0,0,0,0,0,0,0
+loc_blend,added,0.75,0.30-0.50mm,"target(MAE,P95,bias,ratio,COV)",251.969,1,0,0,0,0,0,0
+loc_blend,added,0.75,0.30-0.50mm,MAE<=0.05mm,251.969,1,0,0,0,0,0,0
+loc_blend,added,0.75,0.30-0.50mm,"px-equiv(RMSE<=0.5px, w>=1px)",251.969,1,0,0,0,0,0,0
+loc_blend,added,0.75,<0.5mm,"target(MAE,P95,bias,ratio,COV)",251.969,1,0,0,0,0,0,0
+loc_blend,added,0.75,<0.5mm,MAE<=0.05mm,251.969,1,0,0,0,0,0,0
+loc_blend,added,0.75,<0.5mm,"px-equiv(RMSE<=0.5px, w>=1px)",251.969,1,0,0,0,0,0,0
+loc_core,raw,0.75,0.30-0.50mm,"target(MAE,P95,bias,ratio,COV)",none,0,0,0,0,0,0,0
+loc_core,raw,0.75,0.30-0.50mm,MAE<=0.05mm,none,0,0,0,0,0,0,0
+loc_core,raw,0.75,0.30-0.50mm,"px-equiv(RMSE<=0.5px, w>=1px)",none,0,0,0,0,0,0,0
+loc_core,raw,0.75,<0.5mm,"target(MAE,P95,bias,ratio,COV)",none,0,0,0,0,0,0,0
+loc_core,raw,0.75,<0.5mm,MAE<=0.05mm,none,0,0,0,0,0,0,0
+loc_core,raw,0.75,<0.5mm,"px-equiv(RMSE<=0.5px, w>=1px)",none,0,0,0,0,0,0,0
+loc_core,cal_native,0.75,0.30-0.50mm,"target(MAE,P95,bias,ratio,COV)",none,0,0,0,0,0,0,0
+loc_core,cal_native,0.75,0.30-0.50mm,MAE<=0.05mm,none,0,0,0,0,0,0,0
+loc_core,cal_native,0.75,0.30-0.50mm,"px-equiv(RMSE<=0.5px, w>=1px)",none,0,0,0,0,0,0,0
+loc_core,cal_native,0.75,<0.5mm,"target(MAE,P95,bias,ratio,COV)",none,0,0,0,0,0,0,0
+loc_core,cal_native,0.75,<0.5mm,MAE<=0.05mm,none,0,0,0,0,0,0,0
+loc_core,cal_native,0.75,<0.5mm,"px-equiv(RMSE<=0.5px, w>=1px)",none,0,0,0,0,0,0,0
+loc_core,cal_refit,0.75,0.30-0.50mm,"target(MAE,P95,bias,ratio,COV)",none,0,0,0,0,0,0,0
+loc_core,cal_refit,0.75,0.30-0.50mm,MAE<=0.05mm,none,0,0,0,0,0,0,0
+loc_core,cal_refit,0.75,0.30-0.50mm,"px-equiv(RMSE<=0.5px, w>=1px)",none,0,0,0,0,0,0,0
+loc_core,cal_refit,0.75,<0.5mm,"target(MAE,P95,bias,ratio,COV)",none,0,0,0,0,0,0,0
+loc_core,cal_refit,0.75,<0.5mm,MAE<=0.05mm,none,0,0,0,0,0,0,0
+loc_core,cal_refit,0.75,<0.5mm,"px-equiv(RMSE<=0.5px, w>=1px)",none,0,0,0,0,0,0,0
+loc_core,added,0.75,0.30-0.50mm,"target(MAE,P95,bias,ratio,COV)",251.969,1,0,0,0,0,0,0
+loc_core,added,0.75,0.30-0.50mm,MAE<=0.05mm,251.969,1,0,0,0,0,0,0
+loc_core,added,0.75,0.30-0.50mm,"px-equiv(RMSE<=0.5px, w>=1px)",251.969,1,0,0,0,0,0,0
+loc_core,added,0.75,<0.5mm,"target(MAE,P95,bias,ratio,COV)",251.969,1,0,0,0,0,0,0
+loc_core,added,0.75,<0.5mm,MAE<=0.05mm,251.969,1,0,0,0,0,0,0
+loc_core,added,0.75,<0.5mm,"px-equiv(RMSE<=0.5px, w>=1px)",251.969,1,0,0,0,0,0,0
+loc_dt,raw,0.75,0.30-0.50mm,"target(MAE,P95,bias,ratio,COV)",none,0,0,0,0,0,0,0
+loc_dt,raw,0.75,0.30-0.50mm,MAE<=0.05mm,none,0,0,0,0,0,0,0
+loc_dt,raw,0.75,0.30-0.50mm,"px-equiv(RMSE<=0.5px, w>=1px)",none,0,0,0,0,0,0,0
+loc_dt,raw,0.75,<0.5mm,"target(MAE,P95,bias,ratio,COV)",none,0,0,0,0,0,0,0
+loc_dt,raw,0.75,<0.5mm,MAE<=0.05mm,none,0,0,0,0,0,0,0
+loc_dt,raw,0.75,<0.5mm,"px-equiv(RMSE<=0.5px, w>=1px)",none,0,0,0,0,0,0,0
+loc_dt,cal_native,0.75,0.30-0.50mm,"target(MAE,P95,bias,ratio,COV)",none,0,0,0,0,0,0,0
+loc_dt,cal_native,0.75,0.30-0.50mm,MAE<=0.05mm,none,0,0,0,0,0,0,0
+loc_dt,cal_native,0.75,0.30-0.50mm,"px-equiv(RMSE<=0.5px, w>=1px)",none,0,0,0,0,0,0,0
+loc_dt,cal_native,0.75,<0.5mm,"target(MAE,P95,bias,ratio,COV)",none,0,0,0,0,0,0,0
+loc_dt,cal_native,0.75,<0.5mm,MAE<=0.05mm,none,0,0,0,0,0,0,0
+loc_dt,cal_native,0.75,<0.5mm,"px-equiv(RMSE<=0.5px, w>=1px)",none,0,0,0,0,0,0,0
+loc_dt,cal_refit,0.75,0.30-0.50mm,"target(MAE,P95,bias,ratio,COV)",none,0,0,0,0,0,0,0
+loc_dt,cal_refit,0.75,0.30-0.50mm,MAE<=0.05mm,none,0,0,0,0,0,0,0
+loc_dt,cal_refit,0.75,0.30-0.50mm,"px-equiv(RMSE<=0.5px, w>=1px)",none,0,0,0,0,0,0,0
+loc_dt,cal_refit,0.75,<0.5mm,"target(MAE,P95,bias,ratio,COV)",none,0,0,0,0,0,0,0
+loc_dt,cal_refit,0.75,<0.5mm,MAE<=0.05mm,none,0,0,0,0,0,0,0
+loc_dt,cal_refit,0.75,<0.5mm,"px-equiv(RMSE<=0.5px, w>=1px)",none,0,0,0,0,0,0,0
+loc_dt,added,0.75,0.30-0.50mm,"target(MAE,P95,bias,ratio,COV)",251.969,1,0,0,0,0,0,0
+loc_dt,added,0.75,0.30-0.50mm,MAE<=0.05mm,25,1,0,0,0,0,0,1
+loc_dt,added,0.75,0.30-0.50mm,"px-equiv(RMSE<=0.5px, w>=1px)",251.969,1,0,0,0,0,0,0
+loc_dt,added,0.75,<0.5mm,"target(MAE,P95,bias,ratio,COV)",251.969,1,0,0,0,0,0,0
+loc_dt,added,0.75,<0.5mm,MAE<=0.05mm,251.969,1,0,0,0,0,0,0
+loc_dt,added,0.75,<0.5mm,"px-equiv(RMSE<=0.5px, w>=1px)",251.969,1,0,0,0,0,0,0
+loc_fwhm,raw,0.75,0.30-0.50mm,"target(MAE,P95,bias,ratio,COV)",none,0,0,0,0,0,0,0
+loc_fwhm,raw,0.75,0.30-0.50mm,MAE<=0.05mm,none,0,0,0,0,0,0,0
+loc_fwhm,raw,0.75,0.30-0.50mm,"px-equiv(RMSE<=0.5px, w>=1px)",none,0,0,0,0,0,0,0
+loc_fwhm,raw,0.75,<0.5mm,"target(MAE,P95,bias,ratio,COV)",none,0,0,0,0,0,0,0
+loc_fwhm,raw,0.75,<0.5mm,MAE<=0.05mm,none,0,0,0,0,0,0,0
+loc_fwhm,raw,0.75,<0.5mm,"px-equiv(RMSE<=0.5px, w>=1px)",none,0,0,0,0,0,0,0
+loc_fwhm,cal_native,0.75,0.30-0.50mm,"target(MAE,P95,bias,ratio,COV)",none,0,0,0,0,0,0,0
+loc_fwhm,cal_native,0.75,0.30-0.50mm,MAE<=0.05mm,none,0,0,0,0,0,0,0
+loc_fwhm,cal_native,0.75,0.30-0.50mm,"px-equiv(RMSE<=0.5px, w>=1px)",none,0,0,0,0,0,0,0
+loc_fwhm,cal_native,0.75,<0.5mm,"target(MAE,P95,bias,ratio,COV)",none,0,0,0,0,0,0,0
+loc_fwhm,cal_native,0.75,<0.5mm,MAE<=0.05mm,none,0,0,0,0,0,0,0
+loc_fwhm,cal_native,0.75,<0.5mm,"px-equiv(RMSE<=0.5px, w>=1px)",none,0,0,0,0,0,0,0
+loc_fwhm,cal_refit,0.75,0.30-0.50mm,"target(MAE,P95,bias,ratio,COV)",none,0,0,0,0,0,0,0
+loc_fwhm,cal_refit,0.75,0.30-0.50mm,MAE<=0.05mm,none,0,0,0,0,0,0,0
+loc_fwhm,cal_refit,0.75,0.30-0.50mm,"px-equiv(RMSE<=0.5px, w>=1px)",none,0,0,0,0,0,0,0
+loc_fwhm,cal_refit,0.75,<0.5mm,"target(MAE,P95,bias,ratio,COV)",none,0,0,0,0,0,0,0
+loc_fwhm,cal_refit,0.75,<0.5mm,MAE<=0.05mm,none,0,0,0,0,0,0,0
+loc_fwhm,cal_refit,0.75,<0.5mm,"px-equiv(RMSE<=0.5px, w>=1px)",none,0,0,0,0,0,0,0
+loc_fwhm,added,0.75,0.30-0.50mm,"target(MAE,P95,bias,ratio,COV)",251.969,1,0,0,0,0,0,0
+loc_fwhm,added,0.75,0.30-0.50mm,MAE<=0.05mm,20,1,0,0,0,0,1,1
+loc_fwhm,added,0.75,0.30-0.50mm,"px-equiv(RMSE<=0.5px, w>=1px)",251.969,1,0,0,0,0,0,0
+loc_fwhm,added,0.75,<0.5mm,"target(MAE,P95,bias,ratio,COV)",251.969,1,0,0,0,0,0,0
+loc_fwhm,added,0.75,<0.5mm,MAE<=0.05mm,25,1,0,0,0,0,0,1
+loc_fwhm,added,0.75,<0.5mm,"px-equiv(RMSE<=0.5px, w>=1px)",251.969,1,0,0,0,0,0,0
+loc_ink,raw,0.75,0.30-0.50mm,"target(MAE,P95,bias,ratio,COV)",none,0,0,0,0,0,0,0
+loc_ink,raw,0.75,0.30-0.50mm,MAE<=0.05mm,none,0,0,0,0,0,0,0
+loc_ink,raw,0.75,0.30-0.50mm,"px-equiv(RMSE<=0.5px, w>=1px)",none,0,0,0,0,0,0,0
+loc_ink,raw,0.75,<0.5mm,"target(MAE,P95,bias,ratio,COV)",none,0,0,0,0,0,0,0
+loc_ink,raw,0.75,<0.5mm,MAE<=0.05mm,none,0,0,0,0,0,0,0
+loc_ink,raw,0.75,<0.5mm,"px-equiv(RMSE<=0.5px, w>=1px)",none,0,0,0,0,0,0,0
+loc_ink,cal_native,0.75,0.30-0.50mm,"target(MAE,P95,bias,ratio,COV)",none,0,0,0,0,0,0,0
+loc_ink,cal_native,0.75,0.30-0.50mm,MAE<=0.05mm,none,0,0,0,0,0,0,0
+loc_ink,cal_native,0.75,0.30-0.50mm,"px-equiv(RMSE<=0.5px, w>=1px)",none,0,0,0,0,0,0,0
+loc_ink,cal_native,0.75,<0.5mm,"target(MAE,P95,bias,ratio,COV)",none,0,0,0,0,0,0,0
+loc_ink,cal_native,0.75,<0.5mm,MAE<=0.05mm,none,0,0,0,0,0,0,0
+loc_ink,cal_native,0.75,<0.5mm,"px-equiv(RMSE<=0.5px, w>=1px)",none,0,0,0,0,0,0,0
+loc_ink,cal_refit,0.75,0.30-0.50mm,"target(MAE,P95,bias,ratio,COV)",none,0,0,0,0,0,0,0
+loc_ink,cal_refit,0.75,0.30-0.50mm,MAE<=0.05mm,none,0,0,0,0,0,0,0
+loc_ink,cal_refit,0.75,0.30-0.50mm,"px-equiv(RMSE<=0.5px, w>=1px)",none,0,0,0,0,0,0,0
+loc_ink,cal_refit,0.75,<0.5mm,"target(MAE,P95,bias,ratio,COV)",none,0,0,0,0,0,0,0
+loc_ink,cal_refit,0.75,<0.5mm,MAE<=0.05mm,none,0,0,0,0,0,0,0
+loc_ink,cal_refit,0.75,<0.5mm,"px-equiv(RMSE<=0.5px, w>=1px)",none,0,0,0,0,0,0,0
+loc_ink,added,0.75,0.30-0.50mm,"target(MAE,P95,bias,ratio,COV)",251.969,1,0,0,0,0,0,0
+loc_ink,added,0.75,0.30-0.50mm,MAE<=0.05mm,251.969,1,0,0,0,0,0,0
+loc_ink,added,0.75,0.30-0.50mm,"px-equiv(RMSE<=0.5px, w>=1px)",251.969,1,0,0,0,0,0,0
+loc_ink,added,0.75,<0.5mm,"target(MAE,P95,bias,ratio,COV)",251.969,1,0,0,0,0,0,0
+loc_ink,added,0.75,<0.5mm,MAE<=0.05mm,251.969,1,0,0,0,0,0,0
+loc_ink,added,0.75,<0.5mm,"px-equiv(RMSE<=0.5px, w>=1px)",251.969,1,0,0,0,0,0,0
