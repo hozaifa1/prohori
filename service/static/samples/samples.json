@@ -1,0 +1,37 @@
+[
+  {
+    "id": "good-straight",
+    "label": "Good capture, straight-on",
+    "note": "Whole board in view, sharp: should certify",
+    "url": "/static/samples/good-straight.jpg",
+    "source": "IMG20261019080722.jpg"
+  },
+  {
+    "id": "tilted",
+    "label": "Tilted view",
+    "note": "Phone held at a steep angle",
+    "url": "/static/samples/tilted.jpg",
+    "source": "IMG20261019080746.jpg"
+  },
+  {
+    "id": "too-far",
+    "label": "Too far away",
+    "note": "Board resolution too low: agent asks to move closer",
+    "url": "/static/samples/too-far.jpg",
+    "source": "IMG20261019080657.jpg"
+  },
+  {
+    "id": "board-partial",
+    "label": "Board out of frame",
+    "note": "Board mostly cut off: agent asks to reposition",
+    "url": "/static/samples/board-partial.jpg",
+    "source": "IMG20261019080725.jpg"
+  },
+  {
+    "id": "blurry-oblique",
+    "label": "Blurry and oblique",
+    "note": "Shaky, far and skewed: agent asks for a retake",
+    "url": "/static/samples/blurry-oblique.jpg",
+    "source": "IMG20261019080807.jpg"
+  }
+]

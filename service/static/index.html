@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Prohori</title>
+<meta name="description" content="Crack width in millimetres, certified. Point a phone at a crack and a triage agent tells you what to do next.">
+<meta name="theme-color" content="#0a121a" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#e9edf1" media="(prefers-color-scheme: light)">
+<meta name="color-scheme" content="light dark">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Prohori">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="icon" type="image/png" href="/static/icon-192.png">
+<link rel="apple-touch-icon" href="/static/apple-touch-icon.png">
+<link rel="preload" href="/static/fonts/geist-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/static/fonts/geist-mono-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<header class="top">
+  <div class="brand">
+    <img src="/static/icon-192.png" alt="" width="40" height="40">
+    <div class="brand-text">
+      <h1>PROHORI</h1>
+      <p>Crack width in millimetres, certified.</p>
+    </div>
+  </div>
+  <button id="btn-new" class="btn quiet small" type="button" aria-label="New inspection">
+    <svg class="ic" aria-hidden="true"><use href="/static/icons.svg#i-plus"/></svg>
+    <span>New</span>
+  </button>
+</header>
+
+<main>
+  <!-- CAPTURE VIEW -->
+  <section id="view-capture" class="capture" aria-label="Capture">
+    <div class="capture-main">
+      <div class="stage">
+        <video id="cam" playsinline muted autoplay></video>
+        <div class="reticle" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
+        <div id="cam-msg" class="cam-msg" hidden></div>
+        <div class="stage-tip" id="stage-tip">Keep the printed board and the crack in frame</div>
+      </div>
+
+      <div class="controls">
+        <button id="btn-demo" class="btn tool" type="button">
+          <svg class="ic" aria-hidden="true"><use href="/static/icons.svg#i-image-square"/></svg>
+          <span>Demo samples</span>
+        </button>
+        <div class="shutter-wrap">
+          <button id="btn-shutter" class="shutter" type="button" aria-label="Capture and measure">
+            <svg class="ic" aria-hidden="true"><use href="/static/icons.svg#i-camera"/></svg>
+          </button>
+          <span class="shutter-label" aria-hidden="true">Capture</span>
+        </div>
+        <label class="btn tool" for="file-cam">
+          <svg class="ic" aria-hidden="true"><use href="/static/icons.svg#i-upload-simple"/></svg>
+          <span>Upload photo</span>
+        </label>
+        <input id="file-cam" type="file" accept="image/*" capture="environment" hidden>
+      </div>
+
+      <div class="opts">
+        <label for="file-gallery" class="btn quiet gallery">
+          <svg class="ic" aria-hidden="true"><use href="/static/icons.svg#i-image-square"/></svg>
+          <span>Choose from gallery</span>
+        </label>
+        <input id="file-gallery" type="file" accept="image/*" hidden>
+        <label class="field" for="policy">
+          <svg class="ic" aria-hidden="true"><use href="/static/icons.svg#i-cpu"/></svg>
+          <select id="policy" aria-label="Agent policy">
+            <option value="llm">AI agent · Bedrock</option>
+            <option value="rules">Rules · free</option>
+          </select>
+          <svg class="ic caret" aria-hidden="true"><use href="/static/icons.svg#i-caret-down"/></svg>
+        </label>
+      </div>
+    </div>
+
+    <aside class="capture-side" aria-label="How it works">
+      <h2>Point at a crack.<br>Get its width.</h2>
+      <p class="lede">Tape the printed ChArUco board beside the crack and fill the frame. Prohori measures each crack against the board, then tells you what to do next.</p>
+      <dl class="how">
+        <div>
+          <dt>Vision</dt>
+          <dd>Finds the board, rectifies the plane and measures every crack in millimetres, with an uncertainty.</dd>
+        </div>
+        <div>
+          <dt>Gate</dt>
+          <dd>Certifies a reading only when scale, sharpness, tilt and glare all pass.</dd>
+        </div>
+        <div>
+          <dt>Agent</dt>
+          <dd>Reads those numbers, never the pixels, and picks the next action: accept, move closer, relight, or abandon.</dd>
+        </div>
+      </dl>
+    </aside>
+  </section>
+
+  <!-- RESULT VIEW -->
+  <section id="view-result" class="result" aria-label="Result" hidden>
+    <div class="r-main">
+      <div id="banner" class="banner" role="status">
+        <div class="banner-top">
+          <span class="banner-chip">
+            <svg class="ic" aria-hidden="true"><use id="banner-icon" href="/static/icons.svg#i-info"/></svg>
+            <span id="banner-action"></span>
+          </span>
+          <span class="banner-step" id="banner-step"></span>
+        </div>
+        <p class="banner-text" id="banner-text"></p>
+        <p class="banner-why" id="banner-why"></p>
+        <p class="banner-meta" id="banner-meta"></p>
+      </div>
+
+      <div id="hero" class="hero" aria-live="polite"></div>
+      <div id="gate" class="gate"></div>
+      <div id="cracks" class="picker" aria-label="All measured cracks"></div>
+      <div id="chips" class="gauges" aria-label="Capture quality"></div>
+    </div>
+
+    <div class="fig-col">
+    <figure class="overlay-wrap" id="overlay-wrap">
+      <img id="overlay-img" alt="Annotated measurement">
+      <figcaption id="overlay-cap">
+        <svg class="ic" aria-hidden="true"><use href="/static/icons.svg#i-magnifying-glass-plus"/></svg>
+        <span>Tap to zoom</span>
+      </figcaption>
+    </figure>
+    </div>
+
+    <details class="trace-panel" id="trace-panel" open>
+      <summary>
+        <span class="trace-title">Agent trace</span>
+        <small id="trace-count"></small>
+        <svg class="ic caret" aria-hidden="true"><use href="/static/icons.svg#i-caret-down"/></svg>
+      </summary>
+      <p class="trace-lede">Vision turns pixels into numbers. The agent sees only those numbers, then chooses the next action and writes the instruction you read.</p>
+      <ol id="trace" class="timeline"></ol>
+    </details>
+
+    <div class="result-actions">
+      <button id="btn-retake" class="btn primary" type="button">
+        <svg class="ic" aria-hidden="true"><use href="/static/icons.svg#i-arrow-counter-clockwise"/></svg>
+        <span>Retake</span>
+      </button>
+    </div>
+  </section>
+</main>
+
+<footer class="foot" id="foot">connecting&hellip;</footer>
+
+<div id="busy" class="busy" hidden aria-live="polite">
+  <div class="busy-card">
+    <div class="ruler" aria-hidden="true"><i></i></div>
+    <div class="busy-title" id="busy-title">Measuring&hellip;</div>
+    <div class="busy-sub" id="busy-sub">Uploading frame</div>
+  </div>
+</div>
+
+<dialog id="samples" class="sheet">
+  <form method="dialog" class="sheet-head">
+    <h2>Demo samples</h2>
+    <button class="btn quiet small" value="close">
+      <svg class="ic" aria-hidden="true"><use href="/static/icons.svg#i-x"/></svg>
+      <span>Close</span>
+    </button>
+  </form>
+  <p class="sheet-lede">Photos of the printed test panel. Pick one to run it through the same pipeline.</p>
+  <div id="sample-list" class="sample-list"></div>
+</dialog>
+
+<div id="toast" class="toast" hidden role="alert"></div>
+
+<script src="/static/app.js"></script>
+</body>
+</html>
