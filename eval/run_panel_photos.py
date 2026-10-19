@@ -2,7 +2,9 @@
 
 Writes
   eval/results/panel_photos_<date>.csv   one row per photo x crack (photos with no result get one empty row)
-  eval/results/panel_photos_<date>.md    summary: detection rate, error tables, timing, best overlays
+  eval/results/panel_photos_<date>.md    summary: detection rate, error tables, timing, best overlays, gate, conformal
+                                         interval coverage, and OUT-OF-SAMPLE numbers (leave-one-photo-out re-tuning of
+                                         the estimator parameters that were tuned in-sample)
   data/processed/<photo>_overlay.jpg     annotated overlays (local only, git-ignored)
 
 Usage: python eval/run_panel_photos.py [--raw data/raw] [--tag 2026-10-19]
@@ -21,10 +23,15 @@ import numpy as np
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
+from prohori import gate as gate_mod  # noqa: E402
 from prohori import measure  # noqa: E402
 
+sys.path.insert(0, str(ROOT / "eval"))
+import gate_lopo  # noqa: E402
+
 EST = ["dt", "profile_core", "profile_ink", "fwhm"]
-COLS = ["file", "crack", "locator", "true_mm", "final_mm", "uncertainty_mm", "err_final_mm",
+COLS = ["file", "crack", "locator", "true_mm", "final_mm", "uncertainty_mm", "interval_lo_mm", "interval_hi_mm",
+        "covered", "crack_certified", "crack_reasons", "err_final_mm",
         "dt_mm", "profile_core_mm", "profile_ink_mm", "fwhm_mm",
         "err_dt_mm", "err_profile_core_mm", "err_profile_ink_mm", "err_fwhm_mm",
         "px_per_mm", "corners", "obliquity_deg", "blur_var", "blur_sigma_mm", "glare_frac", "certified", "reasons",
@@ -53,13 +60,16 @@ def main():
     proc.mkdir(parents=True, exist_ok=True)
     files = sorted(Path(a.raw).glob("*.jpg"))
 
-    rows, per_photo = [], []
+    rows, per_photo, lopo_recs = [], [], []
     for f in files:
         img = cv2.imread(str(f))  # applies EXIF orientation, same as the service will
         if img is None:
             print("unreadable", f.name)
             continue
-        r = measure.analyze(img, panel_mode=True)
+        r = measure.analyze(img, panel_mode=True, debug=True)
+        lopo_recs.append(gate_lopo.raw_record(f.name, r))
+        for c in r["cracks"]:
+            c.pop("raw", None)
         json.dumps(r)  # must be serialisable
         o, g = r["observation"], r["gate"]
         base = {"file": f.name, "px_per_mm": o["px_per_mm"], "corners": o["corners"], "obliquity_deg": o["obliquity_deg"],
@@ -70,8 +80,12 @@ def main():
         for c in r["cracks"]:
             e = c["estimators"]
             t = c["true_width_mm"]
+            lo_, hi_ = c.get("interval_mm", [None, None])
             row = {**base, "crack": c["id"], "locator": c["locator"], "true_mm": t, "final_mm": c["width_mm"],
-                   "uncertainty_mm": c["uncertainty_mm"], "err_final_mm": round(c["width_mm"] - t, 4),
+                   "uncertainty_mm": c["uncertainty_mm"], "interval_lo_mm": lo_, "interval_hi_mm": hi_,
+                   "covered": int(lo_ <= t <= hi_) if lo_ is not None else "",
+                   "crack_certified": int(c.get("certified", False)), "crack_reasons": "|".join(c.get("reasons", [])),
+                   "err_final_mm": round(c["width_mm"] - t, 4),
                    "dt_mm": e["dt"], "profile_core_mm": e["profile_core"], "profile_ink_mm": e["profile_ink"],
                    "fwhm_mm": e["fwhm"]}
             for k in EST:
@@ -96,8 +110,8 @@ def main():
     measured = [r for _, r in per_photo if r["cracks"]]
     meas_rows = [r for r in rows if r.get("crack")]
     gt_rows = [r for r in meas_rows if r["locator"] == "gt_roi"]
-    cert_rows = [r for r in meas_rows if r["certified"]]
-    unc_rows = [r for r in meas_rows if not r["certified"]]
+    cert_rows = [r for r in meas_rows if r["crack_certified"]]
+    unc_rows = [r for r in meas_rows if not r["crack_certified"]]
 
     def errs(rs, key="err_final_mm"):
         return [r[key] for r in rs if r.get(key) not in (None, "")]
@@ -107,11 +121,15 @@ def main():
     L.append(f"Photos: {n}.  Board found (>= {measure.MIN_CORNERS} corners, valid homography): **{found}/{n}** "
              f"({100 * found / n:.0f} %).  At least one crack measured: **{len(measured)}/{n}**.  "
              f"Crack measurements: {len(meas_rows)} (of which {len(gt_rows)} via `gt_roi` fallback).\n")
-    L.append("Gate thresholds: corners >= %d, px/mm >= %.0f, blur_var >= %.0f, obliquity <= %.0f deg, glare <= %.2f.  "
-             "Final width = blended profile estimator (see `measure.py`), global bias correction = %.3f mm, "
-             "INK_RATIO = %.2f.\n" % (measure.GATE_MIN_CORNERS, measure.GATE_MIN_PX_PER_MM, measure.GATE_MIN_BLUR_VAR,
-                                       measure.GATE_MAX_OBLIQUITY_DEG, measure.GATE_MAX_GLARE, measure.WIDTH_BIAS_MM,
-                                       measure.INK_RATIO))
+    P = gate_mod.load_params()
+    L.append("Gate: %s.  Final width = blended profile estimator (see `measure.py`), global bias correction = %.3f mm, "
+             "INK_RATIO = %.2f.  Certification is per crack (`crack_certified`): mask QA and the CRC-calibrated score at "
+             "alpha = %s; `uncertainty_mm` is the half-width of the conformal 90 %% interval.\n" % (
+                 "fitted CRC gate (gate_params.json)" if P else "LEGACY thresholds (gate_params.json missing)",
+                 measure.WIDTH_BIAS_MM, measure.INK_RATIO, P["levels"][P["default_level"]]["alpha"] if P else "n/a"))
+    L.append("**Caveat: the estimator parameters (INK_RATIO, blend) were tuned in-sample on these photos, and the gate and "
+             "interval were fitted on degradations of these same photos, so every number above the out-of-sample section "
+             "is an in-sample number.**\n")
 
     L.append("## Estimators (all measurements)\n")
     L.append("| estimator | MAE mm | mean signed err mm | RMSE mm |")
@@ -124,11 +142,11 @@ def main():
                  f"{fmt(float(np.sqrt(np.mean(np.square(e)))) if e else None)} |")
 
     L.append("\n## Per nominal width (final estimator; all / certified only)\n")
-    L.append("| nominal mm | n | mean signed err | MAE | n cert | mean signed err cert | MAE cert | mean u | within 1u (cert) |")
+    L.append("| nominal mm | n | mean signed err | MAE | n cert | mean signed err cert | MAE cert | mean half-width | inside 90 % interval (cert) |")
     L.append("|---|---|---|---|---|---|---|---|---|")
     for wn in sorted({r["true_mm"] for r in meas_rows}):
         rs = [r for r in meas_rows if r["true_mm"] == wn]
-        rc = [r for r in rs if r["certified"]]
+        rc = [r for r in rs if r["crack_certified"]]
         e, ec = errs(rs), errs(rc)
         within = np.mean([abs(r["err_final_mm"]) <= r["uncertainty_mm"] for r in rc]) if rc else float("nan")
         L.append(f"| {wn:.2f} | {len(rs)} | {fmt(float(np.mean(e)))} | {fmt(mae(e))} | {len(rc)} | "
@@ -146,7 +164,7 @@ def main():
         L.append(f"| {name} | {len({r['file'] for r in rs})} | {len(rs)} | {fmt(mae(e))} | "
                  f"{fmt(float(np.mean(e)) if e else None)} | {fmt(rel * 100, 1)} % |")
 
-    L.append("\n## Gate reasons\n")
+    L.append("\n## Gate reasons (capture level: photos)\n")
     cnt = defaultdict(int)
     for _, r in per_photo:
         if r["gate"]["certified"]:
@@ -154,6 +172,62 @@ def main():
         for x in r["gate"]["reasons"]:
             cnt[x] += 1
     L.append(", ".join(f"`{k}`: {v}" for k, v in sorted(cnt.items())) + "\n")
+    cc = defaultdict(int)
+    for r in meas_rows:
+        for x in (r["crack_reasons"].split("|") if r["crack_reasons"] else []):
+            cc[x] += 1
+    L.append("Crack level (flagged measurements): " + (", ".join(f"`{k}`: {v}" for k, v in sorted(cc.items())) or "none") + "\n")
+
+    # ---- conformal interval coverage and wrong rate (in-sample for the gate)
+    cov = [r["covered"] for r in meas_rows if r["covered"] != ""]
+    L.append("## Conformal 90 % interval on these photos (in-sample: calibrated on degradations of them)\n")
+    L.append("| nominal mm | n | covered | certified n | certified covered |")
+    L.append("|---|---|---|---|---|")
+    for wn in sorted({r["true_mm"] for r in meas_rows}):
+        rs = [r for r in meas_rows if r["true_mm"] == wn and r["covered"] != ""]
+        rc = [r for r in rs if r["crack_certified"]]
+        L.append(f"| {wn:.2f} | {len(rs)} | {fmt(float(np.mean([r['covered'] for r in rs])) if rs else None, 2)} | {len(rc)} | "
+                 f"{fmt(float(np.mean([r['covered'] for r in rc])) if rc else None, 2)} |")
+    L.append(f"\nAll: {fmt(float(np.mean(cov)) if cov else None, 3)} covered of {len(cov)}.  "
+             "For held-out numbers (grouped by source photo) see `gate_report.md`.\n")
+    cw = [bool(gate_mod.is_wrong(r["err_final_mm"], r["true_mm"])) and bool(r["crack_certified"]) for r in meas_rows]
+    L.append(f"Certified-but-wrong (|err| > max(0.05 mm, 10 %)) on these photos: **{sum(cw)} of {len(cert_rows)} certified** "
+             f"({sum(cw)} of {len(meas_rows)} measured) - in-sample.\n")
+
+    # ---- out-of-sample: leave-one-photo-out re-tuning of the estimator parameters
+    lo = gate_lopo.lopo(lopo_recs)
+    per = lo["per"]
+    tr = np.concatenate([x["true"] for x in per])
+    wd = np.concatenate([x["w_default"] for x in per])
+    wl = np.concatenate([x["w_lopo"] for x in per])
+    legm = np.concatenate([[x["legacy"]] * len(x["true"]) for x in per])
+    cm = np.concatenate([x["cert"] for x in per])
+    L.append("## Out-of-sample estimator accuracy (leave-one-photo-out)\n")
+    L.append("Parameters tuned in-sample: `ink_ratio`, blend switch points `d0`, `q0` (grid in `eval/gate_lopo.py`).  "
+             "The default column uses the shipped values (tuned on all photos); the LOPO column re-tunes on the sharp, "
+             "frontal photos (those passing the legacy hand-set gate) **other than** the photo being measured and applies "
+             "the result to it.\n")
+    L.append("| subset | n cracks | MAE default (in-sample) | MAE LOPO (out-of-sample) | bias default | bias LOPO |")
+    L.append("|---|---|---|---|---|---|")
+    for name, m in [("all measured", np.ones(len(tr), bool)), ("legacy-gate photos (the tuning set)", legm),
+                    ("not legacy-gate photos", ~legm), ("certified by the fitted gate", cm),
+                    ("certified, width < 0.5 mm", cm & (tr < 0.5)), ("certified, width >= 0.5 mm", cm & (tr >= 0.5))]:
+        if m.any():
+            L.append(f"| {name} | {int(m.sum())} | {fmt(mae(wd[m] - tr[m]))} | {fmt(mae(wl[m] - tr[m]))} | "
+                     f"{fmt(float(np.mean(wd[m] - tr[m])))} | {fmt(float(np.mean(wl[m] - tr[m])))} |")
+    ch = [(ph, p_) for ph, p_ in lo["chosen"] if p_ is not None]
+    L.append("\nShipped: ink_ratio %.2f, d0 %.1f, q0 %.2f.  In-sample grid optimum: ink_ratio %.2f, d0 %.1f, q0 %.2f.  "
+             "LOPO choices over %d folds: ink_ratio %s, d0 %s, q0 %s.\n" % (
+                 measure.BLEND["ink_ratio"], measure.BLEND["d0"], measure.BLEND["q0"], lo["insample_best"]["ink_ratio"],
+                 lo["insample_best"]["d0"], lo["insample_best"]["q0"], len(ch),
+                 sorted({float(p_["ink_ratio"]) for _, p_ in ch}), sorted({float(p_["d0"]) for _, p_ in ch}), sorted({float(p_["q0"]) for _, p_ in ch})))
+    gs = ROOT / "eval" / "results" / "gate_summary.json"
+    if gs.exists():
+        S = json.loads(gs.read_text(encoding="utf-8"))
+        L.append("Gate out-of-sample (every source photo held out once, whole gate pipeline refitted without it; "
+                 "details in `gate_report.md`): " +
+                 "; ".join(f"{r[0]}: certified {r[2]}, P(wrong | certified) {r[4]}, 90 % interval coverage {r[7]}"
+                           for r in S.get("logo", [])) + "\n")
 
     tt = [r["timing_ms"]["total"] for _, r in per_photo if r["observation"]["corners"] >= measure.MIN_CORNERS]
     ta = [r["timing_ms"]["total"] for _, r in per_photo]
