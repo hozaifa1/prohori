@@ -7,3 +7,8 @@ data/raw/
 data/datasets/
 eval/runs/
 .aws/
+data/traces/
+data/evidence/
+data/processed/
+infra/.gen/
+data/llm_calls/
