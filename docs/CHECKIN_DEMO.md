@@ -28,8 +28,7 @@ Live app: **https://184-194-241-186.sslip.io** (open it on your phone and laptop
    - By Oct 26: Graviton4 + COOL speed benchmarks, the agent comparison (random vs rules vs AI), the report and the video.
 
 ## Questions to ask Phil
-- When will the second $75 be sent, and in what form? An AWS credit code goes in **Billing → Credits → Redeem credit**.
-- Our AWS account shows no grant credit yet, only the Free Tier $100 + $20. Where did the first $75 go?
+- Thank him: the first $75 arrived in the bank. Ask when the second $75 will be sent after this call.
 - Our account is on the AWS **Free plan**, which blocks Marketplace AMIs like COOL. Is upgrading to the paid plan expected?
 
 ## If something breaks
