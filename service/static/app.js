@@ -372,7 +372,7 @@
         delta != null ? h("b", { text: ` (${delta >= 0 ? "+" : "−"}${Math.abs(delta).toFixed(2)})` }) : null));
     }
     if (num(c.length_mm)) sub.push(h("span", null, "Length ", h("b", { text: `${fmt(c.length_mm, 1)} mm` })));
-    hero.append(
+    hero.append(...[
       h("div", { class: "hero-top" }, h("span", { class: "hero-id", text: `Crack ${c.id ?? ""}`.trim() }), badge),
       h("div", { class: "hero-num" },
         num(c.width_mm)
@@ -387,7 +387,7 @@
       state.crc && !cert && Array.isArray(c.reasons) && c.reasons.length
         ? h("div", { class: "hero-why" }, c.reasons.map((r) => h("span", { class: "rchip", text: reasonText(r, true) })))
         : null,
-      sub.length ? h("div", { class: "hero-sub" }, sub) : null);
+      sub.length ? h("div", { class: "hero-sub" }, sub) : null].filter(Boolean));
     if (animate) {
       hero.classList.remove("swap");
       void hero.offsetWidth;

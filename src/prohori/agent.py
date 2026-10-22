@@ -454,8 +454,8 @@ def _closer_text(o: dict, crack: dict | None) -> str:
     ppm, w = _crack_ppm(o, crack), _num((crack or {}).get("width_mm"))
     need = guidance_ppm(w)
     if need is not None and w is not None:
-        return f"Move closer: only {_fmt(ppm, 0)} px/mm here, a {_fmt(w, 1)} mm crack needs about {need:.0f}."
-    return f"Move closer: only {_fmt(ppm, 0)} px/mm here, aim for {GUIDANCE_DEFAULT_PPM:.0f} or more."
+        return f"Move closer: only {_fmt(ppm, 1)} px/mm here, a {_fmt(w, 1)} mm crack needs about {need:.0f}."
+    return f"Move closer: only {_fmt(ppm, 1)} px/mm here, aim for {GUIDANCE_DEFAULT_PPM:.0f} or more."
 
 
 def _crc_fix(reason: str, o: dict, crack: dict | None) -> tuple[str, str]:
@@ -596,7 +596,9 @@ def _crc_rules(observation, gate, cracks, history, t0) -> dict:
     others = [r for r in present if r != pick]
     rr = _num((best or {}).get("risk_ratio"))
     why = (f"Fixing {pick} ({REASON_SHORT.get(pick, pick)}) first." + (f" Also: {', '.join(others)}." if others else "")
-           + (f" Best crack risk ratio {rr:.2f}, certify at {cert_risk_ratio(gate):.2f}." if rr is not None else ""))
+           + (f" Best crack risk ratio {rr:.2f}, certify at {cert_risk_ratio(gate):.2f}." if rr is not None else "")
+           + (" The ratio alone would pass; the capture is outside what the gate was calibrated on."
+              if rr is not None and rr <= cert_risk_ratio(gate) else ""))
     return _result(action, text, why, "rules", None, t0)
 
 

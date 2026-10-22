@@ -15,10 +15,17 @@
   },
   {
     "id": "too-far",
-    "label": "Too far away",
-    "note": "Far from the wall (about 5 px/mm): most cracks still certify, the thin 0.5 mm one is flagged",
+    "label": "Far away (still readable)",
+    "note": "Far from the wall (about 5 px/mm): most cracks still certify, the thin 0.5 mm one is flagged. Real photo, resized to 2048 px wide",
     "url": "/static/samples/too-far.jpg",
     "source": "IMG20261019080657.jpg"
+  },
+  {
+    "id": "move-closer",
+    "label": "Much too far away",
+    "note": "Simulation: the same real photo as the sample above, shrunk to 1/4 size (about 2.7 px/mm) to mimic standing further back. No crack certifies, so the agent says move closer",
+    "url": "/static/samples/move-closer.jpg",
+    "source": "IMG20261019080657.jpg (downscaled x0.25, cv2.INTER_AREA)"
   },
   {
     "id": "board-partial",
