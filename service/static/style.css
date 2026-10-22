@@ -235,6 +235,8 @@ main { width: 100%; max-width: 1120px; margin: 0 auto; padding: 14px var(--gutte
 .hero-pm { display: flex; align-items: baseline; gap: 10px; margin-top: 10px; }
 .hero-pm .pm { font-size: clamp(1.75rem, 8vw, 2.5rem); font-weight: 600; letter-spacing: -.035em; }
 .hero-pm .pm-note { font-size: .95rem; color: var(--muted); font-weight: 500; }
+.hero-why { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+.rchip { padding: 5px 10px; border-radius: 999px; background: var(--warn-bg); color: var(--warn-t); font-size: .86rem; font-weight: 600; line-height: 1.2; }
 .hero-sub { display: flex; flex-wrap: wrap; gap: 4px 20px; margin-top: 14px; font-size: .92rem; color: var(--muted); }
 .hero-sub b { font-family: var(--mono); font-weight: 600; color: var(--text); font-size: .95rem; }
 .hero.swap .hero-num, .hero.swap .hero-pm { animation: swap .38s var(--ease); }
@@ -247,6 +249,8 @@ main { width: 100%; max-width: 1120px; margin: 0 auto; padding: 14px var(--gutte
 }
 .reason .ic { color: var(--warn-t); width: 22px; height: 22px; margin-top: 0; }
 .reason.bad { background: var(--bad-bg); }
+.reason.ok { background: var(--ok-bg); }
+.reason.ok .ic { color: var(--ok-t); }
 .reason.bad .ic { color: var(--bad-t); }
 .reason small { display: block; color: var(--muted); font-weight: 450; font-size: .85rem; margin-top: 2px; overflow-wrap: anywhere; }
 
@@ -262,6 +266,11 @@ main { width: 100%; max-width: 1120px; margin: 0 auto; padding: 14px var(--gutte
 }
 .tile:active { transform: scale(.97); }
 .tile[aria-pressed="true"] { border-color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); background: var(--surface); }
+.tile-top { display: flex; align-items: center; justify-content: space-between; gap: 4px; }
+.tile-st { width: 15px; height: 15px; color: var(--ok-t); flex: none; }
+.tile.flagged { background: var(--warn-bg); border-style: dashed; border-color: color-mix(in srgb, var(--warn-t) 55%, transparent); }
+.tile.flagged .tile-st { color: var(--warn-t); }
+.tile.flagged[aria-pressed="true"] { border-style: solid; border-color: var(--ink); background: var(--warn-bg); }
 .tile-id { font-family: var(--mono); font-size: .75rem; font-weight: 600; color: var(--muted); }
 .tile-w { font-size: 1.5rem; font-weight: 650; letter-spacing: -.035em; line-height: 1.1; }
 .tile-u { font-family: var(--mono); font-size: .72rem; color: var(--muted); }

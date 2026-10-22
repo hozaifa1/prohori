@@ -30,7 +30,16 @@
     glare: "Too much glare",
     oblique: "Camera angle too steep",
   };
-  const reasonText = (r) => REASONS[r] || String(r).replace(/_/g, " ");
+  // Reason codes of the deployed (conformal) gate, in plain words (mirrors REASON_SHORT in src/prohori/agent.py).
+  // The deployed gate has no single-number thresholds, so none are quoted here.
+  const CRC_REASONS = {
+    too_few_corners: "Board not fully seen", low_resolution: "Too far for this crack's width", blurry: "Picture is soft",
+    oblique: "Angle too steep", glare: "Glare", noisy: "Grainy picture", low_coverage: "Crack partly out of view",
+    unstable_width: "Width readings not stable", mask_blowup: "Outline smeared", mask_holes: "Outline has holes",
+    mask_fragmented: "Outline broken up", low_confidence: "Not enough confidence", invalid_image: "Unreadable image",
+  };
+  const isCrc = (gate) => !!gate && typeof gate.mode === "string" && gate.mode.startsWith("crc");
+  const reasonText = (r, crc) => (crc && CRC_REASONS[r]) || REASONS[r] || String(r).replace(/_/g, " ");
   const ERRORS = {
     board_not_found: "Calibration board not found in this frame",
   };
@@ -44,6 +53,7 @@
     cracks: [],
     sel: 0,
     certified: false,
+    crc: false,         // the deployed per-crack gate (cracks carry certified/status/interval_mm)
     cam: null,          // {w, h, photoW, photoH} from the live track
     imageCapture: null,
     lastCapture: null,  // {live, w, h, via} of the frame that was just sent
@@ -326,25 +336,29 @@
       note ? h("div", { class: "gauge-n", text: note }) : null);
   }
 
-  function renderGauges(obs, reasons) {
+  // crc: the deployed gate weighs all of these together, so no per-number pass mark is shown; a gauge is marked only
+  // when the gate names it as a reason.
+  function renderGauges(obs, reasons, crc) {
     const box = $("chips");
     box.replaceChildren();
     if (!obs) return;
     const has = (r) => reasons.includes(r);
     if (num(obs.corners)) box.append(gauge("Board corners", String(obs.corners), `/${obs.corners_total ?? "?"}`, null, has("too_few_corners")));
-    if (num(obs.px_per_mm)) box.append(gauge("Scale", fmt(obs.px_per_mm, 1), "px/mm", `need ${MIN_PX_PER_MM} or more`, has("low_resolution") || obs.px_per_mm < MIN_PX_PER_MM));
-    if (num(obs.blur_var)) box.append(gauge("Sharpness", fmt(obs.blur_var, 0), null, `need ${MIN_BLUR_VAR} or more`, has("blurry")));
-    if (num(obs.obliquity_deg)) box.append(gauge("Tilt", fmt(obs.obliquity_deg, 0), "°", `max ${MAX_TILT_DEG}°`, has("oblique")));
+    if (num(obs.px_per_mm)) box.append(gauge("Scale", fmt(obs.px_per_mm, 1), "px/mm", crc ? "thin cracks need more" : `need ${MIN_PX_PER_MM} or more`, has("low_resolution") || (!crc && obs.px_per_mm < MIN_PX_PER_MM)));
+    if (num(obs.blur_var)) box.append(gauge("Sharpness", fmt(obs.blur_var, 0), null, crc ? "higher is better" : `need ${MIN_BLUR_VAR} or more`, has("blurry")));
+    if (num(obs.obliquity_deg)) box.append(gauge("Tilt", fmt(obs.obliquity_deg, 0), "°", crc ? "lower is better" : `max ${MAX_TILT_DEG}°`, has("oblique")));
     if (num(obs.glare_frac)) box.append(gauge("Glare", fmt(obs.glare_frac * 100, 0), "%", "lower is better", has("glare")));
+    if (crc && num(obs.noise_sigma)) box.append(gauge("Grain", fmt(obs.noise_sigma, 1), null, "lower is better", has("noisy")));
   }
 
   function renderHero(animate) {
     const hero = $("hero");
     const c = state.cracks[state.sel];
-    const cert = state.certified;
+    // deployed gate: each crack carries its own verdict; legacy gate: the capture's verdict applies to every crack
+    const cert = state.crc && c ? c.certified === true : state.certified;
     hero.replaceChildren();
     const badge = h("span", { class: "badge " + (cert ? "ok" : "warn") },
-      icon(cert ? "seal-check" : "warning"), cert ? "Certified" : "Not certified");
+      icon(cert ? "seal-check" : "warning"), cert ? "Certified" : state.crc ? "Flagged" : "Not certified");
     if (!c) {
       hero.append(
         h("div", { class: "hero-top" }, h("span", { class: "hero-id", text: "No measurement" }), badge),
@@ -364,8 +378,14 @@
         num(c.width_mm)
           ? [h("span", { class: "n", text: fmt(c.width_mm) }), h("span", { class: "u", text: "mm" })]
           : h("span", { class: "n none", text: "n/a" })),
-      num(c.uncertainty_mm)
-        ? h("div", { class: "hero-pm" }, h("span", { class: "pm", text: `± ${fmt(c.uncertainty_mm)}` }), h("span", { class: "pm-note", text: "mm uncertainty" }))
+      Array.isArray(c.interval_mm) && c.interval_mm.length === 2 && num(c.interval_mm[0]) && num(c.interval_mm[1])
+        ? h("div", { class: "hero-pm" }, h("span", { class: "pm", text: `${fmt(c.interval_mm[0])} to ${fmt(c.interval_mm[1])}` }),
+            h("span", { class: "pm-note", text: `mm, ${Math.round((c.interval_level || 0.9) * 100)}% range` }))
+        : num(c.uncertainty_mm)
+          ? h("div", { class: "hero-pm" }, h("span", { class: "pm", text: `± ${fmt(c.uncertainty_mm)}` }), h("span", { class: "pm-note", text: "mm uncertainty" }))
+          : null,
+      state.crc && !cert && Array.isArray(c.reasons) && c.reasons.length
+        ? h("div", { class: "hero-why" }, c.reasons.map((r) => h("span", { class: "rchip", text: reasonText(r, true) })))
         : null,
       sub.length ? h("div", { class: "hero-sub" }, sub) : null);
     if (animate) {
@@ -380,12 +400,14 @@
     box.replaceChildren();
     if (state.cracks.length < 2) return;
     state.cracks.forEach((c, i) => {
+      const flagged = state.crc && c.certified !== true;
       box.append(h("button", {
-        class: "tile", type: "button", "aria-pressed": i === state.sel ? "true" : "false",
-        "aria-label": `Crack ${c.id}: ${fmt(c.width_mm)} millimetres`,
+        class: "tile" + (flagged ? " flagged" : ""), type: "button", "aria-pressed": i === state.sel ? "true" : "false",
+        "aria-label": `Crack ${c.id}: ${fmt(c.width_mm)} millimetres` + (state.crc ? (flagged ? ", flagged" : ", certified") : ""),
         onclick: () => { state.sel = i; renderPicker(); renderHero(true); },
       },
-      h("span", { class: "tile-id", text: String(c.id ?? i + 1) }),
+      h("span", { class: "tile-top" }, h("span", { class: "tile-id", text: String(c.id ?? i + 1) }),
+        state.crc ? icon(flagged ? "warning" : "seal-check", "tile-st") : null),
       h("span", { class: "tile-w", text: fmt(c.width_mm) }),
       h("span", { class: "tile-u", text: num(c.uncertainty_mm) ? `±${fmt(c.uncertainty_mm)}` : "" })));
     });
@@ -425,7 +447,8 @@
     wrap.classList.remove("zoom");
     $("overlay-img").src = "data:image/jpeg;base64," + data.overlay_jpeg_b64;
 
-    renderGauges(m.observation, reasons);
+    const crc = isCrc(gate);
+    renderGauges(m.observation, reasons, crc);
 
     // gate: only what needs attention
     const g = $("gate");
@@ -434,10 +457,19 @@
       g.append(h("div", { class: "reason bad" }, icon("x-circle"),
         h("div", null, errorText(m.error), h("small", { text: String(m.error) }))));
     }
+    if (crc && num(gate.cracks_total) && gate.cracks_total > 0) {
+      // summary of the per-crack verdicts
+      const nc = gate.cracks_certified || 0, nt = gate.cracks_total, nf = nt - nc;
+      g.append(h("div", { class: "reason " + (nc ? "ok" : "") }, icon(nc ? "seal-check" : "warning"),
+        h("div", null, nc ? `${nc} of ${nt} cracks certified` : `No crack certified (${nt} measured)`,
+          h("small", { text: nc
+            ? (nf ? `${nf} flagged: still measured, with a wider range, but not certified. Tap a crack to see why.` : "All measured cracks passed the gate.")
+            : "All readings are shown with their 90% range, but none can be vouched for." }))));
+    }
     if (gate.certified === false) {
       for (const r of reasons) {
         if (m.error && r === "too_few_corners") continue;
-        g.append(h("div", { class: "reason" }, icon("warning"), h("div", null, reasonText(r))));
+        g.append(h("div", { class: "reason" }, icon("warning"), h("div", null, reasonText(r, crc))));
       }
     }
     // a small live-camera frame is the usual reason for "too low resolution": say so, gently
@@ -450,8 +482,18 @@
 
     // measurements
     state.cracks = Array.isArray(m.cracks) ? m.cracks : [];
-    state.sel = 0;
+    state.crc = crc;
     state.certified = gate.certified === true && !m.error;
+    // open on the most trustworthy crack: lowest predicted error among the certified ones, else among all
+    const rank = (c) => (num(c.risk_ratio) ? c.risk_ratio : Infinity);
+    let best = 0;
+    if (crc && state.cracks.length) {
+      const all = state.cracks.map((c, i) => i);
+      const cert = all.filter((i) => state.cracks[i].certified === true);
+      const pool = cert.length ? cert : all;
+      best = pool.reduce((a, i) => (rank(state.cracks[i]) < rank(state.cracks[a]) ? i : a), pool[0]);
+    }
+    state.sel = best;
     renderHero(false);
     renderPicker();
   }
@@ -589,6 +631,7 @@
       const reasons = (s.gate && Array.isArray(s.gate.reasons)) ? s.gate.reasons : [];
       const has = (r) => reasons.includes(r);
       const idx = s.step ?? i;
+      const sg = s.gate || {};
 
       // meta line: when, which policy, how long
       const meta = h("div", { class: "step-meta" });
@@ -612,7 +655,8 @@
       if (num(o.glare_frac) && o.glare_frac > 0) obs.append(ochip("glare", `${fmt(o.glare_frac * 100, 0)}%`, o.glare_frac, p && p.glare_frac, 2, "", -1, has("glare")));
       const first = (s.cracks || [])[0];
       if (first && num(first.width_mm)) obs.append(h("span", { class: "ochip" }, `${first.id ?? "width"}`, h("b", { text: `${fmt(first.width_mm)} mm` })));
-      obs.append(h("span", { class: "ochip" + (s.gate && s.gate.certified ? "" : " fail") }, "gate", h("b", { text: s.gate && s.gate.certified ? "certified" : "not certified" })));
+      obs.append(h("span", { class: "ochip" + (sg.certified ? "" : " fail") }, "gate",
+        h("b", { text: isCrc(sg) && num(sg.cracks_total) && sg.cracks_total > 0 ? `${sg.cracks_certified || 0}/${sg.cracks_total} certified` : sg.certified ? "certified" : "not certified" })));
       if (num(s.faces_redacted) && s.faces_redacted > 0) obs.append(h("span", { class: "ochip" }, "faces blurred", h("b", { text: String(s.faces_redacted) })));
       if (s.joint_id) obs.append(h("span", { class: "ochip" }, "joint", h("b", { text: s.joint_id }), s.joint_logged ? h("span", { class: "d good", text: "saved" }) : null));
       if (s.escalation && s.escalation.escalated) obs.append(h("span", { class: "ochip fail" }, "escalated", h("b", { text: "to engineer" })));

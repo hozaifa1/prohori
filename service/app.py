@@ -362,6 +362,9 @@ def _primary_crack(cracks: list[dict], need_uncertainty: bool = True, prefer_id:
         if need_uncertainty and not (isinstance(u, (int, float)) and math.isfinite(u) and u >= 0):
             continue
         ok.append(c)
+    # the deployed gate certifies cracks one by one: follow a certified crack when there is one
+    if any(c.get("certified") is True for c in ok):
+        ok = [c for c in ok if c.get("certified") is True]
     if prefer_id is not None:
         for c in ok:
             if c.get("id") == prefer_id:

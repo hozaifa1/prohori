@@ -16,7 +16,7 @@
   {
     "id": "too-far",
     "label": "Too far away",
-    "note": "Board resolution too low: agent asks to move closer",
+    "note": "Far from the wall (about 5 px/mm): most cracks still certify, the thin 0.5 mm one is flagged",
     "url": "/static/samples/too-far.jpg",
     "source": "IMG20261019080657.jpg"
   },
