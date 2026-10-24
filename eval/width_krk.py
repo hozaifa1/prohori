@@ -107,7 +107,7 @@ KEYS = ("full", "core", "fwhm", "dt", "ink")
 
 def width_one(P, ppm, sigma_mm, cfg=None, ink_dark=0.0):
     rp = profile_to_rp(P, ppm)
-    m = measure._measure_roi(rp, ink_dark, sigma_mm, None, cfg)
+    m = measure._measure_roi(rp, ink_dark, sigma_mm, None, {**measure.LEGACY_CFG, **(cfg or {})})  # cfg = delta on LEGACY
     if m is None:
         return [np.nan] * len(KEYS)
     return [m["profile_mm"], m.get("core_mm", np.nan), m["fwhm_mm"], m["dt_mm"], m["profile_ink_mm"]]

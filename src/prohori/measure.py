@@ -76,10 +76,31 @@ LEGACY_CFG = {
     "smooth_k": 0.0,         # > 0: smoothing sigma = min(fixed, max(smooth_floor_mm, smooth_k * optical blur sigma))
     "smooth_floor_mm": 0.03,
     "estimator": "blend",    # which per-station estimator forms the headline width (see _station_widths)
+    "wide": "fwhm",          # estimator="mix": the resolved-crack estimator (fwhm | fwhm_inv | core_inv | fit)
+    "d_from": "ink",         # estimator="mix": resolvability measure behind the blend weight (ink | core | fwhm_inv | max_ink_core_inv ...)
+    "q_gate": True,          # estimator="mix": also require the plateau contrast q = Dcore / Dink to clear q0 (as in blend_widths)
+    "q_release": 0.0, "q_release_scale": 2.0,  # estimator="mix": q gate released above d = q_release (0 = never, legacy)
+    "inv_sigma_scale": 1.0,  # blur-inversion sigma = this * (optical sigma (+) profile smoothing)
+    "agg": "median",         # per-station widths -> crack width (median | trim)
+    "d0": 5.0, "dscale": 6.0,  # blend weight ramp in units of the optical sigma (these two override BLEND)
     "core_f": 0.85,          # black-core convention: width where the (encoded-grey) depth exceeds core_f * peak depth
     "core_corr_k": 0.0,      # black-core convention: + 2 * core_corr_k * optical sigma (blur correction)
 }
-CFG = dict(LEGACY_CFG)
+# Shipped configuration = the best configuration of the D18 autoresearch loop (eval/runs/width_autoresearch/log.tsv,
+# research/WIDTH_AUTORESEARCH.md): a continuous blend of the board-ink area estimator (thin / unresolved strokes) and the
+# blur-inverted FWHM (resolved ones), the weight driven by a resolvability measure that does not depend on how dark the
+# stroke is, and the profile / mask smoothing scaled to the measured optical blur.
+SHIPPED_DELTA = {
+    "estimator": "mix",           # continuous blend (legacy: "blend")
+    "wide": "fwhm_inv",           # resolved cracks: FWHM with the closed-form Gaussian blur inversion
+    "d_from": "max_ink_core_inv",  # resolvability = max(ink-area width, blur-inverted area/peak width) / sigma
+    "d0": 3.0, "dscale": 3.0,     # weight ramps from 0 at 3 sigma to 1 at 6 sigma (legacy 5 / 6)
+    "q_gate": True,
+    "q_release": 4.5, "q_release_scale": 1.5,  # q gate fades out for clearly resolved cracks (d 4.5 -> 6 sigma)
+    "core_corr_k": 1.7,           # black-core convention only (width_blackcore_mm): + 2 * 1.7 * sigma blur correction, tuned on krkCMd TUNE
+    "smooth_k": 1.2,              # smoothing sigma = min(fixed, max(floor, 1.2 * optical sigma))
+}
+CFG = {**LEGACY_CFG, **SHIPPED_DELTA}
 
 _GT_PATH = Path(__file__).resolve().parents[2] / "data" / "print" / "test_panel_ground_truth.json"
 
@@ -674,12 +695,21 @@ def _measure_roi(rp: dict, ink_dark: float | None, sigma_mm: float, blend: dict 
         "S": S, "poly_b": poly_b, "length_mm": length_mm, "dt_mm": w_dt_mm,
         "profile_core_mm": float(np.median(b["w_core_i"])), "profile_ink_mm": float(np.median(b["w_ink_i"])),
         "fwhm_mm": float(np.nanmedian(w_fwhm_i)),
-        "profile_mm": float(np.median(w_i)), "local_mm": w_i, "wt_core": wt,
+        "profile_mm": _aggregate(w_i, c), "local_mm": w_i, "wt_core": wt,
         "core_mm": float(np.nanmedian(core_i)) if np.isfinite(core_i).any() else float("nan"),
         "Dcore": Dcore, "Dink": Dink, "q_core": Dcore / Dink, "n_prof": int(good.sum()), "quality": quality,
         "raw": {"area": area_g.tolist(), "fwhm": [None if not np.isfinite(v) else float(v) for v in w_fwhm_i],
                 "Dcore": Dcore, "Dink": Dink, "sigma_mm": float(sigma_mm)},
     }
+
+
+def _aggregate(w: np.ndarray, c: dict) -> float:
+    """Crack-level width from the per-station widths: the median, or ("trim") the mean of the interquartile band."""
+    if c.get("agg", "median") == "trim" and len(w) >= 8:
+        q1, q3 = np.percentile(w, [25, 75])
+        sel = w[(w >= q1) & (w <= q3)]
+        return float(sel.mean())
+    return float(np.median(w))
 
 
 def _smooth_mm(c: dict, key: str, sigma_mm: float) -> float:
@@ -690,10 +720,184 @@ def _smooth_mm(c: dict, key: str, sigma_mm: float) -> float:
     return base if k <= 0 else min(base, max(float(c["smooth_floor_mm"]), k * sigma_mm))
 
 
+_BAR: dict = {}
+
+
+def _bar_tables():
+    """Lookup tables of a unit-contrast bar of width u (in units of the Gaussian blur sigma) after Gaussian blur:
+    FWHM(u) and area / peak(u), both monotone in u (flat for u -> 0: a bar much thinner than the blur is
+    indistinguishable from a point, FWHM -> 2.355 sigma, area / peak -> sqrt(2 pi) sigma).  Used to invert the blur."""
+    if not _BAR:
+        u = np.concatenate([np.linspace(0.02, 6.0, 300), np.linspace(6.05, 60.0, 900)])
+        erf = np.vectorize(math.erf)
+        r2 = math.sqrt(2.0)
+        pk = erf(u / (2 * r2))
+        lo, hi = np.zeros_like(u), u / 2 + 8.0
+        for _ in range(48):
+            mid = 0.5 * (lo + hi)
+            p = 0.5 * (erf((mid + u / 2) / r2) - erf((mid - u / 2) / r2))
+            above = p > 0.5 * pk
+            lo = np.where(above, mid, lo)
+            hi = np.where(above, hi, mid)
+        _BAR["u"], _BAR["fwhm"], _BAR["area_peak"] = u, 2 * 0.5 * (lo + hi), u / pk
+    return _BAR
+
+
+def _unblur_fwhm(w: np.ndarray, s_mm: float) -> np.ndarray:
+    """Width (mm) of a bar whose Gaussian-blurred (sigma s_mm) profile has the full width at half maximum w."""
+    t = _bar_tables()
+    return np.interp(np.asarray(w, float) / max(s_mm, 1e-3), t["fwhm"], t["u"]) * s_mm
+
+
+def _unblur_area_peak(r: np.ndarray, s_mm: float) -> np.ndarray:
+    """Width (mm) of a bar whose Gaussian-blurred profile has area / peak = r (mm).  For a wide bar r -> w."""
+    t = _bar_tables()
+    return np.interp(np.asarray(r, float) / max(s_mm, 1e-3), t["area_peak"], t["u"]) * s_mm
+
+
+def _erf(x: np.ndarray) -> np.ndarray:
+    """Vectorised error function (Abramowitz & Stegun 7.1.26, |error| < 1.5e-7)."""
+    a = np.abs(x)
+    t = 1.0 / (1.0 + 0.3275911 * a)
+    y = 1.0 - (((((1.061405429 * t - 1.453152027) * t) + 1.421413741) * t - 0.284496736) * t + 0.254829592) * t * np.exp(-a * a)
+    return np.sign(x) * y
+
+
+def _fit_bar_widths(Dp: np.ndarray, S: float, s_mm: float, c_prior: float, tau: float, noise: float) -> np.ndarray:
+    """Per-station width (mm) of the Gaussian-blurred bar that best fits each darkness profile (rows of Dp, linear light,
+    background already removed, S px/mm, centre column = skeleton).
+
+    Model: C * [Phi((x - x0 + w/2)/s) - Phi((x - x0 - w/2)/s)] with s the optical blur sigma measured from the board
+    edges, x0 the profile centroid, C the crack contrast.  C has a Gaussian prior (mean c_prior = board-ink darkness
+    times ink_ratio, relative sd tau): thin cracks, whose peak is blur-limited, are then pinned by their area and the
+    printed-ink contrast (M5); wide cracks, whose plateau is measured, are pinned by their own profile.  One grid search
+    over w per station with C solved in closed form (a MAP estimate; the grid is refined by a parabola in log w)."""
+    n, nt = Dp.shape
+    x = (np.arange(nt) - nt // 2) / S
+    pos = np.clip(Dp, 0.0, None)
+    x0 = (pos * x[None, :]).sum(1) / np.maximum(pos.sum(1), 1e-9)
+    grid = np.geomspace(0.06, 6.0, 120)
+    lam = (noise / max(tau * c_prior, 1e-6)) ** 2
+    r2s = 1.0 / (math.sqrt(2.0) * max(s_mm, 1e-3))
+    dd = (Dp * Dp).sum(1)
+    xs = x[None, :] - x0[:, None]
+    cost = np.empty((len(grid), n))
+    for k, w in enumerate(grid):
+        m1 = 0.5 * (_erf((xs + 0.5 * w) * r2s) - _erf((xs - 0.5 * w) * r2s))
+        sxx = (m1 * m1).sum(1)
+        sxy = (m1 * Dp).sum(1)
+        C = (sxy + lam * c_prior) / (sxx + lam)
+        cost[k] = dd - 2 * C * sxy + C * C * sxx + lam * (C - c_prior) ** 2
+    k = np.argmin(cost, axis=0)
+    out = grid[k].copy()
+    for i in range(n):  # parabolic refinement in log w
+        j = k[i]
+        if 0 < j < len(grid) - 1:
+            a, b, c_ = cost[j - 1, i], cost[j, i], cost[j + 1, i]
+            den = a - 2 * b + c_
+            if den > 0:
+                out[i] = math.exp(math.log(grid[j]) + 0.5 * (a - c_) / den * (math.log(grid[1]) - math.log(grid[0])))
+    return out
+
+
 def _station_widths(c: dict, pb: dict, area_g, Dcore, Dink, w_fwhm_i, sigma_mm, Dp_g, bgp_g, Dsm_g, S) -> dict:
-    """Per-station full-stroke widths for the configured estimator.  Returns blend_widths' dict (w_i, wt, w_ink_i,
-    w_core_i); w_i aligns with the stations that have a finite FWHM."""
-    return blend_widths(area_g, Dcore, Dink, w_fwhm_i, sigma_mm, pb)
+    """Per-station full-stroke widths for the configured estimator (c["estimator"]).  Returns blend_widths' dict (w_i,
+    wt, w_ink_i, w_core_i); w_i aligns with the stations that have a finite FWHM.
+
+      blend      legacy: board-ink area estimator for thin / blur-limited cracks, FWHM for wide ones (hard q gate)
+      fwhm       FWHM only
+      fwhm_inv   FWHM with the closed-form Gaussian blur inversion (M5 + Gaussian PSF algebra)
+      core_inv   area / peak with the closed-form inversion (contrast from the crack's own plateau, no board ink)
+      mix        board-ink area for thin cracks, c["wide"] in {fwhm, fwhm_inv, core_inv} for wide ones, with a
+                 continuous weight on d = ink width / blur sigma (and on the q gate if c["q_gate"])
+    """
+    est = c.get("estimator", "blend")
+    b = blend_widths(area_g, Dcore, Dink, w_fwhm_i, sigma_mm, pb)
+    if est == "blend":
+        return b
+    ok_f = np.isfinite(w_fwhm_i)
+    s_tot = math.sqrt(sigma_mm ** 2 + _smooth_mm(c, "prof_sigma_mm", sigma_mm) ** 2)
+    s_eff = s_tot * float(c.get("inv_sigma_scale", 1.0))
+
+    def wide(kind):
+        if kind == "fwhm":
+            return w_fwhm_i[ok_f]
+        if kind == "fwhm_inv":
+            return _unblur_fwhm(w_fwhm_i[ok_f], s_eff)
+        if kind == "core_inv":
+            pk = float(c.get("peak_q", 0.0))
+            peak = Dcore if pk <= 0 else float(np.percentile(Dsm_g.max(axis=1), pk))
+            return _unblur_area_peak(area_g[ok_f] / max(peak, 1e-3), s_eff)
+        if kind == "fit":
+            band = max(2, int(0.5 * S))
+            edge = np.concatenate([Dp_g[:, :band], Dp_g[:, -band:]], axis=1)
+            noise = float(1.4826 * np.median(np.abs(edge - np.median(edge, axis=1, keepdims=True))))
+            noise = max(noise, float(c.get("fit_noise_min", 0.002)))
+            return _fit_bar_widths(Dp_g, S, sigma_mm * float(c.get("inv_sigma_scale", 1.0)), pb["ink_ratio"] * Dink,
+                                   float(c.get("fit_tau", 0.15)), noise)[ok_f]
+        raise ValueError(kind)
+
+    if est in ("fwhm", "fwhm_inv", "core_inv"):
+        b["w_i"], b["wt"] = wide(est), 1.0
+        return b
+    if est == "bayes":
+        # contrast C of the crack = precision-weighted (log domain) combination of the printed-ink prior and the crack's
+        # own plateau estimate (central-window mean / Gaussian-bar factor at u = blur-inverted FWHM / sigma); then
+        # w = area / C.  The own estimate is informative only for resolved cracks (its relative error grows as u -> 0);
+        # unresolved thin strokes stay on the board ink.
+        w_f = float(np.median(_unblur_fwhm(w_fwhm_i[ok_f], s_eff)))
+        u = max(w_f / s_eff, 0.05)
+        nt = Dsm_g.shape[1]
+        xg = (np.arange(nt) - nt // 2) / S
+        pos = np.clip(Dsm_g, 0.0, None)
+        x0 = (pos * xg[None, :]).sum(1) / np.maximum(pos.sum(1), 1e-9)
+        h = max(float(c.get("plateau_h", 0.3)) * w_f, 1.5 / S)
+        win = np.abs(xg[None, :] - x0[:, None]) <= h
+        P = float(np.median((Dsm_g * win).sum(1) / np.maximum(win.sum(1), 1)))
+        xx = np.linspace(-h, h, 41) / s_eff  # model: same window, unit-contrast Gaussian-blurred bar of width u * sigma
+        Fm = float(np.mean(0.5 * (_erf((xx + 0.5 * u) / math.sqrt(2.0)) - _erf((xx - 0.5 * u) / math.sqrt(2.0)))))
+        c_own = P / max(Fm, 1e-3)
+        k = 1.0 / (2.0 * math.sqrt(2.0))
+        erfu = max(math.erf(u * k), 1e-3)
+        gsens = u * k * 2.0 / math.sqrt(math.pi) * math.exp(-(u * k) ** 2) / erfu  # d ln F / d ln u (peak-like proxy)
+        t_o = math.hypot(float(c.get("tau_peak", 0.05)), float(c.get("eps_sigma", 0.15)) * gsens)
+        t_i = float(c.get("tau_ink", 0.12))
+        c_ink = pb["ink_ratio"] * Dink
+        wo, wi_ = 1.0 / t_o ** 2, 1.0 / t_i ** 2
+        c_post = math.exp((wo * math.log(max(c_own, 1e-4)) + wi_ * math.log(max(c_ink, 1e-4))) / (wo + wi_))
+        b["w_i"] = area_g[ok_f] / max(c_post, 1e-3)
+        b["wt"] = wo / (wo + wi_)
+        return b
+    if est == "fit":
+        b["w_i"], b["wt"] = wide("fit"), 1.0
+        return b
+    if est == "mix":
+        w_wide = wide(c.get("wide", "fwhm"))
+        # blur-relative size of the crack: from the board-ink area width (legacy) or from the blur-inverted FWHM,
+        # which does not depend on how dark the crack's own ink is
+        src = c.get("d_from", "ink")
+        if src == "fwhm":  # raw FWHM in units of the total blur (contrast independent, no inversion floor)
+            d = float(np.median(w_fwhm_i[ok_f])) / max(s_eff, 0.05)
+        elif src in ("core_inv", "max_ink_core_inv"):
+            # resolvability from the crack's own plateau: area / peak is ~2.5 sigma for an unresolved stroke and -> w for a
+            # resolved one, whatever the ink darkness; the Gaussian-bar inversion removes that floor
+            d_core = float(_unblur_area_peak(np.median(b["w_core_i"]), s_eff)) / max(sigma_mm, 0.05)
+            d = d_core if src == "core_inv" else max(d_core, float(np.median(b["w_ink_i"])) / max(sigma_mm, 0.05))
+        elif src == "fwhm_ratio":  # resolvability: FWHM relative to that of an unresolved (point-like) stroke, 2.355 sigma
+            d = float(np.median(w_fwhm_i[ok_f])) / (2.3548 * max(s_eff, 0.03))
+        else:
+            ref = {"ink": b["w_ink_i"], "core": b["w_core_i"], "fwhm_inv": wide("fwhm_inv"), "wide": w_wide}[src]
+            d = float(np.median(ref)) / max(sigma_mm, 0.05)
+        wt = float(np.clip((d - pb["d0"]) / pb["dscale"], 0.0, 1.0))
+        if c.get("q_gate", True):
+            qg = float(np.clip((Dcore / Dink - pb["q0"]) / pb["qscale"], 0.0, 1.0))
+            if c.get("q_release"):  # a clearly resolved crack (d >> blur) is not blur-limited whatever its plateau darkness
+                qg = max(qg, float(np.clip((d - float(c["q_release"])) / float(c.get("q_release_scale", 2.0)), 0.0, 1.0)))
+            wt *= qg
+        b["w_i"] = (1 - wt) * b["w_ink_i"][ok_f] + wt * w_wide
+        b["wt"] = wt
+        return b
+    raise ValueError(f"unknown estimator {est!r}")
 
 
 def _enc255(lin: np.ndarray) -> np.ndarray:

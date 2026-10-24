@@ -28,6 +28,7 @@ from __future__ import annotations
 import argparse
 import copy
 import json
+import math
 import os
 import pickle
 import sys
@@ -186,7 +187,170 @@ def make_split(force: bool = False) -> dict:
     return sp
 
 
+# ----------------------------------------------------------------------------- toner-bleed reference (METRICS 1a)
+
+BLEED_FILE = RUN / "toner_bleed.json"
+
+
+def measure_bleed(path: str) -> dict | None:
+    """Per-edge toner bleed b (mm) of one photo from the printed ChArUco squares, independent of every crack estimator.
+
+    The board is rectified at (about) native resolution; along scan strips inside the marker-free margins of each square
+    row / column (horizontal strips 0.7-1.9 mm and 18.1-19.3 mm into the row, vertical likewise) the 50 % crossings
+    between the local toner-black and paper-white plateaus (linear light, where blur is a convolution) give the widths of
+    the black and the white squares.  Toner spreads each black edge outward by b, so black = 20 s + 2b and white =
+    20 s - 2b (s = print scale, the same for both), hence b = (mean black - mean white) / 4 and s cancels.  The median over
+    strips is b; the robust spread over strips is U_ref (the reference uncertainty, METRICS section 0 rule 5)."""
+    img = cv2.imread(path)
+    if img is None:
+        return None
+    grey = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    corners, ids = measure._detect_board(grey)
+    if corners is None or len(ids) < measure.MIN_CORNERS:
+        return None
+    bd = measure._board().getChessboardCorners()[ids][:, :2].astype(np.float64)
+    H, inl = cv2.findHomography(corners, bd, cv2.RANSAC, 0.6)
+    if H is None:
+        return None
+    inl = inl.ravel().astype(bool)
+    H, _ = cv2.findHomography(corners[inl], bd[inl], 0)
+    Hinv = np.linalg.inv(H)
+    ppm = measure._local_scale(Hinv, np.array([70.0, 50.0]))
+    S = float(np.clip(math.ceil(ppm), 10, 30))
+    pad = 6.0
+    Wd, Hd = int(round((140 + 2 * pad) * S)), int(round((100 + 2 * pad) * S))
+    Hm = np.array([[S, 0, pad * S], [0, S, pad * S], [0, 0, 1]]) @ H
+    rect = cv2.warpPerspective(grey, Hm, (Wd, Hd), flags=cv2.INTER_CUBIC)
+    lin = measure._lin_lut()[np.clip(rect, 0, 255).astype(np.uint8)]
+    sq = measure.SQUARE_MM
+    nx, ny = measure.SQUARES_X, measure.SQUARES_Y
+
+    def crossings(line: np.ndarray, k_lo: int, k_hi: int):
+        """sub-pixel 50 % crossings (mm, board frame) near x = k * 20, k = k_lo..k_hi, from a 1-D linear-light profile"""
+        out = {}
+        for k in range(k_lo, k_hi + 1):
+            xc = (pad + k * sq) * S
+            a0, a1 = int(xc - 3.5 * S), int(xc - 1.5 * S)
+            b0, b1 = int(xc + 1.5 * S), int(xc + 3.5 * S)
+            if a0 < 0 or b1 >= len(line):
+                continue
+            L, R = float(np.median(line[a0:a1])), float(np.median(line[b0:b1]))
+            if abs(L - R) < 0.25 * max(L, R):
+                continue
+            mid = 0.5 * (L + R)
+            i0, i1 = int(xc - 1.6 * S), int(xc + 1.6 * S)
+            seg = line[i0:i1 + 1] - mid
+            sgn = np.sign(L - R)
+            idx = np.nonzero(sgn * seg[:-1] > 0)[0]
+            idx = idx[sgn * seg[idx + 1] <= 0] if len(idx) else idx
+            if len(idx) == 0:
+                continue
+            j = idx[np.argmin(np.abs(idx - (xc - i0)))]
+            t = seg[j] / (seg[j] - seg[j + 1]) if seg[j] != seg[j + 1] else 0.5
+            out[k] = (i0 + j + t) / S - pad
+        return out
+
+    est = {"x": [], "y": []}
+    for axis in ("x", "y"):
+        n_lines, n_sq = (ny, nx) if axis == "x" else (nx, ny)
+        for row in range(n_lines):
+            for off in ((0.7, 1.9), (18.1, 19.3)):
+                a, b = int((pad + row * sq + off[0]) * S), int((pad + row * sq + off[1]) * S)
+                prof = lin[a:b, :].mean(axis=0) if axis == "x" else lin[:, a:b].mean(axis=1)
+                cr = crossings(prof, 0, n_sq)
+                blk, wht = [], []
+                for k in range(n_sq):
+                    if k in cr and k + 1 in cr:
+                        is_black = ((k + row) % 2 == 0)
+                        (blk if is_black else wht).append(cr[k + 1] - cr[k])
+                if len(blk) >= 2 and len(wht) >= 1:
+                    est[axis].append((np.mean(blk) - np.mean(wht)) / 4.0)
+    allb = np.array(est["x"] + est["y"], float)
+    if len(allb) < 6:
+        return None
+    mad = float(1.4826 * np.median(np.abs(allb - np.median(allb))))
+    ax = measure._apply_h(Hinv, np.array([[0.0, 0.0], [100.0, 0.0]]))  # board x-axis in the image
+    roll = float(np.degrees(np.arctan2(ax[1, 1] - ax[0, 1], ax[1, 0] - ax[0, 0])))
+    return {"roll_deg": roll, "b": float(np.median(allb)), "b_sd": mad, "bx": float(np.median(est["x"])) if est["x"] else None,
+            "by": float(np.median(est["y"])) if est["y"] else None, "n": int(len(allb)), "ppm": float(ppm)}
+
+
+def build_bleed():
+    out = {}
+    for f in sorted(RAW_DIR.glob("*.jpg")):
+        r = measure_bleed(str(f))
+        out[f.name] = r
+        print(f.name, None if r is None else {k: (round(v, 4) if isinstance(v, float) else v) for k, v in r.items()}, flush=True)
+    BLEED_FILE.write_text(json.dumps(out, indent=1))
+
+
+def load_bleed() -> dict:
+    return json.loads(BLEED_FILE.read_text()) if BLEED_FILE.exists() else {}
+
+
+POOL_RULE = {"min_corners": 18, "max_sigma_mm": 0.15, "max_obliq_deg": 25.0}  # fixed before looking at any b
+
+
+def pool_members() -> list[str]:
+    """Photos that enter the bleed pool, chosen by capture quality only (never by the value of b): the whole board seen
+    (>= 18 of 24 corners), optical blur sigma from the board edges <= 0.15 mm, obliquity <= 25 deg, and a bleed
+    measurement produced."""
+    d = load_bleed()
+    out = []
+    for name, v in d.items():
+        f = CACHE / f"panel_{Path(name).stem}.pkl"
+        if not v or not f.exists():
+            continue
+        o = pickle.load(open(f, "rb"))["res"]["observation"]
+        if (o["corners"] >= POOL_RULE["min_corners"] and 0 < o["blur_sigma_mm"] <= POOL_RULE["max_sigma_mm"]
+                and o["obliquity_deg"] <= POOL_RULE["max_obliq_deg"]):
+            out.append(name)
+    return out
+
+
+def bleed_pool() -> dict:
+    """Pooled per-edge bleed of the (single) printed sheet: robust median over pool_members(); u = across-photo robust sd
+    (U_ref per edge)."""
+    d = load_bleed()
+    ok = [d[n] for n in pool_members()]
+    if not ok:
+        return {"bx": 0.0, "by": 0.0, "u": 0.0, "n": 0}
+    out = {"n": len(ok)}
+    for k in ("bx", "by"):
+        a = np.array([v[k] for v in ok])
+        out[k] = float(np.median(a))
+        out["u_" + k] = float(1.4826 * np.median(np.abs(a - np.median(a))))
+    out["u"] = out["u_by"]
+    return out
+
+
+_SPEC_NX2: dict = {}
+
+
+def spec_nx2(spec_id: str) -> float:
+    """Mean squared x-component of the unit normal along the specimen polyline (board frame): 0 for a crack running along
+    x (the case for every panel specimen)."""
+    if not _SPEC_NX2:
+        for sp in measure._gt()["specs"]:
+            P = sp["poly_b"]
+            d = np.diff(P, axis=0)
+            seg = np.hypot(*d.T)
+            _SPEC_NX2[sp["id"]] = float(np.sum(seg * (d[:, 1] / np.maximum(seg, 1e-9)) ** 2) / seg.sum())
+    return _SPEC_NX2[spec_id]
+
+
+def toner_w_ref(spec_id: str, nominal: float, pool: dict | None = None) -> float:
+    """METRICS 1a reference: w_ref = w_nominal + 2 b, b = the bleed across the specimen (anisotropic printer: mix of the
+    x and y bleed by the specimen's normal direction)."""
+    pool = pool or bleed_pool()
+    nx2 = spec_nx2(spec_id)
+    return nominal + 2.0 * ((1 - nx2) * pool["by"] + nx2 * pool["bx"])
+
+
 # ----------------------------------------------------------------------------- evaluation of a variant
+
+POOL = bleed_pool()
+
 
 def _eval_one(args):
     path, cfg = args
@@ -195,7 +359,7 @@ def _eval_one(args):
     if ctx is None or not ctx["items"]:
         return []
     res = copy.deepcopy(d["res"])
-    measure._finish(ctx, res, True, False, None, None, cfg)
+    measure._finish(ctx, res, True, False, None, None, {**measure.LEGACY_CFG, **(cfg or {})})  # cfg = delta on LEGACY
     obs = res["observation"]
     gate_state = res["gate"]
     rows = []
@@ -220,6 +384,12 @@ def _eval_one(args):
                                                   "has_shadow", "has_motion")})
         else:
             row["true"] = c["true_width_mm"]
+        row["nom"] = row["true"]  # nominal printed width (panel) / exact width (synth)
+        if "match" not in it:  # panel: toner-bleed corrected reference (METRICS 1a) is the primary truth
+            row["true_nom"] = row["nom"]
+            row["true"] = toner_w_ref(c["id"], row["nom"], POOL)
+        else:
+            row["true_nom"] = row["true"]
         rows.append(row)
     # coverage bookkeeping: expected = number of items in the cache for the image
     for r in rows:
@@ -261,23 +431,24 @@ def stats(err: np.ndarray, true: np.ndarray) -> dict:
             "MRE": float((np.abs(err) / true).mean()), "RMSE": float(np.sqrt((err ** 2).mean()))}
 
 
-def bin_stats(df: pd.DataFrame, col: str = "width_mm") -> dict:
-    """{subset: stats} for subsets all / <0.5 / >=0.5 x (all gate states, certified only)."""
+def bin_stats(df: pd.DataFrame, col: str = "width_mm", tcol: str = "true") -> dict:
+    """{subset: stats} for subsets all / <0.5 / >=0.5 (by the nominal width) x (all gate states, certified only);
+    errors against truth column tcol ("true" = primary = toner-corrected for the panel, "true_nom" = nominal)."""
     out = {}
     for gname, g in (("all", df), ("cert", df[df.certified] if len(df) else df)):
-        for bname, sel in (("all", lambda x: x), ("lt05", lambda x: x[x.true < 0.5]), ("ge05", lambda x: x[x.true >= 0.5])):
+        for bname, sel in (("all", lambda x: x), ("lt05", lambda x: x[x.nom < 0.5]), ("ge05", lambda x: x[x.nom >= 0.5])):
             s = sel(g)
-            out[f"{gname}/{bname}"] = stats((s[col] - s.true).values, s.true.values) if len(s) else {"n": 0}
+            out[f"{gname}/{bname}"] = stats((s[col] - s[tcol]).values, s[tcol].values) if len(s) else {"n": 0}
     return out
 
 
 def per_nominal(df: pd.DataFrame, col: str = "width_mm") -> pd.DataFrame:
     rows = []
-    for t, g in df.groupby(df.true.round(3)):
+    for t, g in df.groupby(df.nom.round(3)):
         s = stats((g[col] - g.true).values, g.true.values)
         gc = g[g.certified]
         sc = stats((gc[col] - gc.true).values, gc.true.values) if len(gc) else {"n": 0}
-        rows.append({"true": t, **s, "n_cert": sc["n"], "MAE_cert": sc.get("MAE", np.nan), "bias_cert": sc.get("bias", np.nan)})
+        rows.append({"nom": t, **s, "n_cert": sc["n"], "MAE_cert": sc.get("MAE", np.nan), "bias_cert": sc.get("bias", np.nan)})
     return pd.DataFrame(rows)
 
 
@@ -289,7 +460,7 @@ def summarize(panel: pd.DataFrame, synth_: pd.DataFrame, cov: dict) -> dict:
     """Flat dict of tune-time metrics + the objective J = mean(panel MAE, synth MAE), all measured cracks, synthetic
     references <= 3.0 mm."""
     S = {}
-    synth_ = synth_[synth_.true <= SYNTH_MAX_W] if len(synth_) else synth_
+    synth_ = synth_[synth_.nom <= SYNTH_MAX_W] if len(synth_) else synth_
     for nm, df in (("panel", panel), ("synth", synth_)):
         b = bin_stats(df) if len(df) else {}
         for sub, st in b.items():
@@ -320,7 +491,7 @@ LOG = RUN / "log.tsv"
 BEST = RUN / "best.json"
 LOG_COLS = ["iter", "name", "change", "cfg_delta", "J", "panel_MAE", "synth_MAE", "panel_lt05_MAE", "synth_lt05_MAE",
             "panel_ge05_MAE", "synth_ge05_MAE", "panel_cert_MAE", "krk_added_full15", "krk_added_fwhm15",
-            "krk_core_vsman15", "cov_panel", "cov_synth", "kept", "reason"]
+            "krk_core_vsman15", "cov_panel", "cov_synth", "kept", "reason", "truth"]
 MIN_GAIN = 0.002   # relative improvement of J needed to keep a change
 GUARD_TOL = 0.10   # METRICS-level guard: no <0.5 mm metric may degrade by more than 10 %
 GUARD_ABS = 0.002  # mm; slack so that a 10 % rule does not trip on numbers that are already ~0
@@ -335,7 +506,7 @@ def tune_eval(cfg: dict | None, workers: int = 3, with_krk: bool = True) -> tupl
     return ev["S"], k, ev
 
 
-def guard_violations(S: dict, k: dict, ref_S: dict, ref_k: dict, krk_tol: float) -> list[str]:
+def guard_violations(S: dict, k: dict, ref_S: dict, ref_k: dict, krk_tol: float, ref_cert: str = "") -> list[str]:
     bad = []
     for ds in ("panel", "synth"):
         for m in ("MAE", "MRE", "P95", "bias"):
@@ -347,6 +518,9 @@ def guard_violations(S: dict, k: dict, ref_S: dict, ref_k: dict, krk_tol: float)
                 bad.append(f"{key} {old:.4f}->{new:.4f}")
     if k and ref_k and k["added_full"] > ref_k["added_full"] * (1 + krk_tol):
         bad.append(f"krk.added_full15 {ref_k['added_full']:.4f}->{k['added_full']:.4f}")
+    if ref_cert and "panel.cert/all.MAE" in S and ref_cert in ("base",):
+        if S["panel.cert/all.MAE"] > ref_S["panel.cert/all.MAE"] * (1 + GUARD_TOL) + GUARD_ABS:
+            bad.append(f"panel.cert/all.MAE {ref_S['panel.cert/all.MAE']:.4f}->{S['panel.cert/all.MAE']:.4f}")
     if ref_S["cov.panel"] - S["cov.panel"] > 0.02:
         bad.append("cov.panel")
     if ref_S["cov.synth"] - S["cov.synth"] > 0.03:
@@ -379,7 +553,7 @@ def step(name: str, desc: str, delta: dict, workers: int = 3, force_keep: bool =
                  "reason": f"crash {type(e).__name__}: {e}"})
         raise
     bad = guard_violations(S, k, b["S"], b["krk"], 0.02)
-    bad_base = guard_violations(S, k, b["base_S"], b["base_krk"], 0.0)
+    bad_base = guard_violations(S, k, b["base_S"], b["base_krk"], 0.0, "base")
     gain = (b["S"]["J"] - S["J"]) / b["S"]["J"]
     kept = gain >= MIN_GAIN and not bad and not bad_base
     if force_keep:
@@ -402,6 +576,39 @@ def step(name: str, desc: str, delta: dict, workers: int = 3, force_keep: bool =
     return kept
 
 
+def rebaseline(workers: int = 3):
+    """Truth switch (D18 decision 1): archive the nominal-truth best/log rows, then re-score LEGACY and the current best
+    under the toner-corrected panel truth and restart the guard references from them."""
+    old = json.loads(BEST.read_text())
+    (RUN / "best_nominal_truth.json").write_text(json.dumps(old, indent=1))
+    lines = LOG.read_text(encoding="utf-8").splitlines()
+    if "truth" not in lines[0].split(chr(9)):
+        lines = [lines[0] + chr(9) + "truth"] + [ln + chr(9) + "nominal" for ln in lines[1:]]
+        LOG.write_text(chr(10).join(lines) + chr(10), encoding="utf-8")
+    S0, k0, _ = tune_eval({}, workers)
+    it = _next_iter()
+    log_row(_row(it, "rebaseline_legacy", "LEGACY_CFG under the toner-corrected panel truth", {}, S0, k0, True, "baseline (truth=toner-corrected)"))
+    cfg = old["cfg"]
+    S1, k1, _ = tune_eval(cfg, workers)
+    log_row(_row(it + 1, "rebaseline_best", "current best (iter %d) re-scored, truth=toner-corrected" % old["iter"], cfg, S1, k1, True,
+                 "best so far (truth=toner-corrected)"))
+    BEST.write_text(json.dumps({"iter": it + 1, "cfg": cfg, "S": S1, "krk": k1, "base_S": S0, "base_krk": k0}, indent=1))
+    print("legacy J", S0["J"], "best J", S1["J"])
+    return S0, S1
+
+
+def restart_from_legacy(workers: int = 3):
+    """Decision 2026-10-24: every keep/discard so far was judged against the nominal truth, so the loop restarts from
+    LEGACY under the toner-corrected truth (the guard references are LEGACY too)."""
+    cur = json.loads(BEST.read_text())
+    (RUN / "best_before_restart.json").write_text(json.dumps(cur, indent=1))
+    S0, k0 = cur["base_S"], cur["base_krk"]
+    it = _next_iter()
+    log_row(_row(it, "restart", "loop restarted from LEGACY under the toner-corrected truth (earlier keeps re-tested one by one)",
+                 {}, S0, k0, True, "restart; best = LEGACY"))
+    BEST.write_text(json.dumps({"iter": it, "cfg": {}, "S": S0, "krk": k0, "base_S": S0, "base_krk": k0}, indent=1))
+
+
 def _next_iter() -> int:
     if not LOG.exists():
         return 1
@@ -417,7 +624,8 @@ def _row(it, name, desc, delta, S, k, kept, reason):
             "krk_added_full15": round(k.get("added_full", float("nan")), 4),
             "krk_added_fwhm15": round(k.get("added_fwhm", float("nan")), 4),
             "krk_core_vsman15": round(k.get("vsman_core_mae", float("nan")), 4),
-            "cov_panel": round(S["cov.panel"], 3), "cov_synth": round(S["cov.synth"], 3), "kept": int(kept), "reason": reason}
+            "cov_panel": round(S["cov.panel"], 3), "cov_synth": round(S["cov.synth"], 3), "kept": int(kept), "reason": reason,
+            "truth": "toner-corrected"}
 
 
 def fmt(x, nd=3):
@@ -439,6 +647,9 @@ def main():
     r.add_argument("--workers", type=int, default=3)
     r.add_argument("--which", default="tune", choices=["tune"])  # the test split is only reachable through `final`
     sub.add_parser("split")
+    sub.add_parser("bleed")
+    sub.add_parser("rebaseline")
+    sub.add_parser("restart")
     st = sub.add_parser("step")
     st.add_argument("--name", required=True)
     st.add_argument("--desc", default="")
@@ -448,6 +659,12 @@ def main():
     a = ap.parse_args()
     if a.cmd == "build":
         build(a.workers, a.only, a.n_synth)
+    elif a.cmd == "restart":
+        restart_from_legacy()
+    elif a.cmd == "rebaseline":
+        rebaseline()
+    elif a.cmd == "bleed":
+        build_bleed()
     elif a.cmd == "split":
         sp = make_split()
         print(json.dumps({k: (len(v) if isinstance(v, list) else v) for k, v in sp["panel"].items()}, indent=1))

@@ -91,15 +91,55 @@ def test_crack_flags_interval_and_quality(synthetic_photo):
 def test_apply_gate_false_and_debug_roundtrip(synthetic_photo):
     r0 = measure.analyze(synthetic_photo, apply_gate=False, debug=True)
     assert r0["gate"]["mode"] == "off" and r0["gate"]["certified"] is False
+    c_cfg = dict(measure.CFG)
+    pb = {**measure.BLEND, **{k: c_cfg[k] for k in measure.BLEND if k in c_cfg}}
     for c in r0["cracks"]:
         assert "certified" not in c and "raw" in c
-        # the blend is a pure function of the raw numbers: re-evaluating it reproduces the reported width
+        # the shipped estimator is a pure function of the raw numbers: re-evaluating it reproduces the reported width
+        raw = c["raw"]
+        b = measure._station_widths(c_cfg, pb, np.array(raw["area"]), raw["Dcore"], raw["Dink"],
+                                    np.array([np.nan if v is None else v for v in raw["fwhm"]]), raw["sigma_mm"],
+                                    None, None, None, 12.0)
+        assert abs(float(np.median(b["w_i"])) - c["width_mm"]) < 1e-3
+    r1 = measure.analyze(synthetic_photo)
+    assert [c["width_mm"] for c in r1["cracks"]] == [c["width_mm"] for c in r0["cracks"]]  # gating never changes widths
+
+
+def test_legacy_cfg_is_selectable_and_reproduces_the_blend(synthetic_photo):
+    r = measure.analyze(synthetic_photo, apply_gate=False, debug=True, cfg=measure.LEGACY_CFG)
+    assert r["ok"]
+    for c in r["cracks"]:
         raw = c["raw"]
         b = measure.blend_widths(np.array(raw["area"]), raw["Dcore"], raw["Dink"],
                                  np.array([np.nan if v is None else v for v in raw["fwhm"]]), raw["sigma_mm"])
         assert abs(float(np.median(b["w_i"])) - c["width_mm"]) < 1e-3
-    r1 = measure.analyze(synthetic_photo)
-    assert [c["width_mm"] for c in r1["cracks"]] == [c["width_mm"] for c in r0["cracks"]]  # gating never changes widths
+    # the shipped output keys are a superset of the legacy ones (add, never remove)
+    r2 = measure.analyze(synthetic_photo, apply_gate=False)
+    assert set(r2["cracks"][0]) == set(r["cracks"][0]) - {"raw"}
+
+
+def test_blur_inversion_tables_roundtrip():
+    t = measure._bar_tables()
+    assert np.all(np.diff(t["u"]) > 0) and np.all(np.diff(t["fwhm"]) >= -1e-9) and np.all(np.diff(t["area_peak"]) > 0)
+    s = 0.15
+    for u in (3.0, 5.0, 10.0, 25.0):
+        f = float(np.interp(u, t["u"], t["fwhm"])) * s
+        a = float(np.interp(u, t["u"], t["area_peak"])) * s
+        assert abs(float(measure._unblur_fwhm(np.array([f]), s)[0]) - u * s) < 0.02 * u * s
+        assert abs(float(measure._unblur_area_peak(np.array([a]), s)[0]) - u * s) < 0.02 * u * s
+    # a wide bar is not changed by blur: FWHM -> width, area / peak -> width
+    assert abs(t["fwhm"][-1] - t["u"][-1]) < 0.05 and abs(t["area_peak"][-1] - t["u"][-1]) < 0.05
+
+
+@pytest.mark.parametrize("cfg", [
+    {"estimator": "fwhm"}, {"estimator": "fwhm_inv"}, {"estimator": "core_inv"}, {"estimator": "fit"},
+    {"estimator": "mix", "wide": "core_inv", "d_from": "core_inv"}, {"estimator": "mix", "agg": "trim"},
+])
+def test_estimator_options_run_and_are_sane(synthetic_photo, cfg):
+    r = measure.analyze(synthetic_photo, apply_gate=False, cfg=cfg)
+    assert r["ok"]
+    wide = [c for c in r["cracks"] if c["true_width_mm"] >= 1.0]
+    assert wide and all(abs(c["width_mm"] - c["true_width_mm"]) < 0.4 * c["true_width_mm"] for c in wide)
 
 
 def test_degraded_capture_is_flagged_not_dropped(synthetic_photo):
