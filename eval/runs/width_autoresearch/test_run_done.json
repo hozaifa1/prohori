@@ -1,0 +1,1 @@
+{"when": "2026-10-25 00:03:05", "cfg": {"mask_sigma_mm": 0.15, "prof_sigma_mm": 0.12, "smooth_k": 1.2, "smooth_floor_mm": 0.03, "estimator": "mix", "wide": "fwhm_inv", "d_from": "max_ink_core_inv", "q_gate": true, "q_release": 4.5, "q_release_scale": 1.5, "inv_sigma_scale": 1.0, "agg": "median", "d0": 4.0, "dscale": 4.0, "core_f": 0.85, "core_corr_k": 1.7}}

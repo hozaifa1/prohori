@@ -61,11 +61,12 @@ Not done: a per-station weight, a learned weight, an estimator with more than th
 * **Epoch 1 (iterations 0-15, nominal panel truth).** LEGACY baseline J = 0.1101 -> 0.0942 at iteration 15. Superseded: judged against a truth that contains the toner bleed.
 * **Truth switch (16-17) and restart (18).** Under the toner-corrected truth LEGACY scores J = 0.1110 (panel 0.1200, synthetic 0.1020). The iteration-15 configuration scored 0.0967 but its panel < 0.5 mm MAE (0.0565 vs 0.0434) and certified MAE (0.0557 vs 0.0498) were worse than LEGACY's, so it violated the new guard 2. The earlier "gain" on thin cracks was partly fitting the bleed. The loop restarted from LEGACY and every earlier change was re-tested one at a time (rows 19-28, named `r_*`).
 * **Epoch 2 (iterations 19-51).** Kept: 19 (blur-inverted FWHM), 20 (blend switch 3/3), 22 (q gate off), 24 (smoothing scaled to the blur), 29 (resolvability weight, q gate back on), 43 (q gate released for resolved cracks). Iterations 44-51: no further keep (eight consecutive discards; six of them are re-tests of earlier near misses against the new best): a plateau.
-* 51 logged iterations in total, plus the quick pre-screens in `scan_log.tsv` and three unlogged attempts of C4. TUNE J: LEGACY 0.1110 -> shipped 0.0903 (-18.6 %).
+* **Selection among the loop's best and two neighbours (diagnostics, rows `diag_V1..V3` and `SELECTED_V3`).** The loop's best (V1, blend ramp 3/3 sigma, J = 0.0903) was found by the orchestrator to cost accuracy on the mid-range specimens (0.50 mm: 0.033 -> 0.048 mm, +45 %) that the < 0.5 mm guard does not see. A selection rule was fixed before the diagnostic runs: choose the lowest J among the variants in which no panel specimen from 0.30 to 0.75 mm is worse than LEGACY by more than max(10 %, 5 um) in MAE. V1 (3/3) fails (0.40 mm +7 um, 0.50 mm +15 um); V2 (legacy 5/6 ramp, J = 0.1039) qualifies; V3 (4/4, J = 0.0952) qualifies, with the 0.50 mm specimen exactly on the 5 um tolerance. 14 further (d0, dscale) pairs were scanned against the same rule (`scan_log.tsv`, `midscan`): none that qualifies beats V3's J. **V3 is the shipped configuration.**
+* 51 loop iterations in total (0-51 in `log.tsv`, counting the truth-switch rows), plus the quick pre-screens in `scan_log.tsv` and three unlogged attempts of C4. TUNE J: LEGACY 0.1110 -> loop best (V1) 0.0903 (-18.6 %) -> shipped V3 0.0952 (-14.3 %).
 
 ## 7. Diagnosis of the residuals (measured, not guessed)
 
-Per-specimen residuals are in `eval/results/width_eval.md` (panel nominal and corrected, synthetic binned alike). Findings, all on the TUNE split:
+Per-specimen residuals are in `eval/results/width_eval.md` (panel nominal and corrected, synthetic binned alike). Findings, all on the TUNE split (numbers in items 1 and 2 were measured on the loop's best, V1; the shipped V3 differs slightly, see `eval/results/width_eval_tune.md`):
 
 1. **Blend fault (an estimator fault, fixed).** The board-ink area estimator assumes the crack plateau is as dark as the board toner. In several photos the printed strokes' plateau is 0.55-0.74 of the board black, so the ink-area width is biased low by about that factor, and the blend weight (computed from the ink-area width) stayed at 0.2-0.5 where it should have been 1 (for example IMG...0807, specimen C7 of 2.0 mm: FWHM 1.91 mm, headline 1.24 mm). The weight now uses `max(ink-area width, blur-inverted area/peak width) / sigma`, and the q gate (plateau contrast against board ink) is released for clearly resolved cracks. The 2.0 mm panel specimen's bias went from -0.357 to -0.237 mm and the 3.0 mm one from -0.268 to -0.165 mm.
 2. **Distance from the board (geometry, not the estimator).** The board homography is fitted on a 140 x 100 mm board and extrapolated up to 234 mm. On sharp frontal photos (blur sigma <= 0.15 mm, obliquity <= 25 degrees) the relative width error falls from +2.8 % at 0.23 board widths to -2.7 % at 0.96 board widths (shipped; LEGACY +5.8 % to -2.9 %). Across all photos it falls from +7.6 % to -8.4 %, and the residual error of the 2.0 and 3.0 mm specimens (-0.24 and -0.17 mm) comes from four photos with obliquity of 32-42 degrees or blur sigma of 0.3 mm (IMG...0746, 0802 x2, 0807, 0819). Important confound: in this panel distance and width are not independent (thin specimens near the board, wide ones far), so the part of the trend caused by the estimator at different widths cannot be separated from the scale extrapolation. Figure: `eval/results/width_distance.png`.
@@ -79,7 +80,7 @@ Per-specimen residuals are in `eval/results/width_eval.md` (panel nominal and co
 `measure.CFG = {**LEGACY_CFG, **SHIPPED_DELTA}`:
 
 ```
-estimator "mix", wide "fwhm_inv", d_from "max_ink_core_inv", d0 3, dscale 3, q_gate True, q_release 4.5, q_release_scale 1.5,
+estimator "mix", wide "fwhm_inv", d_from "max_ink_core_inv", d0 4, dscale 4, q_gate True, q_release 4.5, q_release_scale 1.5,
 smooth_k 1.2, core_corr_k 1.7 (black-core output only)
 ```
 
@@ -87,4 +88,13 @@ smooth_k 1.2, core_corr_k 1.7 (black-core output only)
 
 ## 9. Held-out result
 
-See `eval/results/width_eval.md` (TEST, evaluated once) with the tune/test comparison, the METRICS tiers, M2 and S8 comparisons, the error distribution and error-vs-px/mm figures.
+The TEST split was evaluated once, after V3 was frozen and committed (`eval/runs/width_autoresearch/test_run_done.json`); no tuning followed. Full tables, tiers, per-specimen residuals, M2 / S8 comparison, figures: `eval/results/width_eval.md`.
+
+| MAE, mm (LEGACY -> shipped) | TUNE | TEST |
+|---|---|---|
+| real panel photos, corrected truth, all widths (U_ref +-0.009) | 0.120 -> 0.099 (-18 %) | 0.075 -> 0.070 (-7 %) |
+| panel < 0.5 mm | 0.043 -> 0.044 | 0.053 -> 0.055 |
+| panel certified only (frozen gate) | 0.050 -> 0.050 | 0.059 -> 0.056 |
+| photoreal renders, all widths | 0.102 -> 0.091 (-10 %) | 0.121 -> 0.098 (-19 %) |
+
+Plain reading: the renders improve more on TEST than on TUNE. On the real photos the gain shrinks from -18 % (TUNE) to -7 % (TEST, inside the bootstrap interval), because the TUNE half holds the four badly blurred or oblique photos that gave most of the gain and the TEST half has none; thin cracks (< 0.5 mm) did not improve on the real photos. The honest summary is a clear gain on synthetic and wide-crack data, and a small, uncertain gain on real thin-crack photos.
