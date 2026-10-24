@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Prohori Progress Report</title>
+<style>
+  @page { size: A4; margin: 16mm 15mm 16mm 15mm; }
+  :root { --ink:#16202a; --muted:#5a6672; --line:#d9dee3; --accent:#0b6e4f; --amber:#b76e00; --soft:#f3f6f8; }
+  * { box-sizing: border-box; }
+  body { font-family: "Segoe UI", Arial, sans-serif; color: var(--ink); font-size: 10.2pt; line-height: 1.45; margin: 0; background:#fff; }
+  h1 { font-size: 22pt; margin: 0 0 2mm; letter-spacing: .2px; }
+  h2 { font-size: 13.5pt; margin: 7mm 0 2.5mm; padding-bottom: 1.2mm; border-bottom: 2px solid var(--accent); }
+  h3 { font-size: 11pt; margin: 4mm 0 1.5mm; }
+  h2, h3 { break-after: avoid; }
+  .two, .phones, pre, svg, .box, .kpis { break-inside: avoid; }
+  tr { break-inside: avoid; }
+  p { margin: 0 0 2.4mm; }
+  .sub { color: var(--muted); font-size: 10.5pt; margin-bottom: 4mm; }
+  .meta { font-size: 9.2pt; color: var(--muted); }
+  .box { background: var(--soft); border: 1px solid var(--line); border-radius: 6px; padding: 3.5mm 4.5mm; margin: 3mm 0; }
+  .box.green { border-left: 4px solid var(--accent); }
+  .box.amber { border-left: 4px solid var(--amber); }
+  ul { margin: 0 0 2.4mm 5mm; padding: 0; }
+  li { margin-bottom: 1mm; }
+  table { border-collapse: collapse; width: 100%; margin: 2mm 0 3mm; font-size: 9.3pt; }
+  th, td { border: 1px solid var(--line); padding: 1.4mm 2mm; text-align: left; vertical-align: top; }
+  th { background: var(--soft); font-weight: 600; }
+  td.num, th.num { text-align: right; white-space: nowrap; }
+  .kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 3mm; margin: 3mm 0 2mm; }
+  .kpi { border: 1px solid var(--line); border-radius: 6px; padding: 2.5mm 3mm; }
+  .kpi b { display: block; font-size: 15pt; color: var(--accent); line-height: 1.15; }
+  .kpi span { font-size: 8.6pt; color: var(--muted); }
+  figure { margin: 2mm 0 3mm; text-align: center; }
+  figure img { max-width: 100%; border: 1px solid var(--line); border-radius: 4px; }
+  figcaption { font-size: 8.6pt; color: var(--muted); margin-top: 1.2mm; text-align: left; }
+  .phones { display: grid; grid-template-columns: repeat(4, 1fr); gap: 3mm; align-items: start; }
+  .phones img { width: 100%; border: 1px solid var(--line); border-radius: 6px; }
+  .phones div { font-size: 8.3pt; color: var(--muted); margin-top: 1mm; }
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 4mm; align-items: start; }
+  code, .mono { font-family: Consolas, "Courier New", monospace; font-size: 8.6pt; }
+  pre { background: #0f1720; color: #d7e3ee; padding: 3mm; border-radius: 5px; font-size: 8.2pt; white-space: pre-wrap; word-break: break-all; margin: 2mm 0; }
+  a { color: var(--accent); }
+  .pb { break-before: page; }
+  .avoid { break-inside: avoid; }
+  .tag { display:inline-block; font-size:8pt; padding:.3mm 1.8mm; border-radius:3px; background:#e3f2ec; color:var(--accent); font-weight:600; }
+  .tag.todo { background:#fff1dc; color:var(--amber); }
+  .small { font-size: 8.8pt; color: var(--muted); }
+</style>
+</head>
+<body>
+
+<h1>Prohori: progress report</h1>
+<div class="sub">OpenCV AI Competition 2026, powered by AWS · AWS Compute Grant midpoint check-in</div>
+<div class="meta">S. M. Hozaifa Hossain (team Prohori) · Dhaka, Bangladesh · 20 October 2026 · prepared for Phil Nelson, OpenCV.org</div>
+
+<div class="box green" style="margin-top:5mm">
+<p><b>What Prohori does.</b> You tape a printed ChArUco board next to a concrete crack and take a phone photo. OpenCV finds the board, corrects for camera angle and scale, and reports the crack width in millimetres with an error range. If the photo can't support a trustworthy number (too far, blurred, tilted, glare), Prohori says so and tells the user exactly how to retake it. Crack width is what engineers use to decide whether concrete needs repair, and today it is mostly judged by eye with a plastic crack card.</p>
+<p style="margin:0"><b>Live app:</b> <a href="https://184-194-241-186.sslip.io">https://184-194-241-186.sslip.io</a> (open it on a phone and tap <i>Demo samples</i> to try it without a board).</p>
+</div>
+
+<div class="kpis">
+  <div class="kpi"><b>Live on AWS</b><span>Graviton t4g.small, OpenCV 5.0.0, HTTPS, phone web app</span></div>
+  <div class="kpi"><b>0.048 mm</b><span>average width error on certified cracks (held-out photos)</span></div>
+  <div class="kpi"><b>92.9%</b><span>of true widths fall inside the stated 90% range (held-out)</span></div>
+  <div class="kpi"><b>206 / 206</b><span>automated tests passing</span></div>
+</div>
+
+<h2>1. Summary</h2>
+<ul>
+  <li><b>Done:</b> the full measurement pipeline (ChArUco detection, pose, rectification, per-crack width and uncertainty), a statistically calibrated quality gate, an agent that decides the next photo, a phone web app, and a production AWS deployment with storage, alerts, privacy redaction and cost guards.</li>
+  <li><b>Tested:</b> 29 real phone photos of a printed test panel with 8 cracks of known width (0.30 to 3.00 mm), 18,683 measurements on degraded versions of those photos, a pre-registered agent study, and a public benchmark of 19,098 real crack profiles (krkCMd).</li>
+  <li><b>AWS spend so far:</b> almost nothing, by design. Everything has run inside the account's Free Tier credits; the full agent evaluation on Amazon Bedrock cost $0.061. The grant money is set aside for the GPU, Graviton4 and hosting work in the final stretch (section 5).</li>
+  <li><b>Left before 26 October:</b> deploy the calibrated gate, train a learned crack finder on public datasets, run the Graviton4 + OpenCV COOL benchmark, validate on real walls, then the write-up and video (section 6).</li>
+</ul>
+
+<h2>2. What is built</h2>
+<table>
+  <tr><th style="width:24%">Component</th><th>What it does</th><th style="width:10%">Status</th></tr>
+  <tr><td>Measurement pipeline</td><td>ChArUco detection, <code>solvePnP</code> pose, homography rectification to a known px/mm, crack location, width at many stations along each crack, per-crack uncertainty. About 1.5 s per 12 MP photo on the server.</td><td><span class="tag">Live</span></td></tr>
+  <tr><td>Quality gate (calibrated)</td><td>Learns when a measurement can be trusted, from sharpness, scale, tilt, glare and mask checks. The threshold is set with conformal risk control so the wrong-but-certified rate stays near a 5% target. Each width gets a conformal 90% range.</td><td><span class="tag">Built, tested</span><br><span class="small">deploys this week</span></td></tr>
+  <tr><td>Triage agent</td><td>After each photo it picks one of 7 actions: accept, accept with a wider range, move closer, hold steadier, fix the lighting, reposition the board, or give up and log. It sees only OpenCV's numbers, never the image. Uses Amazon Bedrock (Nova Lite) when selected; otherwise a free rules policy. Falls back to rules on any error.</td><td><span class="tag">Live</span></td></tr>
+  <tr><td>Phone web app</td><td>Installable web app: capture, upload, demo samples, joint ID, big mm result with range, per-crack tiles, photo quality panel, and a step-by-step agent trace.</td><td><span class="tag">Live</span></td></tr>
+  <tr><td>History and alerts</td><td>Every visit to a joint is stored. A change is flagged only when it is larger than the combined measurement uncertainty; a trend line appears after 3 visits. Real changes email an engineer through Amazon SNS with an "I have reviewed this" approval step.</td><td><span class="tag">Live</span></td></tr>
+  <tr><td>Privacy</td><td>Faces are blurred with OpenCV's YuNet detector before any photo is saved. If the face model is missing, nothing is stored.</td><td><span class="tag">Live</span></td></tr>
+  <tr><td>Evaluation tooling</td><td>Width benchmark on krkCMd, agent ablation simulator, a photoreal synthetic crack generator with exact ground truth, and a loader plus metrics for 10 public crack segmentation datasets.</td><td><span class="tag">Built</span></td></tr>
+</table>
+
+<figure class="avoid">
+  <img src="img/overlay_best.jpg" style="width:70%">
+  <figcaption><b>Real phone photo, processed by Prohori.</b> Yellow dots are the detected board corners (24/24), which give the scale (13.0 px/mm). Each crack shows the measured width ± range next to the true printed width, e.g. C1 0.29 ± 0.04 mm (true 0.30), C5 1.01 ± 0.03 (true 1.00), C8 2.97 ± 0.06 (true 3.00). Two cracks are honestly flagged as unstable instead of given a confident number. This is our best photo (mean error 1.7%); the averages over all photos are in section 3.</figcaption>
+</figure>
+
+<h3>The phone app (screenshots from the live deployment)</h3>
+<div class="phones">
+  <div><img src="img/02_too_far_move_closer.jpg"><div><b>Too far.</b> The board is only 5.3 px/mm, so no number is certified and the app says "move closer".</div></div>
+  <div><img src="img/03_certified_accept.jpg"><div><b>Certified.</b> After moving closer: 0.26 ± 0.09 mm, all checks pass, move to the next crack.</div></div>
+  <div><img src="img/04_all_cracks_and_history.jpg"><div><b>All cracks + history.</b> Widths for all 8 cracks, stored under joint "wall-1".</div></div>
+  <div><img src="img/05_quality_and_agent_trace.jpg"><div><b>Quality + agent trace.</b> Corners, px/mm, sharpness, tilt, glare, then what the agent decided and why.</div></div>
+</div>
+
+<h2>3. Results so far</h2>
+<p class="small">All numbers come from files in our repository (<code>eval/results/</code>). We report held-out ("out-of-sample") numbers where we have them, and say where we don't.</p>
+
+<h3>Width accuracy on real phone photos</h3>
+<p>29 photos of the printed test panel; the board was found in 23 and 168 crack widths were measured.</p>
+<table>
+  <tr><th>Set</th><th class="num">Cracks</th><th class="num">Avg. error, tuned on all photos</th><th class="num">Avg. error, each photo held out</th></tr>
+  <tr><td>Cracks the gate certifies</td><td class="num">85</td><td class="num">0.045 mm</td><td class="num"><b>0.048 mm</b></td></tr>
+  <tr><td>All measured cracks</td><td class="num">168</td><td class="num">0.101 mm</td><td class="num">0.104 mm</td></tr>
+  <tr><td>Uncertified cracks</td><td class="num">83</td><td class="num">0.159 mm</td><td class="num">n/a</td></tr>
+</table>
+<p>Certified cracks are about 3.5 times more accurate than uncertified ones (3.6% vs 18.3% relative error), which is what the gate is for.</p>
+
+<h3>Can you trust the certificate?</h3>
+<div class="two avoid">
+<div>
+<ul>
+  <li>Calibrated on 18,683 measurements from 2,584 degraded captures (blur, distance, tilt, glare, JPEG).</li>
+  <li>Held-out wrong-and-certified rate: <b>4.4%</b> against a 5% target ("wrong" = off by more than 0.05 mm or 10%).</li>
+  <li>Holding out each real photo in turn: 53% of cracks certified, and 7.9% of certified cracks were wrong. A stricter setting gets this to 3.8%.</li>
+  <li>The old hand-set gate certified only 15% of cracks and 29% of those were wrong. On the same held-out data the calibrated gate certifies 2.5 times as many (38.5%) and cuts the wrong share to 12%.</li>
+  <li>The stated 90% range held the true width 92.9% of the time on held-out photos. The old range covered only 63% at 2 mm.</li>
+</ul>
+</div>
+<figure class="avoid" style="margin-top:0">
+  <img src="img/gate_interval_coverage.png">
+  <figcaption>How often the stated range contains the true width, by crack width. Blue (new conformal range) sits near the 90% line at every width; the old range (orange) failed on wide cracks.</figcaption>
+</figure>
+</div>
+
+<h3>Agent vs fixed rules (pre-registered)</h3>
+<p>We wrote the test plan and pass bar before running it, then tested on 100 held-out simulated capture problems. Success = a usable photo within 3 actions.</p>
+<table>
+  <tr><th>Problem type</th><th class="num">Random</th><th class="num">Fixed rules</th><th class="num">Bedrock agent (Nova Lite)</th></tr>
+  <tr><td>One thing wrong (20 cases)</td><td class="num">30%</td><td class="num">95%</td><td class="num"><b>100%</b></td></tr>
+  <tr><td>Several things wrong at once (48 cases)</td><td class="num">2%</td><td class="num">62%</td><td class="num"><b>85%</b></td></tr>
+</table>
+<figure class="avoid">
+  <img src="img/agent_ablation.png">
+  <figcaption>Agent ablation, held-out split, 95% confidence intervals. The agent beat fixed rules by 23 points on multi-problem captures (95% CI +8 to +38). It made 419 Bedrock calls for the whole study at a total cost of $0.061.</figcaption>
+</figure>
+<p><b>What we learned, honestly:</b> a carefully hand-written rule reached 88% on the same cases, so the agent's real edge over a well-tuned rule set is small. We will publish that result as it is. It is also why the free rules policy is the default and the AI agent is an option.</p>
+
+<h3>Public benchmark (krkCMd, 19,098 real crack profiles)</h3>
+<p>This benchmark showed how image resolution limits accuracy: cracks of 0.30 to 0.50 mm need about 20 px/mm for errors near 0.05 mm, and our width formula was not yet good enough at low resolution. A simpler estimator reached 13 µm average error at full resolution. These findings directly changed the gate's resolution rules, and the estimator rework is on the remaining-work list.</p>
+
+<h2>4. How we use AWS</h2>
+<p>Prohori runs as a small production service in <b>us-east-1</b>. Every part below is deployed and working today; the live server answers:</p>
+<pre>GET https://184-194-241-186.sslip.io/health  (checked 20 Oct 2026)
+{"status":"ok","opencv":"5.0.0","arch":"aarch64","instance":"t4g.small","version":"b090be5",
+ "impl":{"measure":"prohori.measure","agent":"prohori.agent","store":"prohori.store"},
+ "redaction":"yunet","escalation_topic":true}</pre>
+
+<svg viewBox="0 0 760 250" width="100%" style="margin:2mm 0 1mm" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, Arial" font-size="12">
+  <defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#5a6672"/></marker></defs>
+  <rect x="10" y="85" width="120" height="70" rx="8" fill="#f3f6f8" stroke="#9aa5b0"/>
+  <text x="70" y="113" text-anchor="middle" font-weight="600">Phone</text>
+  <text x="70" y="131" text-anchor="middle" font-size="10.5" fill="#5a6672">web app + board</text>
+  <line x1="130" y1="120" x2="205" y2="120" stroke="#5a6672" stroke-width="1.6" marker-end="url(#a)"/>
+  <text x="167" y="111" text-anchor="middle" font-size="10" fill="#5a6672">HTTPS</text>
+  <rect x="208" y="30" width="270" height="190" rx="10" fill="#e3f2ec" stroke="#0b6e4f"/>
+  <text x="343" y="52" text-anchor="middle" font-weight="700">EC2 t4g.small (Graviton, Arm)</text>
+  <text x="343" y="69" text-anchor="middle" font-size="10.5" fill="#33504a">Elastic IP · Caddy TLS · FastAPI</text>
+  <rect x="226" y="80" width="234" height="126" rx="6" fill="#fff" stroke="#9cc9b8"/>
+  <text x="240" y="100" font-size="11">OpenCV 5.0: ChArUco · solvePnP ·</text>
+  <text x="240" y="117" font-size="11">rectify · width + uncertainty</text>
+  <text x="240" y="138" font-size="11">Calibrated quality gate</text>
+  <text x="240" y="158" font-size="11">Triage agent (rules / Bedrock)</text>
+  <text x="240" y="178" font-size="11">YuNet face redaction</text>
+  <text x="240" y="196" font-size="11">IAM role, least privilege</text>
+  <g font-size="11.5">
+    <rect x="560" y="10" width="190" height="44" rx="7" fill="#f3f6f8" stroke="#9aa5b0"/><text x="655" y="29" text-anchor="middle" font-weight="600">Amazon Bedrock</text><text x="655" y="45" text-anchor="middle" font-size="10" fill="#5a6672">Nova Lite agent, 200 calls/day cap</text>
+    <rect x="560" y="64" width="190" height="44" rx="7" fill="#f3f6f8" stroke="#9aa5b0"/><text x="655" y="83" text-anchor="middle" font-weight="600">DynamoDB</text><text x="655" y="99" text-anchor="middle" font-size="10" fill="#5a6672">agent traces, joint history</text>
+    <rect x="560" y="118" width="190" height="44" rx="7" fill="#f3f6f8" stroke="#9aa5b0"/><text x="655" y="137" text-anchor="middle" font-weight="600">S3 (private, encrypted)</text><text x="655" y="153" text-anchor="middle" font-size="10" fill="#5a6672">redacted evidence photos</text>
+    <rect x="560" y="172" width="190" height="44" rx="7" fill="#f3f6f8" stroke="#9aa5b0"/><text x="655" y="191" text-anchor="middle" font-weight="600">SNS</text><text x="655" y="207" text-anchor="middle" font-size="10" fill="#5a6672">engineer alerts + approval</text>
+  </g>
+  <g stroke="#5a6672" stroke-width="1.4" marker-end="url(#a)">
+    <line x1="478" y1="80" x2="557" y2="34"/><line x1="478" y1="105" x2="557" y2="86"/><line x1="478" y1="140" x2="557" y2="140"/><line x1="478" y1="175" x2="557" y2="194"/>
+  </g>
+  <text x="380" y="242" text-anchor="middle" font-size="10" fill="#5a6672">Plus: AWS Budgets alarm at $25/month · deploys ship only committed, tagged code</text>
+</svg>
+
+<table>
+  <tr><th style="width:26%">AWS service</th><th>How Prohori uses it</th></tr>
+  <tr><td>EC2 Graviton t4g.small</td><td>Runs the OpenCV 5 measurement API (Ubuntu 24.04 arm64, encrypted gp3 disk, IMDSv2, Elastic IP, Caddy with automatic HTTPS).</td></tr>
+  <tr><td>Amazon Bedrock</td><td>Nova Lite powers the optional triage agent through the Converse API with one forced tool call. Daily cap of 200 calls; rules fallback.</td></tr>
+  <tr><td>DynamoDB</td><td>Every agent step and every visit to a crack (pay-per-request, encrypted, 90-day expiry).</td></tr>
+  <tr><td>S3</td><td>Evidence photos after face redaction (private bucket, public access blocked, encrypted).</td></tr>
+  <tr><td>SNS</td><td>Emails an engineer when a crack really changes; approval by POST so email link scanners can't approve.</td></tr>
+  <tr><td>IAM, SSM, Budgets</td><td>Least-privilege instance role, SSM access, and a $25/month budget alarm (50%, 80%, 100% forecast).</td></tr>
+</table>
+
+<h2>5. Credits and grant: what we have spent and why</h2>
+<div class="box amber">
+<p><b>Short answer: our AWS costs so far are close to zero, on purpose.</b> We built the whole stack to run cheaply first, so the grant can pay for the expensive parts at the end (GPU training, the Graviton4 benchmark, and keeping the service online for judging).</p>
+<ul style="margin-bottom:0">
+  <li>All AWS usage so far is covered by the account's Free Tier credits. The Billing console on 19 Oct shows <b>$120.00 credits remaining, $0.00 applied</b> (screenshot below; AWS applies credits when the monthly invoice is finalised, so October usage appears in early November).</li>
+  <li>The largest metered job so far, the full Bedrock agent study (419 calls, 906k input tokens), cost <b>$0.061</b>.</li>
+  <li>The first $75 arrived by bank payment after the PayPal delay. It has not been spent yet and is kept for this project's AWS costs below.</li>
+</ul>
+</div>
+
+<div class="two">
+<div>
+<h3 style="margin-top:1mm">Plan for the $150 grant</h3>
+<table>
+  <tr><th>Use</th><th class="num">Est. cost</th></tr>
+  <tr><td>GPU training of the learned crack finder on public datasets (EC2 g-family GPU instance, about 40 h)</td><td class="num">~$25</td></tr>
+  <tr><td>Graviton4 (c8g) benchmark: stock OpenCV vs OpenCV COOL build, speed and accuracy match (we upgrade the account to the Paid plan for this, since the Free plan blocks Marketplace images and credits don't cover Marketplace fees)</td><td class="num">~$20</td></tr>
+  <tr><td>Keep the live service up through judging and a 3-month pilot after the Free Tier credits run out (t4g.small + public IPv4 + disk, about $17/month)</td><td class="num">~$55</td></tr>
+  <tr><td>Bedrock: re-run the agent study on the new gate, demo video, judges' traffic</td><td class="num">~$10</td></tr>
+  <tr><td>Field-test traffic (S3, DynamoDB, SNS) and buffer for Paid-plan charges</td><td class="num">~$40</td></tr>
+  <tr><th>Total</th><th class="num">~$150</th></tr>
+</table>
+<p class="small">Estimates use us-east-1 on-demand list prices. Actual spend will be reported in the final submission.</p>
+</div>
+<figure style="margin-top:1mm">
+  <img src="img/06_aws_credits.jpg">
+  <figcaption>AWS Billing console, account 208805232846, Credits page, 19 Oct 2026.</figcaption>
+</figure>
+</div>
+
+<h2 class="pb">6. Work remaining (to 26 October)</h2>
+<table>
+  <tr><th style="width:30%">Task</th><th>Detail</th><th style="width:13%">Target</th></tr>
+  <tr><td>Deploy calibrated gate + updated agent</td><td>Built and tested (206 tests pass); the live server still runs the demo build so the check-in demo stayed stable.</td><td>21 Oct</td></tr>
+  <tr><td>Learned crack finder</td><td>Our classical crack locator is 20 to 45 F1 points behind published trained models on public datasets (DeepCrack, Crack500, TUT), so we will train a small segmentation model on AWS GPU and compare it on the same harness.</td><td>23 Oct</td></tr>
+  <tr><td>Graviton4 + OpenCV COOL benchmark</td><td>Speed per photo on c8g vs t4g, and proof that widths are identical with COOL. Runs after we upgrade the account to the Paid plan.</td><td>24 Oct</td></tr>
+  <tr><td>Width estimator rework</td><td>Apply the krkCMd findings to improve thin-crack accuracy at low px/mm, re-tuned out-of-sample.</td><td>24 Oct</td></tr>
+  <tr><td>Real-wall validation</td><td>Photos of real cracks on walls in Dhaka, plus a modified panel to demonstrate multi-visit trend alerts.</td><td>25 Oct</td></tr>
+  <tr><td>Submission</td><td>Write-up, demo video, public results, Devpost entry.</td><td>26 Oct</td></tr>
+</table>
+
+<p class="small" style="margin-top:5mm">Thank you for the grant and for the flexibility on the check-in. Live app: <a href="https://184-194-241-186.sslip.io">184-194-241-186.sslip.io</a> · Contact: 20hozaifa02@gmail.com</p>
+
+</body>
+</html>
