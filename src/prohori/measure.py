@@ -94,7 +94,7 @@ SHIPPED_DELTA = {
     "estimator": "mix",           # continuous blend (legacy: "blend")
     "wide": "fwhm_inv",           # resolved cracks: FWHM with the closed-form Gaussian blur inversion
     "d_from": "max_ink_core_inv",  # resolvability = max(ink-area width, blur-inverted area/peak width) / sigma
-    "d0": 3.0, "dscale": 3.0,     # weight ramps from 0 at 3 sigma to 1 at 6 sigma (legacy 5 / 6)
+    "d0": 4.0, "dscale": 4.0,     # weight ramps from 0 at 4 sigma to 1 at 8 sigma (legacy 5 / 6); 3/3 won J but cost 0.4-0.5 mm accuracy (mid-range rule, V3)
     "q_gate": True,
     "q_release": 4.5, "q_release_scale": 1.5,  # q gate fades out for clearly resolved cracks (d 4.5 -> 6 sigma)
     "core_corr_k": 1.7,           # black-core convention only (width_blackcore_mm): + 2 * 1.7 * sigma blur correction, tuned on krkCMd TUNE
