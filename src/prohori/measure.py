@@ -67,6 +67,20 @@ EDGE_SIGMA_PX = 0.4  # 1-sigma edge localisation per side, in native pixels
 # re-tune of (ink_ratio, d0, q0) so the out-of-sample effect is visible.
 BLEND = {"ink_ratio": INK_RATIO, "d0": 5.0, "dscale": 6.0, "q0": 0.5, "qscale": 0.1}
 
+# Estimator configuration (eval/width_eval.py varies these; the shipped values are the best configuration found by the
+# D18 autoresearch loop, documented in research/WIDTH_AUTORESEARCH.md).  LEGACY_CFG reproduces the 2026-10-19 estimator
+# exactly (kept so the ablation stays reproducible): analyze(img, cfg=measure.LEGACY_CFG).
+LEGACY_CFG = {
+    "mask_sigma_mm": 0.15,   # Gaussian smoothing of the darkness map before the half-peak mask (fixed, in mm)
+    "prof_sigma_mm": 0.12,   # Gaussian smoothing of every profile before Dcore / FWHM (fixed, in mm)
+    "smooth_k": 0.0,         # > 0: smoothing sigma = min(fixed, max(smooth_floor_mm, smooth_k * optical blur sigma))
+    "smooth_floor_mm": 0.03,
+    "estimator": "blend",    # which per-station estimator forms the headline width (see _station_widths)
+    "core_f": 0.85,          # black-core convention: width where the (encoded-grey) depth exceeds core_f * peak depth
+    "core_corr_k": 0.0,      # black-core convention: + 2 * core_corr_k * optical sigma (blur correction)
+}
+CFG = dict(LEGACY_CFG)
+
 _GT_PATH = Path(__file__).resolve().parents[2] / "data" / "print" / "test_panel_ground_truth.json"
 
 _cache: dict = {}
@@ -461,8 +475,9 @@ def _bg_map(lin: np.ndarray, win_px: int, mode: str | None = None) -> np.ndarray
     return cv2.resize(sm, (w, h), interpolation=cv2.INTER_LINEAR)
 
 
-def _fwhm(Dp: np.ndarray, S: float) -> np.ndarray:
-    """Sub-pixel full width at half maximum (mm) of each darkness profile (rows), NaN if not found."""
+def _fwhm(Dp: np.ndarray, S: float, frac: float = 0.5) -> np.ndarray:
+    """Sub-pixel full width at `frac` of the maximum (half maximum by default, mm) of each darkness profile (rows),
+    NaN if not found."""
     n, nt = Dp.shape
     out = np.full(n, np.nan)
     c = nt // 2
@@ -474,7 +489,7 @@ def _fwhm(Dp: np.ndarray, S: float) -> np.ndarray:
         pk = p[k]
         if pk <= 0:
             continue
-        half = 0.5 * pk
+        half = frac * pk
         a = k
         while a > 0 and p[a] > half:
             a -= 1
@@ -489,15 +504,12 @@ def _fwhm(Dp: np.ndarray, S: float) -> np.ndarray:
     return out
 
 
-def _measure_one(grey_full: np.ndarray, H_img2board: np.ndarray, seed_b: np.ndarray, ppm: float,
-                 ink_dark: float | None, sigma_mm: float, corridor_mm: float = 3.0, cap_px: int = 4200,
-                 blend: dict | None = None):
-    """Measure one crack at full resolution.
+def _extract_roi(grey_full: np.ndarray, H_img2board: np.ndarray, seed_b: np.ndarray, ppm: float,
+                 corridor_mm: float = 3.0, cap_px: int = 4200):
+    """Rectify a tight ROI around a crack seed at full resolution (S >= native px/mm).
 
-    seed_b: Nx2 coarse centreline in board mm.  ppm: native px/mm near the crack.
-    sigma_mm: optical blur (1-sigma, mm) estimated from the board edges.
-    Returns dict or None.
-    """
+    Returns the "ROI pack" dict(roi uint8 grey, val bool validity mask, lo board-mm origin, S px/mm, seed_b,
+    corridor_mm) or None.  Split from the measurement so evaluation harnesses can cache it (eval/width_eval.py)."""
     margin = corridor_mm + 1.0
     lo = seed_b.min(0) - margin
     hi = seed_b.max(0) + margin
@@ -513,6 +525,28 @@ def _measure_one(grey_full: np.ndarray, H_img2board: np.ndarray, seed_b: np.ndar
                               borderValue=0)
     val = cv2.warpPerspective(np.full(grey_full.shape, 255, np.uint8), Hm, (Wd, Hd), flags=cv2.INTER_NEAREST)
     val = cv2.erode(val, np.ones((5, 5), np.uint8)) > 0
+    return {"roi": roi, "val": val, "lo": lo, "S": S, "seed_b": seed_b, "corridor_mm": corridor_mm}
+
+
+def _measure_one(grey_full: np.ndarray, H_img2board: np.ndarray, seed_b: np.ndarray, ppm: float,
+                 ink_dark: float | None, sigma_mm: float, corridor_mm: float = 3.0, cap_px: int = 4200,
+                 blend: dict | None = None, cfg: dict | None = None):
+    """Measure one crack at full resolution.
+
+    seed_b: Nx2 coarse centreline in board mm.  ppm: native px/mm near the crack.
+    sigma_mm: optical blur (1-sigma, mm) estimated from the board edges.
+    Returns dict or None.
+    """
+    rp = _extract_roi(grey_full, H_img2board, seed_b, ppm, corridor_mm, cap_px)
+    return None if rp is None else _measure_roi(rp, ink_dark, sigma_mm, blend, cfg)
+
+
+def _measure_roi(rp: dict, ink_dark: float | None, sigma_mm: float, blend: dict | None = None, cfg: dict | None = None):
+    """Measure one crack from its ROI pack (see _extract_roi).  Returns dict or None."""
+    c = {**CFG, **(cfg or {})}
+    pb = {**BLEND, **(blend or {}), **{k: c[k] for k in BLEND if k in c}}
+    roi, val, lo, S, seed_b, corridor_mm = rp["roi"], rp["val"], rp["lo"], rp["S"], rp["seed_b"], rp["corridor_mm"]
+    Hd, Wd = roi.shape
     lin = _lin_lut()[roi]
 
     seed_px = (seed_b - lo) * S
@@ -524,7 +558,7 @@ def _measure_one(grey_full: np.ndarray, H_img2board: np.ndarray, seed_b: np.ndar
     linf = np.where(val, lin, fillv).astype(np.float32)
     bgm = _bg_map(linf, int(6.0 * S))
     D = bgm - linf  # darkness, linear light
-    Dsm = cv2.GaussianBlur(D, (0, 0), 0.15 * S)
+    Dsm = cv2.GaussianBlur(D, (0, 0), _smooth_mm(c, "mask_sigma_mm", sigma_mm) * S)
     kk = _odd(0.8 * S)
     dil = cv2.dilate(Dsm, cv2.getStructuringElement(cv2.MORPH_RECT, (kk, kk)))
     sp = np.round(seed_px).astype(int)
@@ -589,7 +623,8 @@ def _measure_one(grey_full: np.ndarray, H_img2board: np.ndarray, seed_b: np.ndar
         good[-e:] = False
     if good.sum() < 4:
         return None
-    Dsmooth = cv2.GaussianBlur(Dp.astype(np.float32), (0, 0), sigmaX=0.12 * S, sigmaY=0)
+    Dsmooth = cv2.GaussianBlur(Dp.astype(np.float32), (0, 0), sigmaX=_smooth_mm(c, "prof_sigma_mm", sigma_mm) * S,
+                               sigmaY=0)
     peak_i = Dsmooth.max(axis=1)
     Dcore = float(np.percentile(peak_i[good], 80))
     bgmed = float(np.median(bg_c[good]))
@@ -599,8 +634,9 @@ def _measure_one(grey_full: np.ndarray, H_img2board: np.ndarray, seed_b: np.ndar
     w_fwhm_i = _fwhm(Dsmooth[good], S)
     if np.isfinite(w_fwhm_i).sum() < 4:
         return None
-    b = blend_widths(area_g, Dcore, Dink, w_fwhm_i, sigma_mm, blend)
+    b = _station_widths(c, pb, area_g, Dcore, Dink, w_fwhm_i, sigma_mm, Dp[good], bgp[good], Dsmooth[good], S)
     w_i, wt = b["w_i"], b["wt"]
+    core_i = _black_core(c, Dp[good], bgp[good], Dsmooth[good], S, sigma_mm)
 
     poly_b = sm / S + lo
     length_mm = float(np.hypot(*np.diff(poly_b, axis=0).T).sum())
@@ -639,10 +675,42 @@ def _measure_one(grey_full: np.ndarray, H_img2board: np.ndarray, seed_b: np.ndar
         "profile_core_mm": float(np.median(b["w_core_i"])), "profile_ink_mm": float(np.median(b["w_ink_i"])),
         "fwhm_mm": float(np.nanmedian(w_fwhm_i)),
         "profile_mm": float(np.median(w_i)), "local_mm": w_i, "wt_core": wt,
+        "core_mm": float(np.nanmedian(core_i)) if np.isfinite(core_i).any() else float("nan"),
         "Dcore": Dcore, "Dink": Dink, "q_core": Dcore / Dink, "n_prof": int(good.sum()), "quality": quality,
         "raw": {"area": area_g.tolist(), "fwhm": [None if not np.isfinite(v) else float(v) for v in w_fwhm_i],
                 "Dcore": Dcore, "Dink": Dink, "sigma_mm": float(sigma_mm)},
     }
+
+
+def _smooth_mm(c: dict, key: str, sigma_mm: float) -> float:
+    """Smoothing sigma (mm) for the mask / profile stages: the fixed legacy value, or (smooth_k > 0) scaled to the optical
+    blur so that it never dominates a thin crack's own blur."""
+    base = float(c[key])
+    k = float(c.get("smooth_k", 0.0))
+    return base if k <= 0 else min(base, max(float(c["smooth_floor_mm"]), k * sigma_mm))
+
+
+def _station_widths(c: dict, pb: dict, area_g, Dcore, Dink, w_fwhm_i, sigma_mm, Dp_g, bgp_g, Dsm_g, S) -> dict:
+    """Per-station full-stroke widths for the configured estimator.  Returns blend_widths' dict (w_i, wt, w_ink_i,
+    w_core_i); w_i aligns with the stations that have a finite FWHM."""
+    return blend_widths(area_g, Dcore, Dink, w_fwhm_i, sigma_mm, pb)
+
+
+def _enc255(lin: np.ndarray) -> np.ndarray:
+    l = np.clip(lin, 0.0, 1.0)
+    return 255.0 * np.where(l <= 0.0031308, 12.92 * l, 1.055 * np.power(l, 1 / 2.4) - 0.055)
+
+
+def _black_core(c: dict, Dp_g, bgp_g, Dsm_g, S, sigma_mm) -> np.ndarray:
+    """Per-station width (mm) of the BLACK CORE, the operator convention of krkCMd (Jakubowski & Tomczak, Sci. Data
+    2025): the distance between the steepest-gradient points of the dark core, bevelled crack-mouth shading excluded.
+    Implemented as the width at `core_f` of the peak depth of the encoded-grey profile (the operator looks at displayed,
+    gamma-encoded grey values), plus 2 * core_corr_k * sigma to undo the blur that shrinks a high-level crossing.
+    NOT the headline (full printed stroke) convention."""
+    inten = np.clip(bgp_g - Dsm_g, 0.0, None)
+    depth = _enc255(bgp_g) - _enc255(inten)
+    w = _fwhm(depth, S, float(c["core_f"]))
+    return w + 2.0 * float(c["core_corr_k"]) * sigma_mm
 
 
 def blend_widths(area_g: np.ndarray, Dcore: float, Dink: float, w_fwhm_i: np.ndarray, sigma_mm: float,
@@ -748,16 +816,17 @@ def _decimate(poly: np.ndarray, n: int = 60) -> list:
 # ----------------------------------------------------------------------------- main entry
 
 def analyze(image_bgr: np.ndarray, *, panel_mode: bool = True, apply_gate: bool = True, debug: bool = False,
-            blend: dict | None = None, gate_level: str | None = None) -> dict:
+            blend: dict | None = None, gate_level: str | None = None, cfg: dict | None = None) -> dict:
     """Measure the cracks next to the ChArUco board.
 
     apply_gate=False skips certification and the conformal interval (used to build the gate's calibration data: the
     per-crack `quality` numbers and the observation vector are still returned).  debug=True adds `cracks[i]["raw"]`
-    (per-station profile areas / FWHMs) so the blend parameters can be re-fitted offline.  `blend` overrides BLEND."""
+    (per-station profile areas / FWHMs) so the blend parameters can be re-fitted offline.  `blend` overrides BLEND;
+    `cfg` overrides entries of CFG (estimator options, see the CFG comment)."""
     t_start = time.perf_counter()
     res = _empty_result()
     try:
-        _analyze(image_bgr, panel_mode, res, t_start, apply_gate, debug, blend, gate_level)
+        _analyze(image_bgr, panel_mode, res, t_start, apply_gate, debug, blend, gate_level, cfg)
     except Exception as e:  # never raise on bad input
         res["ok"] = False
         res["error"] = f"{type(e).__name__}: {e}"
@@ -766,7 +835,18 @@ def analyze(image_bgr: np.ndarray, *, panel_mode: bool = True, apply_gate: bool 
 
 
 def _analyze(img: np.ndarray, panel_mode: bool, res: dict, t0: float, apply_gate: bool = True, debug: bool = False,
-             blend: dict | None = None, gate_level: str | None = None):
+             blend: dict | None = None, gate_level: str | None = None, cfg: dict | None = None):
+    ctx = _prepare(img, panel_mode, res)
+    if ctx is not None:
+        _finish(ctx, res, apply_gate, debug, blend, gate_level, cfg)
+
+
+def _prepare(img: np.ndarray, panel_mode: bool, res: dict, extract: bool = True):
+    """Everything before the width estimator: board detection, rectification, locator, specimen matching, ROI packs.
+
+    Fills res["observation"] (all fields except the crack-derived ones) and the detect / rectify timings.  Returns the
+    context for _finish, or None if the capture stopped early (res then carries the error and gate reasons).  The
+    context is picklable, so eval/width_eval.py caches it and re-runs only _finish for every estimator variant."""
     if img is None or not isinstance(img, np.ndarray) or img.ndim not in (2, 3) or img.size == 0:
         res["error"] = "invalid_image"
         res["gate"]["reasons"] = ["invalid_image"]
@@ -921,7 +1001,7 @@ def _analyze(img: np.ndarray, panel_mode: bool, res: dict, t0: float, apply_gate
 
     sigma_mm = _edge_sigma(grey, H, ppm_board)
     obs["blur_sigma_mm"] = round(sigma_mm, 3)
-    cracks = []
+    items = []  # dict(sd, pm, rp): seeds with a ROI pack, ready for the estimator
     for sd in seeds:
         pm = _local_scale(Hinv, sd["seed_b"].mean(0))
         if pm <= 0:
@@ -930,11 +1010,29 @@ def _analyze(img: np.ndarray, panel_mode: bool, res: dict, t0: float, apply_gate
         ip = _apply_h(Hinv, sd["seed_b"])
         if ((ip[:, 0] < 0) | (ip[:, 0] >= w) | (ip[:, 1] < 0) | (ip[:, 1] >= h)).mean() > 0.2:
             continue
-        m = _measure_one(grey, H, sd["seed_b"], pm, ink_dark, sigma_mm, sd["corridor"], blend=blend)
+        items.append({"sd": sd, "pm": pm, "rp": _extract_roi(grey, H, sd["seed_b"], pm, sd["corridor"])})
+    obs["board_found"] = True
+    return {"items": items, "sigma_mm": sigma_mm, "ink_dark": ink_dark, "Hinv": Hinv, "ppm_board": ppm_board,
+            "panel_mode": panel_mode, "n_expected": len(gt["specs"]) if (panel_mode and gt is not None) else 1,
+            "t_extract": time.perf_counter() - t}
+
+
+def _finish(ctx: dict, res: dict, apply_gate: bool = True, debug: bool = False, blend: dict | None = None,
+            gate_level: str | None = None, cfg: dict | None = None):
+    """Width estimation, packaging and gate for a prepared capture (the part that depends on the estimator)."""
+    obs = res["observation"]
+    sigma_mm, ink_dark, Hinv, ppm_board, panel_mode = (ctx["sigma_mm"], ctx["ink_dark"], ctx["Hinv"], ctx["ppm_board"],
+                                                       ctx["panel_mode"])
+    t = time.perf_counter()
+    cracks = []
+    for it in ctx["items"]:
+        if it["rp"] is None:
+            continue
+        m = _measure_roi(it["rp"], ink_dark, sigma_mm, blend, cfg)
         if m is None or not (0.1 < m["profile_mm"] < 8.0):
             continue
-        cracks.append({"sd": sd, "m": m, "ppm": pm})
-    res["timing_ms"]["measure"] = round((time.perf_counter() - t) * 1000, 1)
+        cracks.append({"sd": it["sd"], "m": m, "ppm": it["pm"]})
+    res["timing_ms"]["measure"] = round((ctx["t_extract"] + time.perf_counter() - t) * 1000, 1)
 
     # ---------------- package
     out = []
@@ -959,6 +1057,8 @@ def _analyze(img: np.ndarray, panel_mode: bool, res: dict, t0: float, apply_gate
             "length_mm": round(m["length_mm"], 1),
             "polyline_px": _decimate(poly_img),
             "locator": sd["locator"],
+            # same crack, operator convention of krkCMd (black core between the steepest-gradient points), see _black_core
+            "width_blackcore_mm": round(m["core_mm"], 4) if np.isfinite(m["core_mm"]) else None,
             "estimators": {"dt": round(m["dt_mm"], 4), "profile_core": round(m["profile_core_mm"], 4),
                            "profile_ink": round(m["profile_ink_mm"], 4), "fwhm": round(m["fwhm_mm"], 4),
                            "profile": round(m["profile_mm"], 4),
@@ -973,9 +1073,7 @@ def _analyze(img: np.ndarray, panel_mode: bool, res: dict, t0: float, apply_gate
     obs["crack_px_extent"] = int(round(ext_px))
     obs["px_per_mm"] = round(float(np.median(ppms)) if ppms else ppm_board, 2)
     obs["ppm_board"] = round(ppm_board, 2)
-    n_expected = len(gt["specs"]) if (panel_mode and gt is not None) else 1
-    obs["crack_coverage"] = round(min(1.0, len(out) / n_expected), 3)
-    obs["board_found"] = True
+    obs["crack_coverage"] = round(min(1.0, len(out) / ctx["n_expected"]), 3)
 
     # ---------------- gate (prohori.gate: fitted certification + mask QA + conformal interval)
     if apply_gate:
