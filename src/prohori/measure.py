@@ -292,6 +292,85 @@ def _noise_sigma(crop: np.ndarray, mask: np.ndarray) -> float:
     return float(1.4826 * np.median(r[mk]) / 6.0)
 
 
+# ----------------------------------------------------------------------------- COOL-safe building blocks
+
+def _cc_stats(mask: np.ndarray):
+    """cv2.connectedComponentsWithStats(mask, connectivity=8) through the BBDT labeller.
+
+    Labels, stats and centroids are identical to the default call (checked on every mask the pipeline produces, bitwise
+    identical widths), but the default parallel SPAGHETTI path corrupts the heap of the COOL (Cloud Optimized OpenCV 5.1.0-dev,
+    AWS Graviton) build as soon as OpenCV uses two or more threads, i.e. at its default settings.  BBDT runs everywhere."""
+    return cv2.connectedComponentsWithStatsWithAlgorithm(mask, 8, cv2.CV_32S, cv2.CCL_BBDT)
+
+
+_ZS_LUTS: list = []
+_ZS_OFFS = ((-1, 0), (-1, 1), (0, 1), (1, 1), (1, 0), (1, -1), (0, -1), (-1, -1))  # (dy, dx) of p2 p3 p4 p5 p6 p7 p8 p9
+_ZS_BIT = [np.uint8(1 << ((k + 4) % 8)) for k in range(8)]
+
+
+def _zs_kernel():
+    k = np.zeros((3, 3), np.float32)
+    for bit, (dy, dx) in enumerate(_ZS_OFFS):
+        k[1 + dy, 1 + dx] = 1 << bit
+    return k
+
+
+def _zs_luts():
+    """Delete decision of Zhang-Suen sub-iteration 0 / 1 for every 8-neighbour code (bit k = neighbour p(k + 2), clockwise
+    from north)."""
+    if not _ZS_LUTS:
+        c = np.arange(256)
+        p2, p3, p4, p5, p6, p7, p8, p9 = [((c >> k) & 1).astype(np.int16) for k in range(8)]
+        a = (((p2 == 0) & (p3 == 1)).astype(np.int16) + ((p3 == 0) & (p4 == 1)) + ((p4 == 0) & (p5 == 1)) +
+             ((p5 == 0) & (p6 == 1)) + ((p6 == 0) & (p7 == 1)) + ((p7 == 0) & (p8 == 1)) + ((p8 == 0) & (p9 == 1)) +
+             ((p9 == 0) & (p2 == 1)))
+        b = p2 + p3 + p4 + p5 + p6 + p7 + p8 + p9
+        base = (a == 1) & (b >= 2) & (b <= 6)
+        _ZS_LUTS.append(base & ((p2 * p4 * p6) == 0) & ((p4 * p6 * p8) == 0))
+        _ZS_LUTS.append(base & ((p2 * p4 * p8) == 0) & ((p2 * p6 * p8) == 0))
+    return _ZS_LUTS
+
+
+def _thin(img: np.ndarray) -> np.ndarray:
+    """Zhang-Suen thinning of a 0 / 255 uint8 mask, bit-exact with cv2.ximgproc.thinning(img) (THINNING_ZHANGSUEN; tests
+    compare them), but needing no opencv-contrib (the COOL AMI has none) and about 3x faster than the native call here.
+
+    Sparse: only foreground pixels are visited.  The 8-neighbour code of every pixel is computed once with one filter2D and
+    then kept up to date by subtracting the bit of every pixel as it is deleted from its 8 neighbours, so a sweep costs one
+    gather instead of eight.  Border pixels never change."""
+    assert img.ndim == 2 and img.dtype == np.uint8
+    h, w = img.shape
+    a = (img == 255).astype(np.uint8)  # OpenCV does processed /= 255: only 255 stays 1
+    if h < 3 or w < 3:
+        return a * 255
+    idx = np.flatnonzero(a[1:-1, 1:-1])
+    if idx.size == 0:
+        return a * 255
+    r, c = np.divmod(idx, w - 2)
+    idx = (r + 1) * w + c + 1  # flat indices of the foreground pixels away from the border
+    code = cv2.filter2D(a, cv2.CV_8U, _zs_kernel(), borderType=cv2.BORDER_CONSTANT).reshape(-1)
+    flat = a.reshape(-1)
+    offs = [dy * w + dx for dy, dx in _ZS_OFFS]
+    luts = _zs_luts()
+    while idx.size:
+        removed = False
+        for it in (0, 1):
+            if idx.size == 0:
+                break
+            m = luts[it][code[idx]]
+            if m.any():
+                d = idx[m]
+                idx = idx[~m]
+                flat[d] = 0
+                for k in range(8):  # pixel d is the neighbour in direction (k + 4) % 8 of its neighbour d + offs[k]
+                    t = d + offs[k]
+                    code[t] -= _ZS_BIT[k]
+                removed = True
+        if not removed:
+            break
+    return a * 255
+
+
 # ----------------------------------------------------------------------------- skeleton paths
 
 def _longest_path(sk: np.ndarray) -> np.ndarray:
@@ -385,7 +464,7 @@ def _locate_cracks(canvas: np.ndarray, valid: np.ndarray, S: float, origin: np.n
     m = m.astype(np.uint8) * 255
     kc = _odd(0.5 * S)
     m = cv2.morphologyEx(m, cv2.MORPH_CLOSE, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (kc, kc)))
-    n, lab, stats, _ = cv2.connectedComponentsWithStats(m, connectivity=8)
+    n, lab, stats, _ = _cc_stats(m)
     comps = []
     min_len_mm = 12.0
     for i in range(1, n):
@@ -394,7 +473,7 @@ def _locate_cracks(canvas: np.ndarray, valid: np.ndarray, S: float, origin: np.n
             continue
         crop = (lab[y:y + h, x:x + w] == i).astype(np.uint8) * 255
         pad = cv2.copyMakeBorder(crop, 2, 2, 2, 2, cv2.BORDER_CONSTANT, value=0)
-        sk = cv2.ximgproc.thinning(pad) > 0
+        sk = _thin(pad) > 0
         path = _longest_path(sk)
         if len(path) < 3:
             continue
@@ -590,7 +669,7 @@ def _measure_roi(rp: dict, ink_dark: float | None, sigma_mm: float, blend: dict 
     if Dpk <= 0.06 or float((peaks > 0.5 * Dpk).mean()) < 0.6:
         return None  # nothing crack-like under the seed polyline
     mask = ((Dsm > 0.5 * Dpk) & corr_b & val).astype(np.uint8) * 255
-    n, lab, stats, _ = cv2.connectedComponentsWithStats(mask, connectivity=8)
+    n, lab, stats, _ = _cc_stats(mask)
     if n < 2:
         return None
     ov = np.bincount(lab[sp[:, 1], sp[:, 0]], minlength=n)
@@ -600,7 +679,7 @@ def _measure_roi(rp: dict, ink_dark: float | None, sigma_mm: float, blend: dict 
     m = (lab[y:y + bh, x:x + bw] == k_best).astype(np.uint8) * 255
     m = cv2.copyMakeBorder(m, 2, 2, 2, 2, cv2.BORDER_CONSTANT, value=0)
     dt = cv2.distanceTransform(m, cv2.DIST_L2, cv2.DIST_MASK_PRECISE)
-    sk = cv2.ximgproc.thinning(m) > 0
+    sk = _thin(m) > 0
     path = _longest_path(sk)
     if len(path) < int(6 * S):
         return None
