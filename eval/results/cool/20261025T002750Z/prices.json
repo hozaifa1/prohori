@@ -1,0 +1,6 @@
+{
+ "source": "AWS Price List API (aws pricing get-products, AmazonEC2, US East (N. Virginia), Linux, Shared, NA, Used), publicationDate 2026-10-23T22:13:55Z, queried 2026-10-25; COOL software fee from the AWS Marketplace listing (Cloud Optimized OpenCV For AWS Graviton4, offer-phiway3glblp4), waived during the 7-day free trial",
+ "ec2_usd_per_hour": {"c8g.large": 0.07976, "c8g.xlarge": 0.15952, "c8g.2xlarge": 0.31904},
+ "cool_fee_usd_per_hour": {"c8g.large": 0.01, "c8g.xlarge": 0.01, "c8g.2xlarge": 0.02},
+ "vcpu": {"c8g.large": 2, "c8g.xlarge": 4, "c8g.2xlarge": 8}
+}

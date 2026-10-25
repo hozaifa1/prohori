@@ -1,0 +1,503 @@
+{
+ "label": "cool",
+ "cv2": "5.1.0-dev",
+ "cv2_file": "/opt/cool/python_3.12/site-packages/cv2/python-3.12/cv2.cpython-312-aarch64-linux-gnu.so",
+ "threads": 1,
+ "thinning": "shim",
+ "frames": 85,
+ "total_profiled_s": 24.22454397999999,
+ "self_s_by_kind": {
+  "cv2": 15.481381449,
+  "numpy": 3.362514614999999,
+  "python": 4.899393850999999,
+  "builtin": 0.4812540649999999
+ },
+ "share_by_kind": {
+  "cv2": 0.6390783439218329,
+  "numpy": 0.13880610581466973,
+  "python": 0.20224916741652535,
+  "builtin": 0.019866382846972383
+ },
+ "top": [
+  {
+   "kind": "cv2",
+   "function": "<resize>",
+   "where": "",
+   "calls": 1065,
+   "self_s": 4.214962789,
+   "cum_s": 4.214962789
+  },
+  {
+   "kind": "cv2",
+   "function": "<method 'detectBoard' of 'cv2.aruco.CharucoDetector' objects>",
+   "where": "",
+   "calls": 85,
+   "self_s": 4.171012392000001,
+   "cum_s": 4.171012392000001
+  },
+  {
+   "kind": "cv2",
+   "function": "<warpPerspective>",
+   "where": "",
+   "calls": 1052,
+   "self_s": 2.548306916,
+   "cum_s": 2.548306916
+  },
+  {
+   "kind": "numpy",
+   "function": "<method 'reduce' of 'numpy.ufunc' objects>",
+   "where": "",
+   "calls": 105297,
+   "self_s": 1.362303889,
+   "cum_s": 1.362303889
+  },
+  {
+   "kind": "python",
+   "function": "thinning_zs",
+   "where": "/home/ubuntu/prohori/eval/cool_compat.py:39",
+   "calls": 848,
+   "self_s": 1.039474789,
+   "cum_s": 1.1519265410000001
+  },
+  {
+   "kind": "cv2",
+   "function": "<GaussianBlur>",
+   "where": "",
+   "calls": 1196,
+   "self_s": 0.9324053720000001,
+   "cum_s": 0.9324053720000001
+  },
+  {
+   "kind": "numpy",
+   "function": "<method 'partition' of 'numpy.ndarray' objects>",
+   "where": "",
+   "calls": 6526,
+   "self_s": 0.6830590940000001,
+   "cum_s": 0.6830590940000001
+  },
+  {
+   "kind": "cv2",
+   "function": "<connectedComponentsWithStats>",
+   "where": "",
+   "calls": 302,
+   "self_s": 0.650250674,
+   "cum_s": 0.650250674
+  },
+  {
+   "kind": "python",
+   "function": "_longest_path",
+   "where": "/home/ubuntu/prohori/src/prohori/measure.py:297",
+   "calls": 848,
+   "self_s": 0.606126232,
+   "cum_s": 1.506085256
+  },
+  {
+   "kind": "python",
+   "function": "_locate_cracks",
+   "where": "/home/ubuntu/prohori/src/prohori/measure.py:369",
+   "calls": 77,
+   "self_s": 0.596520881,
+   "cum_s": 3.5587278440000003
+  },
+  {
+   "kind": "cv2",
+   "function": "<filter2D>",
+   "where": "",
+   "calls": 77,
+   "self_s": 0.5536328620000001,
+   "cum_s": 0.5536328620000001
+  },
+  {
+   "kind": "python",
+   "function": "_measure_roi",
+   "where": "/home/ubuntu/prohori/src/prohori/measure.py:565",
+   "calls": 372,
+   "self_s": 0.48146529600000004,
+   "cum_s": 4.109356727000001
+  },
+  {
+   "kind": "cv2",
+   "function": "<Sobel>",
+   "where": "",
+   "calls": 154,
+   "self_s": 0.442538943,
+   "cum_s": 0.442538943
+  },
+  {
+   "kind": "python",
+   "function": "_prepare",
+   "where": "/home/ubuntu/prohori/src/prohori/measure.py:1048",
+   "calls": 85,
+   "self_s": 0.425623656,
+   "cum_s": 19.862074402
+  },
+  {
+   "kind": "python",
+   "function": "bfs",
+   "where": "/home/ubuntu/prohori/src/prohori/measure.py:320",
+   "calls": 1696,
+   "self_s": 0.40516006000000004,
+   "cum_s": 0.593143685
+  },
+  {
+   "kind": "cv2",
+   "function": "<medianBlur>",
+   "where": "",
+   "calls": 449,
+   "self_s": 0.358495145,
+   "cum_s": 0.358495145
+  },
+  {
+   "kind": "cv2",
+   "function": "<Laplacian>",
+   "where": "",
+   "calls": 85,
+   "self_s": 0.346379109,
+   "cum_s": 0.346379109
+  },
+  {
+   "kind": "python",
+   "function": "_noise_sigma",
+   "where": "/home/ubuntu/prohori/src/prohori/measure.py:277",
+   "calls": 77,
+   "self_s": 0.330253878,
+   "cum_s": 2.557211558
+  },
+  {
+   "kind": "cv2",
+   "function": "<cvtColor>",
+   "where": "",
+   "calls": 85,
+   "self_s": 0.314488834,
+   "cum_s": 0.314488834
+  },
+  {
+   "kind": "python",
+   "function": "_match_once",
+   "where": "/home/ubuntu/prohori/src/prohori/measure.py:412",
+   "calls": 141,
+   "self_s": 0.31229893400000003,
+   "cum_s": 0.750571121
+  },
+  {
+   "kind": "cv2",
+   "function": "<magnitude>",
+   "where": "",
+   "calls": 77,
+   "self_s": 0.262090003,
+   "cum_s": 0.262090003
+  },
+  {
+   "kind": "numpy",
+   "function": "<method 'astype' of 'numpy.ndarray' objects>",
+   "where": "",
+   "calls": 108881,
+   "self_s": 0.24932366700000003,
+   "cum_s": 0.24932366700000003
+  },
+  {
+   "kind": "python",
+   "function": "_fwhm",
+   "where": "/home/ubuntu/prohori/src/prohori/measure.py:499",
+   "calls": 442,
+   "self_s": 0.236823144,
+   "cum_s": 0.35219780300000003
+  },
+  {
+   "kind": "cv2",
+   "function": "<erode>",
+   "where": "",
+   "calls": 603,
+   "self_s": 0.188246555,
+   "cum_s": 0.188246555
+  },
+  {
+   "kind": "builtin",
+   "function": "<method 'append' of 'list' objects>",
+   "where": "",
+   "calls": 1478880,
+   "self_s": 0.166015626,
+   "cum_s": 0.166015626
+  },
+  {
+   "kind": "cv2",
+   "function": "<dilate>",
+   "where": "",
+   "calls": 449,
+   "self_s": 0.14948887200000002,
+   "cum_s": 0.14948887200000002
+  },
+  {
+   "kind": "numpy",
+   "function": "_var",
+   "where": "numpy/_core/_methods.py:148",
+   "calls": 85,
+   "self_s": 0.10407662000000001,
+   "cum_s": 0.19661935800000002
+  },
+  {
+   "kind": "numpy",
+   "function": "full",
+   "where": "numpy/_core/numeric.py:323",
+   "calls": 7752,
+   "self_s": 0.103779886,
+   "cum_s": 0.11180162900000001
+  },
+  {
+   "kind": "numpy",
+   "function": "<method 'nonzero' of 'numpy.ndarray' objects>",
+   "where": "",
+   "calls": 9143,
+   "self_s": 0.102910238,
+   "cum_s": 0.102910238
+  },
+  {
+   "kind": "builtin",
+   "function": "<method 'append' of 'collections.deque' objects>",
+   "where": "",
+   "calls": 962112,
+   "self_s": 0.097132255,
+   "cum_s": 0.097132255
+  },
+  {
+   "kind": "builtin",
+   "function": "<method 'popleft' of 'collections.deque' objects>",
+   "where": "",
+   "calls": 963808,
+   "self_s": 0.09085137,
+   "cum_s": 0.09085137
+  },
+  {
+   "kind": "python",
+   "function": "_analyze",
+   "where": "/home/ubuntu/prohori/src/prohori/measure.py:1041",
+   "calls": 85,
+   "self_s": 0.08820530500000001,
+   "cum_s": 24.21507725
+  },
+  {
+   "kind": "cv2",
+   "function": "<distanceTransform>",
+   "where": "",
+   "calls": 225,
+   "self_s": 0.082862276,
+   "cum_s": 0.082862276
+  },
+  {
+   "kind": "numpy",
+   "function": "_mean",
+   "where": "numpy/_core/_methods.py:115",
+   "calls": 23305,
+   "self_s": 0.078562079,
+   "cum_s": 0.267124311
+  },
+  {
+   "kind": "cv2",
+   "function": "<polylines>",
+   "where": "",
+   "calls": 372,
+   "self_s": 0.074189657,
+   "cum_s": 0.074189657
+  },
+  {
+   "kind": "python",
+   "function": "_gbm_predict",
+   "where": "/home/ubuntu/prohori/src/prohori/gate.py:244",
+   "calls": 1294,
+   "self_s": 0.071930252,
+   "cum_s": 0.071930252
+  },
+  {
+   "kind": "cv2",
+   "function": "<morphologyEx>",
+   "where": "",
+   "calls": 77,
+   "self_s": 0.052305202,
+   "cum_s": 0.052305202
+  },
+  {
+   "kind": "python",
+   "function": "_fit_affine",
+   "where": "/home/ubuntu/prohori/src/prohori/measure.py:427",
+   "calls": 64,
+   "self_s": 0.051086737,
+   "cum_s": 0.130136893
+  },
+  {
+   "kind": "cv2",
+   "function": "<findHomography>",
+   "where": "",
+   "calls": 232,
+   "self_s": 0.046760037000000004,
+   "cum_s": 0.046760037000000004
+  },
+  {
+   "kind": "python",
+   "function": "_enc255",
+   "where": "/home/ubuntu/prohori/src/prohori/measure.py:903",
+   "calls": 442,
+   "self_s": 0.040506019000000004,
+   "cum_s": 0.04307061
+  },
+  {
+   "kind": "numpy",
+   "function": "_median",
+   "where": "numpy/lib/_function_base_impl.py:4003",
+   "calls": 5864,
+   "self_s": 0.037569866,
+   "cum_s": 0.887900201
+  },
+  {
+   "kind": "python",
+   "function": "esf_sigma",
+   "where": "/home/ubuntu/prohori/src/prohori/measure.py:955",
+   "calls": 4265,
+   "self_s": 0.036153805000000004,
+   "cum_s": 0.099892693
+  },
+  {
+   "kind": "numpy",
+   "function": "_wrapfunc",
+   "where": "numpy/_core/fromnumeric.py:48",
+   "calls": 79514,
+   "self_s": 0.034743914,
+   "cum_s": 0.23419404200000002
+  },
+  {
+   "kind": "numpy",
+   "function": "<method 'flatten' of 'numpy.ndarray' objects>",
+   "where": "",
+   "calls": 7098,
+   "self_s": 0.034714044,
+   "cum_s": 0.034714044
+  },
+  {
+   "kind": "numpy",
+   "function": "_count_reduce_items",
+   "where": "numpy/_core/_methods.py:73",
+   "calls": 23390,
+   "self_s": 0.033281754000000004,
+   "cum_s": 0.039609169
+  },
+  {
+   "kind": "numpy",
+   "function": "argmax",
+   "where": "numpy/_core/fromnumeric.py:1259",
+   "calls": 59587,
+   "self_s": 0.033004041000000005,
+   "cum_s": 0.087630869
+  },
+  {
+   "kind": "numpy",
+   "function": "_clip",
+   "where": "numpy/_core/_methods.py:96",
+   "calls": 8269,
+   "self_s": 0.029368010000000003,
+   "cum_s": 0.033900947
+  },
+  {
+   "kind": "python",
+   "function": "_edge_sigma",
+   "where": "/home/ubuntu/prohori/src/prohori/measure.py:941",
+   "calls": 77,
+   "self_s": 0.028339660000000003,
+   "cum_s": 1.2989711970000002
+  },
+  {
+   "kind": "numpy",
+   "function": "<method 'argmax' of 'numpy.ndarray' objects>",
+   "where": "",
+   "calls": 59587,
+   "self_s": 0.026351644,
+   "cum_s": 0.026351644
+  },
+  {
+   "kind": "numpy",
+   "function": "diff",
+   "where": "numpy/lib/_function_base_impl.py:1413",
+   "calls": 5772,
+   "self_s": 0.023476866000000002,
+   "cum_s": 0.026920973
+  },
+  {
+   "kind": "python",
+   "function": "_bg_map",
+   "where": "/home/ubuntu/prohori/src/prohori/measure.py:477",
+   "calls": 449,
+   "self_s": 0.02298652,
+   "cum_s": 0.930378754
+  },
+  {
+   "kind": "builtin",
+   "function": "<built-in method builtins.getattr>",
+   "where": "",
+   "calls": 99416,
+   "self_s": 0.022742568,
+   "cum_s": 0.022742568
+  },
+  {
+   "kind": "builtin",
+   "function": "<built-in method builtins.round>",
+   "where": "",
+   "calls": 55682,
+   "self_s": 0.021082548000000003,
+   "cum_s": 0.021082548000000003
+  },
+  {
+   "kind": "cv2",
+   "function": "<fillConvexPoly>",
+   "where": "",
+   "calls": 77,
+   "self_s": 0.019451119000000003,
+   "cum_s": 0.019451119000000003
+  },
+  {
+   "kind": "builtin",
+   "function": "<built-in method builtins.max>",
+   "where": "",
+   "calls": 75420,
+   "self_s": 0.019048249,
+   "cum_s": 0.019048249
+  },
+  {
+   "kind": "cv2",
+   "function": "<remap>",
+   "where": "",
+   "calls": 444,
+   "self_s": 0.017862468,
+   "cum_s": 0.017862468
+  },
+  {
+   "kind": "cv2",
+   "function": "<cornerSubPix>",
+   "where": "",
+   "calls": 77,
+   "self_s": 0.017615633000000002,
+   "cum_s": 0.017615633000000002
+  },
+  {
+   "kind": "numpy",
+   "function": "<built-in method numpy.array>",
+   "where": "",
+   "calls": 6715,
+   "self_s": 0.017514938,
+   "cum_s": 0.017514938
+  },
+  {
+   "kind": "numpy",
+   "function": "_median_nancheck",
+   "where": "numpy/lib/_utils_impl.py:407",
+   "calls": 5787,
+   "self_s": 0.015439454000000002,
+   "cum_s": 0.039431317
+  },
+  {
+   "kind": "cv2",
+   "function": "<findContours>",
+   "where": "",
+   "calls": 221,
+   "self_s": 0.015247998,
+   "cum_s": 0.015247998
+  }
+ ]
+}

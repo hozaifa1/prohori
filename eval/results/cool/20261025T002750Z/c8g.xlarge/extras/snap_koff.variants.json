@@ -1,0 +1,356 @@
+{
+ "label": "snap_koff",
+ "cv2": "5.1.0-dev",
+ "cv2_file": "/home/ubuntu/ocv_snap_koff/lib/python3.12/site-packages/cv2/__init__.py",
+ "threads": 1,
+ "groups": {
+  "resize 12MP grey x0.3": {
+   "AREA (as pipeline)": {
+    "desc": "cv2.resize INTER_AREA",
+    "p50_ms": 17.412945,
+    "min_ms": 17.385055,
+    "sha": "7f44ea81ee3d60a6",
+    "exact_vs_baseline": true
+   },
+   "LINEAR": {
+    "desc": "INTER_LINEAR (aliases; not equal)",
+    "p50_ms": 2.28731,
+    "min_ms": 2.263768,
+    "sha": "5efd460bea5ff698",
+    "exact_vs_baseline": false
+   },
+   "LINEAR_EXACT": {
+    "desc": "INTER_LINEAR_EXACT",
+    "p50_ms": 2.590634,
+    "min_ms": 2.576918,
+    "sha": "6133653ccb51092e",
+    "exact_vs_baseline": false
+   },
+   "NEAREST": {
+    "desc": "INTER_NEAREST",
+    "p50_ms": 0.726899,
+    "min_ms": 0.718194,
+    "sha": "ac5dbfbfa9153cb6",
+    "exact_vs_baseline": false
+   }
+  },
+  "resize 12MP grey x0.5": {
+   "AREA (as pipeline)": {
+    "desc": "INTER_AREA",
+    "p50_ms": 0.657655,
+    "min_ms": 0.633523,
+    "sha": "7315d8678694ea9d",
+    "exact_vs_baseline": true
+   },
+   "pyrDown": {
+    "desc": "cv2.pyrDown (5x5 Gaussian, not equal)",
+    "p50_ms": 4.590641,
+    "min_ms": 4.562887,
+    "sha": "21f227a646c6273a",
+    "exact_vs_baseline": false
+   },
+   "LINEAR": {
+    "desc": "INTER_LINEAR (2x2 average at exactly 0.5)",
+    "p50_ms": 2.456223,
+    "min_ms": 2.430211,
+    "sha": "7315d8678694ea9d",
+    "exact_vs_baseline": true
+   },
+   "LINEAR_EXACT": {
+    "desc": "INTER_LINEAR_EXACT",
+    "p50_ms": 0.757742,
+    "min_ms": 0.723163,
+    "sha": "7315d8678694ea9d",
+    "exact_vs_baseline": true
+   }
+  },
+  "warp small grey -> canvas": {
+   "warpPerspective LINEAR (as pipeline)": {
+    "desc": "cv2.warpPerspective INTER_LINEAR",
+    "p50_ms": 4.998577,
+    "min_ms": 4.991293,
+    "sha": "e41f3ab529dc20f7",
+    "exact_vs_baseline": true
+   },
+   "remap f32 maps LINEAR": {
+    "desc": "cv2.remap, CV_32FC1 maps (maps precomputed)",
+    "p50_ms": 3.539941,
+    "min_ms": 3.523788,
+    "sha": "3ab4a512756f0677",
+    "exact_vs_baseline": false
+   },
+   "remap 16SC2 maps LINEAR": {
+    "desc": "cv2.remap, fixed-point CV_16SC2+CV_16UC1 maps (precomputed)",
+    "p50_ms": 7.268686,
+    "min_ms": 7.259146,
+    "sha": "04f0c76bfc764572",
+    "exact_vs_baseline": false
+   },
+   "warpPerspective NEAREST": {
+    "desc": "INTER_NEAREST",
+    "p50_ms": 2.719105,
+    "min_ms": 2.70895,
+    "sha": "f427d118dcd15ca3",
+    "exact_vs_baseline": false
+   },
+   "warpAffine LINEAR (affine approx)": {
+    "desc": "cv2.warpAffine INTER_LINEAR with the affine part of H",
+    "p50_ms": 3.992784,
+    "min_ms": 3.989386,
+    "sha": "4bfd37c7f47b1886",
+    "exact_vs_baseline": false
+   }
+  },
+  "warp 12MP grey -> ROI": {
+   "warpPerspective CUBIC (as pipeline)": {
+    "desc": "INTER_CUBIC, BORDER_CONSTANT",
+    "p50_ms": 5.99616,
+    "min_ms": 5.993208,
+    "sha": "3a79cbc395e9ceae",
+    "exact_vs_baseline": true
+   },
+   "warpPerspective LINEAR": {
+    "desc": "INTER_LINEAR",
+    "p50_ms": 3.2224535,
+    "min_ms": 3.215378,
+    "sha": "058b22fd836f387e",
+    "exact_vs_baseline": false
+   },
+   "remap f32 CUBIC": {
+    "desc": "cv2.remap CUBIC, f32 maps (precomputed)",
+    "p50_ms": 4.7737725,
+    "min_ms": 4.765978,
+    "sha": "e2090b03b9708267",
+    "exact_vs_baseline": false
+   },
+   "remap f32 LINEAR": {
+    "desc": "cv2.remap LINEAR, f32 maps",
+    "p50_ms": 2.382599,
+    "min_ms": 2.373553,
+    "sha": "4b35b318f3fd6e4e",
+    "exact_vs_baseline": false
+   },
+   "crop then warpPerspective CUBIC": {
+    "desc": "warp only the source bounding box (same pixels, smaller source)",
+    "p50_ms": 6.0055595,
+    "min_ms": 5.988747,
+    "sha": "3a79cbc395e9ceae",
+    "exact_vs_baseline": true
+   }
+  },
+  "warp validity mask (12MP ones -> ROI)": {
+   "warpPerspective NEAREST of full ones (as pipeline)": {
+    "desc": "np.full(12MP) warped NEAREST",
+    "p50_ms": 1.5196265,
+    "min_ms": 1.517402,
+    "sha": "a72b6c775853bcc2",
+    "exact_vs_baseline": true
+   }
+  },
+  "GaussianBlur u8 sigma 0.7 (canvas)": {
+   "GaussianBlur (as pipeline)": {
+    "desc": "ksize (0,0), sigma 0.7",
+    "p50_ms": 2.60941,
+    "min_ms": 2.60493,
+    "sha": "3ba70503cfbb78ea",
+    "exact_vs_baseline": true
+   },
+   "sepFilter2D k=5": {
+    "desc": "explicit 5-tap kernel",
+    "p50_ms": 2.705389,
+    "min_ms": 2.701949,
+    "sha": "a2b9e4d060eaf322",
+    "exact_vs_baseline": false
+   },
+   "filter2D 5x5": {
+    "desc": "2-D kernel",
+    "p50_ms": 7.073635,
+    "min_ms": 7.064551,
+    "sha": "0b75db6ab6cde900",
+    "exact_vs_baseline": false
+   },
+   "GaussianBlur ksize 5": {
+    "desc": "explicit ksize (5,5)",
+    "p50_ms": 2.611861,
+    "min_ms": 2.606213,
+    "sha": "3ba70503cfbb78ea",
+    "exact_vs_baseline": true
+   }
+  },
+  "GaussianBlur f32 sigma 4 (ROI darkness)": {
+   "GaussianBlur f32 (as pipeline)": {
+    "desc": "sigma 4, f32",
+    "p50_ms": 5.326264,
+    "min_ms": 5.318876,
+    "sha": "a4e6571ea8d7e575",
+    "exact_vs_baseline": true
+   },
+   "GaussianBlur on u8 then convert": {
+    "desc": "blur the uint8 ROI (not equal)",
+    "p50_ms": 6.467382,
+    "min_ms": 6.373329,
+    "sha": "c86f1d33b2b422a4",
+    "exact_vs_baseline": false
+   },
+   "sepFilter2D f32": {
+    "desc": "same kernel via sepFilter2D",
+    "p50_ms": 5.342392,
+    "min_ms": 5.320546,
+    "sha": "a4e6571ea8d7e575",
+    "exact_vs_baseline": true
+   }
+  },
+  "medianBlur k=15 (background map, 1/4 res)": {
+   "medianBlur (as pipeline)": {
+    "desc": "cv2.medianBlur k=15 on u8",
+    "p50_ms": 7.421496,
+    "min_ms": 7.417428,
+    "sha": "531b4c45a960bee0",
+    "exact_vs_baseline": true
+   },
+   "medianBlur k=13": {
+    "desc": "k=13 (different kernel, speed only)",
+    "p50_ms": 6.490596,
+    "min_ms": 6.483999,
+    "sha": "604a7e6270efb702",
+    "exact_vs_baseline": false
+   }
+  },
+  "erode 7x7 u8 (canvas validity)": {
+   "erode ones(7,7) (as pipeline)": {
+    "desc": "np.ones((7,7)) kernel",
+    "p50_ms": 0.678259,
+    "min_ms": 0.670784,
+    "sha": "346017c9580ca0c8",
+    "exact_vs_baseline": true
+   },
+   "erode getStructuringElement RECT": {
+    "desc": "same kernel, MORPH_RECT",
+    "p50_ms": 0.683208,
+    "min_ms": 0.672129,
+    "sha": "346017c9580ca0c8",
+    "exact_vs_baseline": true
+   },
+   "erode 3x3 x3 iterations": {
+    "desc": "iterated 3x3 (equal for a rectangle)",
+    "p50_ms": 0.687999,
+    "min_ms": 0.680766,
+    "sha": "346017c9580ca0c8",
+    "exact_vs_baseline": true
+   }
+  },
+  "dilate f32 RECT (ROI peak map)": {
+   "dilate RECT 17 (as pipeline)": {
+    "desc": "kernel 17x17",
+    "p50_ms": 1.816367,
+    "min_ms": 1.811233,
+    "sha": "d7301f3c624fa028",
+    "exact_vs_baseline": true
+   },
+   "dilate 3x3 iterations 8": {
+    "desc": "iterated 3x3 (equal for RECT: 2*8+1=17)",
+    "p50_ms": 1.822263,
+    "min_ms": 1.815284,
+    "sha": "d7301f3c624fa028",
+    "exact_vs_baseline": true
+   },
+   "dilate separable 1x17 then 17x1": {
+    "desc": "two 1-D passes (equal)",
+    "p50_ms": 2.147872,
+    "min_ms": 2.11568,
+    "sha": "d7301f3c624fa028",
+    "exact_vs_baseline": true
+   }
+  },
+  "distanceTransform (crack mask)": {
+   "DIST_L2 PRECISE (as pipeline)": {
+    "desc": "DIST_L2, DIST_MASK_PRECISE",
+    "p50_ms": 2.292631,
+    "min_ms": 2.280985,
+    "sha": "72ca9f66dc47e36a",
+    "exact_vs_baseline": true
+   },
+   "DIST_L2 mask 5": {
+    "desc": "DIST_MASK_5 (approximation)",
+    "p50_ms": 0.578697,
+    "min_ms": 0.572089,
+    "sha": "b537a18d93115f61",
+    "exact_vs_baseline": false
+   },
+   "DIST_L2 mask 3": {
+    "desc": "DIST_MASK_3 (approximation)",
+    "p50_ms": 0.534872,
+    "min_ms": 0.518752,
+    "sha": "d3b9c6f334d87396",
+    "exact_vs_baseline": false
+   }
+  },
+  "connectedComponentsWithStats (canvas)": {
+   "default conn8 (as pipeline)": {
+    "desc": "connectivity=8, default algorithm",
+    "p50_ms": 7.230372,
+    "min_ms": 7.220694,
+    "sha": "22e92b7b08f4f8ae",
+    "exact_vs_baseline": true
+   },
+   "BBDT conn8": {
+    "desc": "CCL_BBDT",
+    "p50_ms": 5.900609,
+    "min_ms": 5.900217,
+    "sha": "22e92b7b08f4f8ae",
+    "exact_vs_baseline": true
+   },
+   "WU conn8": {
+    "desc": "CCL_WU",
+    "p50_ms": 8.402183,
+    "min_ms": 8.389754,
+    "sha": "22e92b7b08f4f8ae",
+    "exact_vs_baseline": true
+   },
+   "SPAGHETTI conn8": {
+    "desc": "CCL_SPAGHETTI",
+    "p50_ms": 6.90814,
+    "min_ms": 6.891516,
+    "sha": "22e92b7b08f4f8ae",
+    "exact_vs_baseline": true
+   },
+   "default conn4": {
+    "desc": "connectivity=4",
+    "p50_ms": 8.456798,
+    "min_ms": 8.431281,
+    "sha": "22e92b7b08f4f8ae",
+    "exact_vs_baseline": true
+   }
+  },
+  "decode + grey (12MP JPEG)": {
+   "imdecode COLOR + cvtColor (as service+pipeline)": {
+    "desc": "imdecode BGR then BGR2GRAY",
+    "p50_ms": 59.584039,
+    "min_ms": 59.525051,
+    "sha": "0c80419d1618bd6c",
+    "exact_vs_baseline": true
+   },
+   "imdecode GRAYSCALE": {
+    "desc": "libjpeg grey decode (not equal to cvtColor)",
+    "p50_ms": 32.275634,
+    "min_ms": 32.254173,
+    "sha": "0c80419d1618bd6c",
+    "exact_vs_baseline": true
+   },
+   "imdecode REDUCED_GRAYSCALE_2": {
+    "desc": "decode at 1/2 size",
+    "p50_ms": 25.451222,
+    "min_ms": 25.447446,
+    "sha": "31ca28f1d63eb170",
+    "exact_vs_baseline": false
+   },
+   "cvtColor only": {
+    "desc": "BGR2GRAY on decoded frame",
+    "p50_ms": 3.569417,
+    "min_ms": 3.557994,
+    "sha": "0ac262e217331a37",
+    "exact_vs_baseline": false
+   }
+  }
+ }
+}

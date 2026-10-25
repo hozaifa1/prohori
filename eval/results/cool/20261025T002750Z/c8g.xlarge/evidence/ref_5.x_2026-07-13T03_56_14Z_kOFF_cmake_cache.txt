@@ -1,0 +1,44 @@
+BUILD_JPEG:BOOL=ON
+BUILD_LIST:STRING=core,imgproc,imgcodecs,calib,features,flann,objdetect,video,geometry,python3
+CMAKE_BUILD_TYPE:STRING=Release
+CMAKE_CXX_COMPILER:FILEPATH=/usr/bin/c++
+CMAKE_CXX_FLAGS:STRING=
+CMAKE_CXX_FLAGS_DEBUG:STRING=-g
+CMAKE_CXX_FLAGS_MINSIZEREL:STRING=-Os -DNDEBUG
+CMAKE_CXX_FLAGS_RELEASE:STRING=-O3 -DNDEBUG
+CMAKE_CXX_FLAGS_RELWITHDEBINFO:STRING=-O2 -g -DNDEBUG
+CMAKE_C_COMPILER:FILEPATH=/usr/bin/cc
+CPU_BASELINE:STRING=DETECT
+CPU_BASELINE_REQUIRE:STRING=;NEON
+CPU_DISPATCH:STRING=NEON_FP16;NEON_BF16;NEON_DOTPROD
+ENABLE_NEON:UNINITIALIZED=ON
+WITH_KLEIDICV:BOOL=OFF
+WITH_PTHREADS_PF:BOOL=ON
+CACHED_CPU_BASELINE_FLAGS:INTERNAL=' -fsigned-char -W -Wall -Wreturn-type -Wnon-virtual-dtor -Waddress -Wsequence-point -Wformat -Wformat-security -Wmissing-declarations -Wundef -Winit-self -Wpointer-arith -Wshadow -Wsign-promo -Wuninitialized -Wsuggest-override -Wno-delete-non-virtual-dtor -Wno-comment -Wimplicit-fallthrough=3 -Wno-strict-overflow -fdiagnostics-show-option -pthread -fomit-frame-pointer -ffunction-sections -fdata-sections '
+CACHED_CPU_DISPATCH_NEON_BF16_FLAGS:INTERNAL= -fsigned-char -W -Wall -Wreturn-type -Wnon-virtual-dtor -Waddress -Wsequence-point -Wformat -Wformat-security -Wmissing-declarations -Wundef -Winit-self -Wpointer-arith -Wshadow -Wsign-promo -Wuninitialized -Wsuggest-override -Wno-delete-non-virtual-dtor -Wno-comment -Wimplicit-fallthrough=3 -Wno-strict-overflow -fdiagnostics-show-option -pthread -fomit-frame-pointer -ffunction-sections -fdata-sections   -march=armv8.2-a+bf16
+CACHED_CPU_DISPATCH_NEON_DOTPROD_FLAGS:INTERNAL= -fsigned-char -W -Wall -Wreturn-type -Wnon-virtual-dtor -Waddress -Wsequence-point -Wformat -Wformat-security -Wmissing-declarations -Wundef -Winit-self -Wpointer-arith -Wshadow -Wsign-promo -Wuninitialized -Wsuggest-override -Wno-delete-non-virtual-dtor -Wno-comment -Wimplicit-fallthrough=3 -Wno-strict-overflow -fdiagnostics-show-option -pthread -fomit-frame-pointer -ffunction-sections -fdata-sections   -march=armv8.2-a+dotprod
+CACHED_CPU_DISPATCH_NEON_FP16_FLAGS:INTERNAL= -fsigned-char -W -Wall -Wreturn-type -Wnon-virtual-dtor -Waddress -Wsequence-point -Wformat -Wformat-security -Wmissing-declarations -Wundef -Winit-self -Wpointer-arith -Wshadow -Wsign-promo -Wuninitialized -Wsuggest-override -Wno-delete-non-virtual-dtor -Wno-comment -Wimplicit-fallthrough=3 -Wno-strict-overflow -fdiagnostics-show-option -pthread -fomit-frame-pointer -ffunction-sections -fdata-sections   -march=armv8.2-a+fp16
+//STRINGS property for variable: CMAKE_BUILD_TYPE
+CMAKE_BUILD_TYPE-STRINGS:INTERNAL=Debug;Release
+//ADVANCED property for variable: CMAKE_CXX_FLAGS
+CMAKE_CXX_FLAGS-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: CMAKE_CXX_FLAGS_DEBUG
+CMAKE_CXX_FLAGS_DEBUG-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: CMAKE_CXX_FLAGS_MINSIZEREL
+CMAKE_CXX_FLAGS_MINSIZEREL-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: CMAKE_CXX_FLAGS_RELEASE
+CMAKE_CXX_FLAGS_RELEASE-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: CMAKE_CXX_FLAGS_RELWITHDEBINFO
+CMAKE_CXX_FLAGS_RELWITHDEBINFO-ADVANCED:INTERNAL=1
+//STRINGS property for variable: CPU_BASELINE
+CPU_BASELINE-STRINGS:INTERNAL=;SVE;NEON;FP16;NEON_DOTPROD;NEON_FP16;NEON_BF16
+//STRINGS property for variable: CPU_DISPATCH
+CPU_DISPATCH-STRINGS:INTERNAL=;SVE;NEON;FP16;NEON_DOTPROD;NEON_FP16;NEON_BF16
+//Test HAVE_CPU_BASELINE_FLAGS
+HAVE_CPU_BASELINE_FLAGS:INTERNAL=1
+//Test HAVE_CPU_DISPATCH_FLAGS_NEON_BF16
+HAVE_CPU_DISPATCH_FLAGS_NEON_BF16:INTERNAL=1
+//Test HAVE_CPU_DISPATCH_FLAGS_NEON_DOTPROD
+HAVE_CPU_DISPATCH_FLAGS_NEON_DOTPROD:INTERNAL=1
+//Test HAVE_CPU_DISPATCH_FLAGS_NEON_FP16
+HAVE_CPU_DISPATCH_FLAGS_NEON_FP16:INTERNAL=1

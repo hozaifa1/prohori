@@ -1,0 +1,35 @@
+== extras start 01:52:24 builds: snap_koff pip ref cool snap_kon
+== profile cool 01:52:24
+== profile pip 01:52:53
+== variants cool 01:53:23
+[cool] variants done: 46 cases
+== variants pip 01:53:25
+[pip] variants done: 46 cases
+== variants ref 01:53:28
+[ref] variants done: 46 cases
+== variants snap_kon 01:53:30
+[snap_kon] variants done: 46 cases
+== variants snap_koff 01:53:33
+[snap_koff] variants done: 46 cases
+== crash matrix 01:53:36
+cool	5.1.0-dev	1	8	default	50	0	
+cool	5.1.0-dev	2	8	default	50	50	rc=134 timeout: the monitored command dumped core
+cool	5.1.0-dev	4	8	default	50	50	rc=134 timeout: the monitored command dumped core
+cool	5.1.0-dev	4	4	default	50	0	
+cool	5.1.0-dev	4	8	bbdt	50	0	
+cool	5.1.0-dev	4	8	wu	50	0	
+cool	5.1.0-dev	4	8	spaghetti	50	50	rc=134 timeout: the monitored command dumped core
+pip	5.0.0	1	8	default	50	0	
+pip	5.0.0	2	8	default	50	0	
+pip	5.0.0	4	8	default	50	0	
+ref	5.0.0	1	8	default	50	0	
+ref	5.0.0	2	8	default	50	0	
+ref	5.0.0	4	8	default	50	0	
+snap_kon	5.1.0-dev	1	8	default	50	0	
+snap_kon	5.1.0-dev	2	8	default	50	0	
+snap_kon	5.1.0-dev	4	8	default	50	0	
+snap_koff	5.1.0-dev	1	8	default	50	0	
+snap_koff	5.1.0-dev	2	8	default	50	0	
+snap_koff	5.1.0-dev	4	8	default	50	0	
+gdb install failed
+== extras end 01:59:55

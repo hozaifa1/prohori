@@ -1,0 +1,69 @@
+[Thread debugging using libthread_db enabled]
+Using host libthread_db library "/lib/aarch64-linux-gnu/libthread_db.so.1".
+[Detaching after vfork from child process 44032]
+[Detaching after vfork from child process 44034]
+[New Thread 0xffffdefff180 (LWP 44036)]
+[New Thread 0xffffde7ef180 (LWP 44037)]
+[New Thread 0xffffddfdf180 (LWP 44038)]
+cv2 5.1.0-dev (/opt/cool/python_3.12/site-packages/cv2/python-3.12/cv2.cpython-312-aarch64-linux-gnu.so) threads=2 mask=(1800, 1273) nonzero=66089 conn=8 algo=default
+[New Thread 0xffffdc421180 (LWP 44039)]
+Fatal glibc error: malloc.c:2599 (sysmalloc): assertion failed: (old_top == initial_top (av) && old_size == 0) || ((unsigned long) (old_size) >= MINSIZE && prev_inuse (old_top) && ((unsigned long) old_end & (pagesize - 1)) == 0)
+
+Thread 1 "python" received signal SIGABRT, Aborted.
+__pthread_kill_implementation (threadid=281474842400544, signo=signo@entry=6, no_tid=no_tid@entry=0) at ./nptl/pthread_kill.c:44
+warning: 44	./nptl/pthread_kill.c: No such file or directory
+#0  __pthread_kill_implementation (threadid=281474842400544, signo=signo@entry=6, no_tid=no_tid@entry=0) at ./nptl/pthread_kill.c:44
+#1  0x0000fffff7d47540 in __pthread_kill_internal (signo=6, threadid=<optimized out>) at ./nptl/pthread_kill.c:78
+#2  0x0000fffff7cfcb3c in __GI_raise (sig=sig@entry=6) at ../sysdeps/posix/raise.c:26
+#3  0x0000fffff7ce7e00 in __GI_abort () at ./stdlib/abort.c:79
+#4  0x0000fffff7d3aac4 in __libc_message_impl (fmt=<optimized out>) at ../sysdeps/posix/libc_fatal.c:134
+#5  0x0000fffff7e1c883 in ?? () from /lib/aarch64-linux-gnu/libc.so.6
+Backtrace stopped: previous frame inner to this frame (corrupt stack?)
+From                To                  Syms Read   Shared Object Library
+0x0000fffff7fbedc0  0x0000fffff7fdae70  Yes         /lib/ld-linux-aarch64.so.1
+0x0000fffff7f1cb40  0x0000fffff7f659f4  Yes         /lib/aarch64-linux-gnu/libm.so.6
+0x0000fffff7ed2100  0x0000fffff7ee2aa0  Yes (*)     /lib/aarch64-linux-gnu/libz.so.1
+0x0000fffff7e83310  0x0000fffff7e9f820  Yes (*)     /lib/aarch64-linux-gnu/libexpat.so.1
+0x0000fffff7ce7d00  0x0000fffff7e043b4  Yes         /lib/aarch64-linux-gnu/libc.so.6
+0x0000fffff7260600  0x0000fffff7525054  Yes (*)     /opt/cool/python_3.12/site-packages/cv2/python-3.12/cv2.cpython-312-aarch64-linux-gnu.so
+0x0000fffff70f5ac0  0x0000fffff71a0258  Yes (*)     /opt/cool/cpp_sdk/lib/libopencv_photo.so.501
+0x0000fffff7021f60  0x0000fffff7095a74  Yes (*)     /opt/cool/cpp_sdk/lib/libopencv_ptcloud.so.501
+0x0000fffff6f77800  0x0000fffff6fcbb88  Yes (*)     /opt/cool/cpp_sdk/lib/libopencv_stitching.so.501
+0x0000fffff6ec29c0  0x0000fffff6f1fc34  Yes (*)     /opt/cool/cpp_sdk/lib/libopencv_video.so.501
+0x0000fffff6e27cc0  0x0000fffff6e76e20  Yes (*)     /opt/cool/cpp_sdk/lib/libopencv_calib.so.501
+0x0000fffff6de5d60  0x0000fffff6df6f3c  Yes (*)     /opt/cool/cpp_sdk/lib/libopencv_highgui.so.501
+0x0000fffff6d85940  0x0000fffff6dab758  Yes (*)     /opt/cool/cpp_sdk/lib/libopencv_stereo.so.501
+0x0000fffff6c27fc0  0x0000fffff6d09a84  Yes (*)     /opt/cool/cpp_sdk/lib/libopencv_objdetect.so.501
+0x0000fffff6b656e0  0x0000fffff6bcd174  Yes (*)     /opt/cool/cpp_sdk/lib/libopencv_features.so.501
+0x0000fffff60c8f40  0x0000fffff69268a8  Yes (*)     /opt/cool/cpp_sdk/lib/libopencv_dnn.so.501
+0x0000fffff5f5f900  0x0000fffff5fa75f0  Yes (*)     /opt/cool/cpp_sdk/lib/libopencv_videoio.so.501
+0x0000fffff5cb81c0  0x0000fffff5eb2f78  Yes (*)     /opt/cool/cpp_sdk/lib/libopencv_imgcodecs.so.501
+0x0000fffff5556120  0x0000fffff58e5a04  Yes (*)     /opt/cool/cpp_sdk/lib/libopencv_imgproc.so.501
+0x0000fffff53c1720  0x0000fffff54cb328  Yes (*)     /opt/cool/cpp_sdk/lib/libopencv_geometry.so.501
+0x0000fffff530a480  0x0000fffff53629c8  Yes (*)     /opt/cool/cpp_sdk/lib/libopencv_flann.so.501
+0x0000fffff4f4b760  0x0000fffff521fd64  Yes (*)     /opt/cool/cpp_sdk/lib/libopencv_core.so.501
+0x0000fffff4d00c20  0x0000fffff4e407bc  Yes (*)     /lib/aarch64-linux-gnu/libstdc++.so.6
+0x0000fffff4c235c0  0x0000fffff4c3b5a8  Yes (*)     /lib/aarch64-linux-gnu/libgcc_s.so.1
+0x0000fffff4b85300  0x0000fffff4bc5a58  Yes (*)     /opt/arm/armpl_25.07.1_gcc/lib/libamath.so
+0x0000fffff4b509c0  0x0000fffff4b519c4  Yes (*)     /opt/arm/armpl_25.07.1_gcc/lib/libastring.so
+0x0000fffff3718b00  0x0000fffff414e2ac  Yes (*)     /opt/ffmpeg/lib/libavcodec.so.62
+0x0000fffff340d6c0  0x0000fffff35c8c00  Yes (*)     /opt/ffmpeg/lib/libavformat.so.62
+0x0000fffff3015760  0x0000fffff3099cb4  Yes (*)     /opt/ffmpeg/lib/libavutil.so.60
+0x0000fffff3268c40  0x0000fffff3356f64  Yes (*)     /opt/ffmpeg/lib/libswscale.so.9
+0x0000fffff32339c0  0x0000fffff3238c0c  Yes (*)     /opt/ffmpeg/lib/libavdevice.so.62
+0x0000ffffe9b942c0  0x0000fffff28e1d08  Yes         /opt/arm/armpl_25.07.1_gcc/lib/libarmpl_lp64.so
+0x0000ffffe94b2c20  0x0000ffffe94c43ec  Yes (*)     /opt/ffmpeg/lib/libswresample.so.6
+0x0000ffffe90d82a0  0x0000ffffe9398030  Yes (*)     /opt/ffmpeg/lib/libavfilter.so.11
+0x0000ffffe8a12220  0x0000ffffe8e11e10  Yes (*)     /opt/cool/venvs/python_3.12/lib/python3.12/site-packages/numpy/_core/_multiarray_umath.cpython-312-aarch64-linux-gnu.so
+0x0000ffffe73d7c00  0x0000ffffe86570bc  Yes (*)     /opt/cool/venvs/python_3.12/lib/python3.12/site-packages/numpy/_core/../../numpy.libs/libscipy_openblas64_-4135cacc.so
+0x0000fffff3200730  0x0000fffff3200830  Yes         /lib/aarch64-linux-gnu/libpthread.so.0
+0x0000ffffe7119200  0x0000ffffe721da74  Yes (*)     /opt/cool/venvs/python_3.12/lib/python3.12/site-packages/numpy/_core/../../numpy.libs/libgfortran-e1b7dfc8-d8198c01.so.5.0.0
+0x0000ffffe70d06f0  0x0000ffffe70d0878  Yes (*)     /usr/lib/python3.12/lib-dynload/_contextvars.cpython-312-aarch64-linux-gnu.so
+0x0000ffffe7066920  0x0000ffffe7077114  Yes (*)     /usr/lib/python3.12/lib-dynload/_ctypes.cpython-312-aarch64-linux-gnu.so
+0x0000ffffe7031a80  0x0000ffffe7036bcc  Yes (*)     /lib/aarch64-linux-gnu/libffi.so.8
+0x0000ffffdd460ac0  0x0000ffffdd47e2fc  Yes (*)     /opt/cool/venvs/python_3.12/lib/python3.12/site-packages/numpy/linalg/_umath_linalg.cpython-312-aarch64-linux-gnu.so
+0x0000ffffe70a1860  0x0000ffffe70a3524  Yes (*)     /usr/lib/python3.12/lib-dynload/_bz2.cpython-312-aarch64-linux-gnu.so
+0x0000ffffdd1c1390  0x0000ffffdd1cdc08  Yes (*)     /lib/aarch64-linux-gnu/libbz2.so.1.0
+0x0000ffffdd192560  0x0000ffffdd195e58  Yes (*)     /usr/lib/python3.12/lib-dynload/_lzma.cpython-312-aarch64-linux-gnu.so
+0x0000ffffdd143020  0x0000ffffdd161a60  Yes (*)     /lib/aarch64-linux-gnu/liblzma.so.5
+(*): Shared library is missing debugging information.

@@ -1,0 +1,56 @@
+==44276== Memcheck, a memory error detector
+==44276== Copyright (C) 2002-2022, and GNU GPL'd, by Julian Seward et al.
+==44276== Using Valgrind-3.22.0 and LibVEX; rerun with -h for copyright info
+==44276== Command: /opt/cool/venvs/python_3.12/bin/python /home/ubuntu/bug/cc_repro.py --threads 2 --calls 1 --mask /home/ubuntu/bug/mask_locator_canvas.png
+==44276== 
+
+******************************************************************
+* FATAL ERROR:                                                   *
+* This OpenCV build doesn't support current CPU/HW configuration *
+*                                                                *
+* Use OPENCV_DUMP_CONFIG=1 environment variable for details      *
+******************************************************************
+
+Required baseline features:
+    ID=104 (SVE) - NOT AVAILABLE
+    ID=100 (NEON) - OK
+    ID=  9 (FP16) - OK
+    ID=101 (NEON_DOTPROD) - NOT AVAILABLE
+    ID=102 (NEON_FP16) - NOT AVAILABLE
+    ID=103 (NEON_BF16) - NOT AVAILABLE
+terminate called after throwing an instance of 'cv::Exception'
+  what():  OpenCV(5.1.0-dev) /home/ubuntu/opencv-5x-cool/modules/core/src/system.cpp:817: error: (-215:Assertion failed) Missing support for required CPU baseline features. Check OpenCV build configuration and required CPU/HW setup. in function 'initialize'
+
+==44276== 
+==44276== Process terminating with default action of signal 6 (SIGABRT)
+==44276==    at 0x4A874D8: __pthread_kill_implementation (pthread_kill.c:44)
+==44276==    by 0x4A3CB3B: raise (raise.c:26)
+==44276==    by 0x4A27DFF: abort (abort.c:79)
+==44276==    by 0x81CD4D7: __gnu_cxx::__verbose_terminate_handler() (in /usr/lib/aarch64-linux-gnu/libstdc++.so.6.0.33)
+==44276==    by 0x81CA56F: ??? (in /usr/lib/aarch64-linux-gnu/libstdc++.so.6.0.33)
+==44276==    by 0x81C0E03: std::terminate() (in /usr/lib/aarch64-linux-gnu/libstdc++.so.6.0.33)
+==44276==    by 0x81CA907: __cxa_throw (in /usr/lib/aarch64-linux-gnu/libstdc++.so.6.0.33)
+==44276==    by 0x7FC2CC3: cv::error(cv::Exception const&) (in /opt/cool/cpp_sdk/lib/libopencv_core.so.5.1.0)
+==44276==    by 0x7FC2D83: cv::error(cv::Error::Code, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, char const*, char const*, int) (in /opt/cool/cpp_sdk/lib/libopencv_core.so.5.1.0)
+==44276==    by 0x7D6D4AB: ??? (in /opt/cool/cpp_sdk/lib/libopencv_core.so.5.1.0)
+==44276==    by 0x7D6DAD3: ??? (in /opt/cool/cpp_sdk/lib/libopencv_core.so.5.1.0)
+==44276==    by 0x4004B13: call_init (dl-init.c:74)
+==44276==    by 0x4004B13: call_init (dl-init.c:26)
+==44276==    by 0x4004C23: _dl_init (dl-init.c:121)
+==44276==    by 0x40013AF: _dl_catch_exception (dl-catch.c:211)
+==44276== 
+==44276== HEAP SUMMARY:
+==44276==     in use at exit: 4,071,333 bytes in 16,694 blocks
+==44276==   total heap usage: 23,949 allocs, 7,255 frees, 6,854,330 bytes allocated
+==44276== 
+==44276== LEAK SUMMARY:
+==44276==    definitely lost: 0 bytes in 0 blocks
+==44276==    indirectly lost: 0 bytes in 0 blocks
+==44276==      possibly lost: 4,384 bytes in 7 blocks
+==44276==    still reachable: 4,066,949 bytes in 16,687 blocks
+==44276==         suppressed: 0 bytes in 0 blocks
+==44276== Rerun with --leak-check=full to see details of leaked memory
+==44276== 
+==44276== For lists of detected and suppressed errors, rerun with: -s
+==44276== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
+timeout: the monitored command dumped core

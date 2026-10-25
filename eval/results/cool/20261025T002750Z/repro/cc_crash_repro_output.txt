@@ -1,0 +1,13 @@
+Run on c8g.xlarge, ami-033e481a24f94c8cb (COOL, OpenCV 5.1.0-dev), command: ~/coolpy.sh cc_crash_repro.py
+(args = threads, height, width, connectivity, algorithm)
+(1, 1800, 1273, 8, 'default') -> OK rc 0
+(2, 1800, 1273, 8, 'default') -> Fatal glibc error: malloc.c:2599 (sysmalloc): assertion failed ... rc -6
+(2, 1800, 1273, 4, 'default') -> OK rc 0
+(2, 1800, 1273, 8, 'bbdt') -> OK rc 0
+(2, 1800, 1273, 8, 'spaghetti') -> Fatal glibc error: malloc.c:2599 (sysmalloc): assertion failed ... rc -6
+(2, 1800, 1273, 8, 'wu') -> OK rc 0
+(2, 200, 300, 8, 'default') -> OK rc 0
+(2, 64, 64, 8, 'default') -> OK rc 0
+(4, 500, 2000, 8, 'default') -> OK rc 0
+(2, 1000, 1000, 8, 'default') -> OK rc 0
+Also: PROHORI's first frame aborts with "corrupted size vs. prev_size" at cv2.setNumThreads(2) and (4); with 1 thread it runs.

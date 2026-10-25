@@ -1,0 +1,425 @@
+{
+ "slo_ms": 600.0,
+ "chosen_cool": {
+  "instance": "c8g.xlarge",
+  "build": "cool",
+  "config": "4x1",
+  "vcpu": 4,
+  "usd_per_hour": 0.16952,
+  "fps": 11.687848695065545,
+  "p50_ms": 342.35429750000003,
+  "p95_ms": 467.9499965,
+  "usd_per_1000_frames": 0.004028875639771859,
+  "frames_per_usd": 248208.20730436506
+ },
+ "best_per_other_build": {
+  "cool_t4_bbdt": {
+   "instance": "c8g.xlarge",
+   "build": "cool_t4_bbdt",
+   "config": "4x1",
+   "vcpu": 4,
+   "usd_per_hour": 0.16952,
+   "fps": 11.347664982362675,
+   "p50_ms": 324.255294,
+   "p95_ms": 476.67842744999996,
+   "usd_per_1000_frames": 0.004149654485048483,
+   "frames_per_usd": 240983.91892700345
+  },
+  "pip": {
+   "instance": "c8g.xlarge",
+   "build": "pip",
+   "config": "4x1",
+   "vcpu": 4,
+   "usd_per_hour": 0.15952,
+   "fps": 11.749311587136292,
+   "p50_ms": 338.1339855,
+   "p95_ms": 476.76618575000003,
+   "usd_per_1000_frames": 0.0037713793512485477,
+   "frames_per_usd": 265154.975637479
+  },
+  "pip_t4_bbdt": {
+   "instance": "c8g.xlarge",
+   "build": "pip_t4_bbdt",
+   "config": "4x1",
+   "vcpu": 4,
+   "usd_per_hour": 0.15952,
+   "fps": 11.563607798390512,
+   "p50_ms": 316.5615785,
+   "p95_ms": 472.20996155,
+   "usd_per_1000_frames": 0.003831945175214139,
+   "frames_per_usd": 260964.0676667869
+  },
+  "ref": {
+   "instance": "c8g.xlarge",
+   "build": "ref",
+   "config": "4x1",
+   "vcpu": 4,
+   "usd_per_hour": 0.15952,
+   "fps": 11.42932902525313,
+   "p50_ms": 345.9482825,
+   "p95_ms": 483.32125874999997,
+   "usd_per_1000_frames": 0.0038769652193235147,
+   "frames_per_usd": 257933.70418073767
+  },
+  "snap_koff": {
+   "instance": "c8g.xlarge",
+   "build": "snap_koff",
+   "config": "4x1",
+   "vcpu": 4,
+   "usd_per_hour": 0.15952,
+   "fps": 11.713220481015684,
+   "p50_ms": 337.005247,
+   "p95_ms": 472.4262005,
+   "usd_per_1000_frames": 0.0037829998319359546,
+   "frames_per_usd": 264340.48226966185
+  },
+  "snap_kon": {
+   "instance": "c8g.xlarge",
+   "build": "snap_kon",
+   "config": "4x1",
+   "vcpu": 4,
+   "usd_per_hour": 0.15952,
+   "fps": 12.15320722495645,
+   "p50_ms": 326.10382400000003,
+   "p95_ms": 463.788608,
+   "usd_per_1000_frames": 0.0036460425870233526,
+   "frames_per_usd": 274269.97247895703
+  }
+ },
+ "pareto": {
+  "cool": [
+   {
+    "instance": "c8g.2xlarge",
+    "build": "cool",
+    "config": "2x1",
+    "vcpu": 8,
+    "usd_per_hour": 0.33904,
+    "fps": 6.0878692548013085,
+    "p50_ms": 307.1364085,
+    "p95_ms": 439.2806884,
+    "usd_per_1000_frames": 0.015469743819399992,
+    "frames_per_usd": 64642.311577644854
+   },
+   {
+    "instance": "c8g.2xlarge",
+    "build": "cool",
+    "config": "4x1",
+    "vcpu": 8,
+    "usd_per_hour": 0.33904,
+    "fps": 11.804662958262506,
+    "p50_ms": 308.34176,
+    "p95_ms": 444.25608329999994,
+    "usd_per_1000_frames": 0.007978014968386656,
+    "frames_per_usd": 125344.46274700631
+   },
+   {
+    "instance": "c8g.2xlarge",
+    "build": "cool",
+    "config": "8x1",
+    "vcpu": 8,
+    "usd_per_hour": 0.33904,
+    "fps": 21.783953919211434,
+    "p50_ms": 322.28486050000004,
+    "p95_ms": 460.21448999999996,
+    "usd_per_1000_frames": 0.004323263725540738,
+    "frames_per_usd": 231306.7310912021
+   },
+   {
+    "instance": "c8g.xlarge",
+    "build": "cool",
+    "config": "4x1",
+    "vcpu": 4,
+    "usd_per_hour": 0.16952,
+    "fps": 11.687848695065545,
+    "p50_ms": 342.35429750000003,
+    "p95_ms": 467.9499965,
+    "usd_per_1000_frames": 0.004028875639771859,
+    "frames_per_usd": 248208.20730436506
+   }
+  ],
+  "cool_t4_bbdt": [
+   {
+    "instance": "c8g.xlarge",
+    "build": "cool_t4_bbdt",
+    "config": "1x4",
+    "vcpu": 4,
+    "usd_per_hour": 0.16952,
+    "fps": 4.603575297554756,
+    "p50_ms": 185.92848999999998,
+    "p95_ms": 328.36119235,
+    "usd_per_1000_frames": 0.01022876478503582,
+    "frames_per_usd": 97763.51504953469
+   },
+   {
+    "instance": "c8g.xlarge",
+    "build": "cool_t4_bbdt",
+    "config": "2x2",
+    "vcpu": 4,
+    "usd_per_hour": 0.16952,
+    "fps": 7.650150339181087,
+    "p50_ms": 232.776595,
+    "p95_ms": 380.2045185,
+    "usd_per_1000_frames": 0.006155289347415561,
+    "frames_per_usd": 162461.89960507263
+   },
+   {
+    "instance": "c8g.xlarge",
+    "build": "cool_t4_bbdt",
+    "config": "4x1",
+    "vcpu": 4,
+    "usd_per_hour": 0.16952,
+    "fps": 11.347664982362675,
+    "p50_ms": 324.255294,
+    "p95_ms": 476.67842744999996,
+    "usd_per_1000_frames": 0.004149654485048483,
+    "frames_per_usd": 240983.91892700345
+   }
+  ],
+  "pip": [
+   {
+    "instance": "c8g.2xlarge",
+    "build": "pip",
+    "config": "1x8",
+    "vcpu": 8,
+    "usd_per_hour": 0.31904,
+    "fps": 5.0064313601850685,
+    "p50_ms": 174.9029985,
+    "p95_ms": 300.0046760999999,
+    "usd_per_1000_frames": 0.01770167527453052,
+    "frames_per_usd": 56491.82828694286
+   },
+   {
+    "instance": "c8g.xlarge",
+    "build": "pip",
+    "config": "1x4",
+    "vcpu": 4,
+    "usd_per_hour": 0.15952,
+    "fps": 4.633129304853856,
+    "p50_ms": 201.474713,
+    "p95_ms": 334.940218,
+    "usd_per_1000_frames": 0.009563970309373619,
+    "frames_per_usd": 104559.08661906898
+   },
+   {
+    "instance": "c8g.2xlarge",
+    "build": "pip",
+    "config": "4x2",
+    "vcpu": 8,
+    "usd_per_hour": 0.31904,
+    "fps": 15.443763040852057,
+    "p50_ms": 221.35162300000002,
+    "p95_ms": 363.3807565999999,
+    "usd_per_1000_frames": 0.005738382671878446,
+    "frames_per_usd": 174265.1295983808
+   },
+   {
+    "instance": "c8g.large",
+    "build": "pip",
+    "config": "1x2",
+    "vcpu": 2,
+    "usd_per_hour": 0.07976,
+    "fps": 3.9366117873261874,
+    "p50_ms": 230.6367695,
+    "p95_ms": 369.8960387499999,
+    "usd_per_1000_frames": 0.005628077329566698,
+    "frames_per_usd": 177680.57214611679
+   },
+   {
+    "instance": "c8g.xlarge",
+    "build": "pip",
+    "config": "2x2",
+    "vcpu": 4,
+    "usd_per_hour": 0.15952,
+    "fps": 7.9708067519571655,
+    "p50_ms": 242.24014750000003,
+    "p95_ms": 377.72198125,
+    "usd_per_1000_frames": 0.005559175186405176,
+    "frames_per_usd": 179882.80031999623
+   },
+   {
+    "instance": "c8g.2xlarge",
+    "build": "pip",
+    "config": "8x1",
+    "vcpu": 8,
+    "usd_per_hour": 0.31904,
+    "fps": 21.82434580704999,
+    "p50_ms": 319.44378400000005,
+    "p95_ms": 462.41691409999993,
+    "usd_per_1000_frames": 0.004060704637185244,
+    "frames_per_usd": 246262.67836440558
+   },
+   {
+    "instance": "c8g.large",
+    "build": "pip",
+    "config": "2x1",
+    "vcpu": 2,
+    "usd_per_hour": 0.07976,
+    "fps": 5.802987347014363,
+    "p50_ms": 319.9402455,
+    "p95_ms": 468.5218259999999,
+    "usd_per_1000_frames": 0.00381795689541777,
+    "frames_per_usd": 261920.191189214
+   },
+   {
+    "instance": "c8g.xlarge",
+    "build": "pip",
+    "config": "4x1",
+    "vcpu": 4,
+    "usd_per_hour": 0.15952,
+    "fps": 11.749311587136292,
+    "p50_ms": 338.1339855,
+    "p95_ms": 476.76618575000003,
+    "usd_per_1000_frames": 0.0037713793512485477,
+    "frames_per_usd": 265154.975637479
+   }
+  ],
+  "pip_t4_bbdt": [
+   {
+    "instance": "c8g.xlarge",
+    "build": "pip_t4_bbdt",
+    "config": "1x4",
+    "vcpu": 4,
+    "usd_per_hour": 0.15952,
+    "fps": 4.491103731440129,
+    "p50_ms": 194.360098,
+    "p95_ms": 322.8972348,
+    "usd_per_1000_frames": 0.0098664189831354,
+    "frames_per_usd": 101353.8956443359
+   },
+   {
+    "instance": "c8g.xlarge",
+    "build": "pip_t4_bbdt",
+    "config": "2x2",
+    "vcpu": 4,
+    "usd_per_hour": 0.15952,
+    "fps": 7.771916156416529,
+    "p50_ms": 227.3105155,
+    "p95_ms": 381.1743851,
+    "usd_per_1000_frames": 0.005701439673217223,
+    "frames_per_usd": 175394.2964085977
+   },
+   {
+    "instance": "c8g.xlarge",
+    "build": "pip_t4_bbdt",
+    "config": "4x1",
+    "vcpu": 4,
+    "usd_per_hour": 0.15952,
+    "fps": 11.563607798390512,
+    "p50_ms": 316.5615785,
+    "p95_ms": 472.20996155,
+    "usd_per_1000_frames": 0.003831945175214139,
+    "frames_per_usd": 260964.0676667869
+   }
+  ],
+  "ref": [
+   {
+    "instance": "c8g.xlarge",
+    "build": "ref",
+    "config": "1x4",
+    "vcpu": 4,
+    "usd_per_hour": 0.15952,
+    "fps": 4.52687382554921,
+    "p50_ms": 207.68467499999997,
+    "p95_ms": 341.2780895,
+    "usd_per_1000_frames": 0.009788457292762119,
+    "frames_per_usd": 102161.14450838236
+   },
+   {
+    "instance": "c8g.xlarge",
+    "build": "ref",
+    "config": "2x2",
+    "vcpu": 4,
+    "usd_per_hour": 0.15952,
+    "fps": 7.788275581252095,
+    "p50_ms": 245.211343,
+    "p95_ms": 385.54468,
+    "usd_per_1000_frames": 0.005689463687928126,
+    "frames_per_usd": 175763.49105132613
+   },
+   {
+    "instance": "c8g.xlarge",
+    "build": "ref",
+    "config": "4x1",
+    "vcpu": 4,
+    "usd_per_hour": 0.15952,
+    "fps": 11.42932902525313,
+    "p50_ms": 345.9482825,
+    "p95_ms": 483.32125874999997,
+    "usd_per_1000_frames": 0.0038769652193235147,
+    "frames_per_usd": 257933.70418073767
+   }
+  ],
+  "snap_koff": [
+   {
+    "instance": "c8g.xlarge",
+    "build": "snap_koff",
+    "config": "1x4",
+    "vcpu": 4,
+    "usd_per_hour": 0.15952,
+    "fps": 4.542632254373624,
+    "p50_ms": 207.704922,
+    "p95_ms": 339.27003125000005,
+    "usd_per_1000_frames": 0.009754501053535336,
+    "frames_per_usd": 102516.77605156122
+   },
+   {
+    "instance": "c8g.xlarge",
+    "build": "snap_koff",
+    "config": "4x1",
+    "vcpu": 4,
+    "usd_per_hour": 0.15952,
+    "fps": 11.713220481015684,
+    "p50_ms": 337.005247,
+    "p95_ms": 472.4262005,
+    "usd_per_1000_frames": 0.0037829998319359546,
+    "frames_per_usd": 264340.48226966185
+   }
+  ],
+  "snap_kon": [
+   {
+    "instance": "c8g.xlarge",
+    "build": "snap_kon",
+    "config": "1x4",
+    "vcpu": 4,
+    "usd_per_hour": 0.15952,
+    "fps": 4.728691718702067,
+    "p50_ms": 195.89499949999998,
+    "p95_ms": 332.41408,
+    "usd_per_1000_frames": 0.009370691461204759,
+    "frames_per_usd": 106715.71080320614
+   },
+   {
+    "instance": "c8g.xlarge",
+    "build": "snap_kon",
+    "config": "2x2",
+    "vcpu": 4,
+    "usd_per_hour": 0.15952,
+    "fps": 8.140142231883662,
+    "p50_ms": 232.89259950000002,
+    "p95_ms": 371.58993075,
+    "usd_per_1000_frames": 0.005443530327707473,
+    "frames_per_usd": 183704.31315685296
+   },
+   {
+    "instance": "c8g.xlarge",
+    "build": "snap_kon",
+    "config": "4x1",
+    "vcpu": 4,
+    "usd_per_hour": 0.15952,
+    "fps": 12.15320722495645,
+    "p50_ms": 326.10382400000003,
+    "p95_ms": 463.788608,
+    "usd_per_1000_frames": 0.0036460425870233526,
+    "frames_per_usd": 274269.97247895703
+   }
+  ]
+ },
+ "cool_vs_best_other_cost_ratio": {
+  "cool_t4_bbdt": 1.029978300666402,
+  "pip": 0.9360873078381013,
+  "pip_t4_bbdt": 0.9511202424285125,
+  "ref": 0.9622945868696641,
+  "snap_koff": 0.9389716065175376,
+  "snap_kon": 0.9049776942804357
+ }
+}

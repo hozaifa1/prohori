@@ -1,0 +1,1030 @@
+{
+ "stages": [
+  {
+   "stage": "decode",
+   "n_images": 85,
+   "a_mean": 50.204231125490196,
+   "a_p50": 52.416214,
+   "a_p95": 66.2164038,
+   "b_mean": 50.827426247058824,
+   "b_p50": 53.198525,
+   "b_p95": 64.9194636,
+   "x_mean": 0.9877389990486742,
+   "x_mean_lo": 0.9678140825893146,
+   "x_mean_hi": 1.0067117844697422,
+   "x_p50": 0.9852944982967103,
+   "x_p50_lo": 0.9331832951577745,
+   "x_p50_hi": 1.0138596417161456,
+   "x_p95": 1.0199776789283268,
+   "x_p95_lo": 0.9427548264229797,
+   "x_p95_hi": 1.0668093453594718
+  },
+  {
+   "stage": "detect",
+   "n_images": 85,
+   "a_mean": 68.22666666666667,
+   "a_p50": 68.9,
+   "a_p95": 84.82,
+   "b_mean": 68.364,
+   "b_p50": 69.1,
+   "b_p95": 84.83999999999996,
+   "x_mean": 0.9979911454371697,
+   "x_mean_lo": 0.9964820537958061,
+   "x_mean_hi": 0.9996093175541844,
+   "x_p50": 0.9971056439942114,
+   "x_p50_lo": 0.9917241379310345,
+   "x_p50_hi": 1.008811221477555,
+   "x_p95": 0.9997642621405002,
+   "x_p95_lo": 0.9885416666666668,
+   "x_p95_hi": 1.0073985680190929
+  },
+  {
+   "stage": "rectify",
+   "n_images": 85,
+   "a_mean": 76.481568627451,
+   "a_p50": 83.9,
+   "a_p95": 97.88999999999999,
+   "b_mean": 73.37717647058824,
+   "b_p50": 80.8,
+   "b_p95": 92.5,
+   "x_mean": 1.0423073264219576,
+   "x_mean_lo": 1.038400011658285,
+   "x_mean_hi": 1.0464856184874887,
+   "x_p50": 1.0383663366336635,
+   "x_p50_lo": 1.0244498777506112,
+   "x_p50_hi": 1.058670382495545,
+   "x_p95": 1.0582702702702702,
+   "x_p95_lo": 1.0214512217869802,
+   "x_p95_hi": 1.0693454309786132
+  },
+  {
+   "stage": "measure",
+   "n_images": 85,
+   "a_mean": 74.26509803921569,
+   "a_p50": 43.1,
+   "a_p95": 190.3,
+   "b_mean": 74.30211764705882,
+   "b_p50": 42.3,
+   "b_p95": 192.0,
+   "x_mean": 0.9995017691417762,
+   "x_mean_lo": 0.9960676028972139,
+   "x_mean_hi": 1.0034888651190266,
+   "x_p50": 1.0189125295508275,
+   "x_p50_lo": 0.9954545454545454,
+   "x_p50_hi": 1.0335968379446638,
+   "x_p95": 0.9911458333333334,
+   "x_p95_lo": 0.9676525977622689,
+   "x_p95_hi": 1.0059710555611794
+  },
+  {
+   "stage": "other",
+   "n_images": 85,
+   "a_mean": 48.80635184705882,
+   "a_p50": 53.843258000000006,
+   "a_p95": 71.88579239999997,
+   "b_mean": 47.71421941176471,
+   "b_p50": 52.72610100000001,
+   "b_p95": 71.11535439999999,
+   "x_mean": 1.0228890349409097,
+   "x_mean_lo": 1.0192202572625058,
+   "x_mean_hi": 1.02671581863918,
+   "x_p50": 1.021187931191802,
+   "x_p50_lo": 1.0038861603118217,
+   "x_p50_hi": 1.047158751128945,
+   "x_p95": 1.0108336379182832,
+   "x_p95_lo": 1.007992778907343,
+   "x_p95_hi": 1.0423721756014708
+  },
+  {
+   "stage": "analyze",
+   "n_images": 85,
+   "a_mean": 267.77968518039216,
+   "a_p50": 261.400578,
+   "a_p95": 399.2735626,
+   "b_mean": 263.7575135294117,
+   "b_p50": 257.558331,
+   "b_p95": 394.3941972,
+   "x_mean": 1.0152495054914594,
+   "x_mean_lo": 1.0135640061679247,
+   "x_mean_hi": 1.017171697518267,
+   "x_p50": 1.0149179682329903,
+   "x_p50_lo": 1.0136021238908992,
+   "x_p50_hi": 1.03065116507175,
+   "x_p95": 1.012371798151801,
+   "x_p95_lo": 1.0009007226146143,
+   "x_p95_hi": 1.0176740128476311
+  },
+  {
+   "stage": "e2e",
+   "n_images": 85,
+   "a_mean": 317.9839163058823,
+   "a_p50": 311.753202,
+   "a_p95": 460.942032,
+   "b_mean": 314.58493977647055,
+   "b_p50": 307.312156,
+   "b_p95": 457.65415939999997,
+   "x_mean": 1.0108046384287401,
+   "x_mean_lo": 1.0070651939593251,
+   "x_mean_hi": 1.0149408777420186,
+   "x_p50": 1.014451253923063,
+   "x_p50_lo": 0.9912769656032936,
+   "x_p50_hi": 1.0258531700241835,
+   "x_p95": 1.0071841859895048,
+   "x_p95_lo": 0.9856666666972669,
+   "x_p95_hi": 1.0150757220158617
+  }
+ ],
+ "micro": [
+  {
+   "threads": 1,
+   "name": "imdecode_jpeg_12MP",
+   "size": "4096x3072",
+   "a_ms": 64.922948,
+   "b_ms": 63.969431,
+   "x": 1.0149058227514953,
+   "bit_exact": true
+  },
+  {
+   "threads": 1,
+   "name": "cvtColor_BGR2GRAY",
+   "size": "4096x3072x3",
+   "a_ms": 3.5985365,
+   "b_ms": 3.5575245,
+   "x": 1.0115282410563862,
+   "bit_exact": true
+  },
+  {
+   "threads": 1,
+   "name": "resize_AREA_grey_x0.5",
+   "size": "4096x3072",
+   "a_ms": 0.6040595,
+   "b_ms": 0.527808,
+   "x": 1.1444682536073723,
+   "bit_exact": true
+  },
+  {
+   "threads": 1,
+   "name": "resize_AREA_grey_x0.3",
+   "size": "4096x3072",
+   "a_ms": 17.5577895,
+   "b_ms": 17.77488,
+   "x": 0.987786668601982,
+   "bit_exact": true
+  },
+  {
+   "threads": 1,
+   "name": "resize_LINEAR_f32_up",
+   "size": "318x450->1273x1800",
+   "a_ms": 0.7735555000000001,
+   "b_ms": 0.750747,
+   "x": 1.0303810737838446,
+   "bit_exact": true
+  },
+  {
+   "threads": 1,
+   "name": "warpPerspective_LINEAR_u8",
+   "size": "1229x922->1273x1800",
+   "a_ms": 4.9986055,
+   "b_ms": 8.1112035,
+   "x": 0.6162594120588887,
+   "bit_exact": false
+  },
+  {
+   "threads": 1,
+   "name": "warpPerspective_NEAREST_u8",
+   "size": "1229x922->1273x1800",
+   "a_ms": 2.745137,
+   "b_ms": 2.318643,
+   "x": 1.1839412104407623,
+   "bit_exact": false
+  },
+  {
+   "threads": 1,
+   "name": "warpPerspective_CUBIC_u8_ROI",
+   "size": "4096x3072->2000x500",
+   "a_ms": 5.9974835,
+   "b_ms": 5.987762,
+   "x": 1.0016235615243225,
+   "bit_exact": true
+  },
+  {
+   "threads": 1,
+   "name": "warpPerspective_NEAREST_u8_ROI_valid",
+   "size": "4096x3072->2000x500",
+   "a_ms": 1.5141925,
+   "b_ms": 1.2092355,
+   "x": 1.252189916687031,
+   "bit_exact": true
+  },
+  {
+   "threads": 1,
+   "name": "erode_7x7_u8",
+   "size": "1273x1800",
+   "a_ms": 0.6792469999999999,
+   "b_ms": 0.47016800000000003,
+   "x": 1.4446899831549571,
+   "bit_exact": true
+  },
+  {
+   "threads": 1,
+   "name": "erode_5x5_u8_ROI",
+   "size": "2000x500",
+   "a_ms": 0.1998015,
+   "b_ms": 0.15098650000000002,
+   "x": 1.3233070506303541,
+   "bit_exact": true
+  },
+  {
+   "threads": 1,
+   "name": "GaussianBlur_u8_sigma0.7",
+   "size": "1273x1800",
+   "a_ms": 2.6213595,
+   "b_ms": 2.580597,
+   "x": 1.0157957635384371,
+   "bit_exact": true
+  },
+  {
+   "threads": 1,
+   "name": "GaussianBlur_f32_sigma4",
+   "size": "2000x500",
+   "a_ms": 5.3848400000000005,
+   "b_ms": 5.277938,
+   "x": 1.0202545009054673,
+   "bit_exact": true
+  },
+  {
+   "threads": 1,
+   "name": "GaussianBlur_f32_sigma3_sigmaY0",
+   "size": "71x220",
+   "a_ms": 0.07098750000000001,
+   "b_ms": 0.0713285,
+   "x": 0.9952193022424417,
+   "bit_exact": true
+  },
+  {
+   "threads": 1,
+   "name": "dilate_f32_rect",
+   "size": "2000x500 k=17",
+   "a_ms": 1.8143310000000001,
+   "b_ms": 1.7989929999999998,
+   "x": 1.0085258808677968,
+   "bit_exact": true
+  },
+  {
+   "threads": 1,
+   "name": "medianBlur_u8_k15",
+   "size": "318x450",
+   "a_ms": 7.470483,
+   "b_ms": 3.2758950000000002,
+   "x": 2.2804403071527015,
+   "bit_exact": true
+  },
+  {
+   "threads": 1,
+   "name": "morphologyEx_close_ellipse",
+   "size": "1273x1800",
+   "a_ms": 0.649807,
+   "b_ms": 0.6398285,
+   "x": 1.0155955853795198,
+   "bit_exact": true
+  },
+  {
+   "threads": 1,
+   "name": "connectedComponentsWithStats",
+   "size": "1273x1800",
+   "a_ms": 6.912702,
+   "b_ms": 6.9130445,
+   "x": 0.9999504559821654,
+   "bit_exact": true
+  },
+  {
+   "threads": 1,
+   "name": "ximgproc_thinning",
+   "size": "1884x204",
+   "a_ms": 2.770899,
+   "b_ms": 2.761979,
+   "x": 1.0032295683638435,
+   "bit_exact": true
+  },
+  {
+   "threads": 1,
+   "name": "distanceTransform_L2_precise",
+   "size": "1884x204",
+   "a_ms": 2.2685565,
+   "b_ms": 2.2941960000000003,
+   "x": 0.9888241893892238,
+   "bit_exact": true
+  },
+  {
+   "threads": 1,
+   "name": "remap_f32_LINEAR_profiles",
+   "size": "71x220 from 2000x500",
+   "a_ms": 0.0385005,
+   "b_ms": 0.037916,
+   "x": 1.0154156556598797,
+   "bit_exact": true
+  },
+  {
+   "threads": 1,
+   "name": "findContours_CCOMP",
+   "size": "1884x204",
+   "a_ms": 0.07784250000000001,
+   "b_ms": 0.07805799999999999,
+   "x": 0.997239232365677,
+   "bit_exact": true
+  },
+  {
+   "threads": 1,
+   "name": "Laplacian_f32",
+   "size": "1273x1800",
+   "a_ms": 2.794682,
+   "b_ms": 2.787941,
+   "x": 1.0024179134350404,
+   "bit_exact": true
+  },
+  {
+   "threads": 1,
+   "name": "findHomography_RANSAC",
+   "size": "112 pts",
+   "a_ms": 1.3998745,
+   "b_ms": 1.405779,
+   "x": 0.9957998376700747,
+   "bit_exact": true
+  },
+  {
+   "threads": 1,
+   "name": "pipeline_bg_map_f32",
+   "size": "2000x500",
+   "a_ms": 2.6515495,
+   "b_ms": 3.2838215,
+   "x": 0.8074584748287931,
+   "bit_exact": false
+  },
+  {
+   "threads": 1,
+   "name": "pipeline_detect_board",
+   "size": "4096x3072 (real photo)",
+   "a_ms": 69.03124199999999,
+   "b_ms": 67.451235,
+   "x": 1.023424433963292,
+   "bit_exact": true
+  }
+ ],
+ "profile": [
+  {
+   "fn": "py._noise_sigma",
+   "calls": 77,
+   "a_ms": 6708.827488500001,
+   "b_ms": 6643.581852000002,
+   "x": 1.0098208523584844
+  },
+  {
+   "fn": "py._detect_board",
+   "calls": 85,
+   "a_ms": 5942.6156845,
+   "b_ms": 5883.8325669999995,
+   "x": 1.0099906169712731
+  },
+  {
+   "fn": "py._locate_cracks",
+   "calls": 77,
+   "a_ms": 5346.669913,
+   "b_ms": 5007.510006,
+   "x": 1.0677302504824988
+  },
+  {
+   "fn": "py._measure_roi",
+   "calls": 372,
+   "a_ms": 4689.740780499998,
+   "b_ms": 4683.4009325000015,
+   "x": 1.0013536846602225
+  },
+  {
+   "fn": "cv2.resize",
+   "calls": 1065,
+   "a_ms": 4428.176108,
+   "b_ms": 4331.230283499999,
+   "x": 1.0223829762341015
+  },
+  {
+   "fn": "cv2.aruco.CharucoDetector.detectBoard",
+   "calls": 85,
+   "a_ms": 3579.4390894999997,
+   "b_ms": 3556.5698480000005,
+   "x": 1.006430139847488
+  },
+  {
+   "fn": "cv2.warpPerspective",
+   "calls": 1052,
+   "a_ms": 2454.3339689999993,
+   "b_ms": 2501.8337884999996,
+   "x": 0.98101399872432
+  },
+  {
+   "fn": "py._bg_map",
+   "calls": 449,
+   "a_ms": 2085.0247309999995,
+   "b_ms": 1820.7301645,
+   "x": 1.1451585587217306
+  },
+  {
+   "fn": "py._edge_sigma",
+   "calls": 77,
+   "a_ms": 1493.504477,
+   "b_ms": 1465.884873,
+   "x": 1.0188415915251756
+  },
+  {
+   "fn": "py.thinning_shim",
+   "calls": 849,
+   "a_ms": 1117.3371749999997,
+   "b_ms": 1115.1852435,
+   "x": 1.0019296628183905
+  },
+  {
+   "fn": "cv2.GaussianBlur",
+   "calls": 1196,
+   "a_ms": 926.6620170000001,
+   "b_ms": 918.7094234999997,
+   "x": 1.0086562663847547
+  },
+  {
+   "fn": "py._extract_roi",
+   "calls": 372,
+   "a_ms": 923.6650944999999,
+   "b_ms": 901.8060560000001,
+   "x": 1.0242391790946233
+  },
+  {
+   "fn": "py._match_specimens",
+   "calls": 77,
+   "a_ms": 830.7122559999998,
+   "b_ms": 828.160134,
+   "x": 1.0030816769550028
+  },
+  {
+   "fn": "py._longest_path",
+   "calls": 849,
+   "a_ms": 738.2436485,
+   "b_ms": 727.600919,
+   "x": 1.0146271523607022
+  },
+  {
+   "fn": "cv2.connectedComponentsWithStats",
+   "calls": 302,
+   "a_ms": 719.8594135000001,
+   "b_ms": 714.5506109999997,
+   "x": 1.0074295682045122
+  },
+  {
+   "fn": "cv2.medianBlur",
+   "calls": 449,
+   "a_ms": 608.8201919999998,
+   "b_ms": 356.3725804999999,
+   "x": 1.7083811306296612
+  },
+  {
+   "fn": "cv2.filter2D",
+   "calls": 77,
+   "a_ms": 555.7728925,
+   "b_ms": 558.9487835,
+   "x": 0.9943181001663277
+  },
+  {
+   "fn": "cv2.Sobel",
+   "calls": 154,
+   "a_ms": 380.0993730000001,
+   "b_ms": 384.024939,
+   "x": 0.9897778357566515
+  },
+  {
+   "fn": "cv2.Laplacian",
+   "calls": 85,
+   "a_ms": 337.368512,
+   "b_ms": 334.3014810000001,
+   "x": 1.0091744463435384
+  },
+  {
+   "fn": "cv2.cvtColor",
+   "calls": 85,
+   "a_ms": 303.35252149999997,
+   "b_ms": 295.63177399999995,
+   "x": 1.026116095017581
+  },
+  {
+   "fn": "py._fwhm",
+   "calls": 442,
+   "a_ms": 256.549855,
+   "b_ms": 255.5975625,
+   "x": 1.0037257495364416
+  },
+  {
+   "fn": "cv2.erode",
+   "calls": 603,
+   "a_ms": 235.248936,
+   "b_ms": 176.37956049999997,
+   "x": 1.3337652919256482
+  },
+  {
+   "fn": "cv2.magnitude",
+   "calls": 77,
+   "a_ms": 195.50347799999997,
+   "b_ms": 195.08855350000002,
+   "x": 1.0021268521015507
+  },
+  {
+   "fn": "cv2.dilate",
+   "calls": 449,
+   "a_ms": 169.14623799999995,
+   "b_ms": 150.32462500000003,
+   "x": 1.1252064523693301
+  },
+  {
+   "fn": "py._black_core",
+   "calls": 221,
+   "a_ms": 166.94530500000002,
+   "b_ms": 165.834415,
+   "x": 1.006698790477236
+  },
+  {
+   "fn": "cv2.distanceTransform",
+   "calls": 225,
+   "a_ms": 122.8826215,
+   "b_ms": 123.01360999999997,
+   "x": 0.998935170669327
+  },
+  {
+   "fn": "cv2.polylines",
+   "calls": 372,
+   "a_ms": 90.61841149999998,
+   "b_ms": 98.12780099999999,
+   "x": 0.9234733742785084
+  },
+  {
+   "fn": "py.gate.assess",
+   "calls": 77,
+   "a_ms": 80.913128,
+   "b_ms": 79.3684825,
+   "x": 1.0194616987920866
+  },
+  {
+   "fn": "cv2.morphologyEx",
+   "calls": 77,
+   "a_ms": 52.477732,
+   "b_ms": 52.11529150000001,
+   "x": 1.0069545902856551
+  },
+  {
+   "fn": "cv2.findHomography",
+   "calls": 232,
+   "a_ms": 46.478561,
+   "b_ms": 46.6683785,
+   "x": 0.9959326313426552
+  },
+  {
+   "fn": "py._smooth_resample",
+   "calls": 222,
+   "a_ms": 28.926204499999997,
+   "b_ms": 28.741281,
+   "x": 1.0064340729976509
+  },
+  {
+   "fn": "py._station_widths",
+   "calls": 221,
+   "a_ms": 23.041068000000003,
+   "b_ms": 22.7421535,
+   "x": 1.0131436321542726
+  },
+  {
+   "fn": "cv2.fillConvexPoly",
+   "calls": 77,
+   "a_ms": 17.930313999999996,
+   "b_ms": 17.837368500000004,
+   "x": 1.005210718161706
+  },
+  {
+   "fn": "cv2.cornerSubPix",
+   "calls": 77,
+   "a_ms": 17.662040999999995,
+   "b_ms": 17.651694499999998,
+   "x": 1.000586147692506
+  },
+  {
+   "fn": "cv2.remap",
+   "calls": 444,
+   "a_ms": 17.419539,
+   "b_ms": 16.667449500000004,
+   "x": 1.045123250560921
+  },
+  {
+   "fn": "cv2.findContours",
+   "calls": 221,
+   "a_ms": 17.3483565,
+   "b_ms": 17.041347000000002,
+   "x": 1.0180155653188683
+  },
+  {
+   "fn": "cv2.copyMakeBorder",
+   "calls": 849,
+   "a_ms": 11.747674,
+   "b_ms": 11.1330655,
+   "x": 1.055205684364293
+  },
+  {
+   "fn": "py._pose_obliquity",
+   "calls": 77,
+   "a_ms": 9.212018999999998,
+   "b_ms": 9.241173999999997,
+   "x": 0.9968450978198226
+  },
+  {
+   "fn": "py._uncertainty",
+   "calls": 220,
+   "a_ms": 8.964831499999999,
+   "b_ms": 8.917558,
+   "x": 1.0053011710156523
+  },
+  {
+   "fn": "cv2.getStructuringElement",
+   "calls": 449,
+   "a_ms": 5.257867,
+   "b_ms": 4.921464499999999,
+   "x": 1.068354145397168
+  },
+  {
+   "fn": "cv2.rectangle",
+   "calls": 77,
+   "a_ms": 4.7199589999999985,
+   "b_ms": 4.4525425,
+   "x": 1.0600592807367921
+  },
+  {
+   "fn": "cv2.solvePnP",
+   "calls": 77,
+   "a_ms": 4.481612,
+   "b_ms": 4.464403,
+   "x": 1.0038547147289347
+  },
+  {
+   "fn": "cv2.Rodrigues",
+   "calls": 77,
+   "a_ms": 0.29672849999999995,
+   "b_ms": 0.2977749999999999,
+   "x": 0.9964856015447907
+  },
+  {
+   "fn": "cv2.contourArea",
+   "calls": 21,
+   "a_ms": 0.0432255,
+   "b_ms": 0.0437105,
+   "x": 0.9889042678532618
+  }
+ ],
+ "sweep": [
+  {
+   "spec": "1x4",
+   "a_fps": 4.542632254373624,
+   "b_fps": 4.728691718702067,
+   "x_fps": 1.0409585134586465,
+   "a_p50": 207.704922,
+   "b_p50": 195.89499949999998,
+   "a_p95": 339.27003125000005,
+   "b_p95": 332.41408
+  },
+  {
+   "spec": "4x1",
+   "a_fps": 11.713220481015684,
+   "b_fps": 12.15320722495645,
+   "x_fps": 1.0375632597929731,
+   "a_p50": 337.005247,
+   "b_p50": 326.10382400000003,
+   "a_p95": 472.4262005,
+   "b_p95": 463.788608
+  }
+ ],
+ "amdahl": {
+  "frames": [
+   85,
+   85
+  ],
+  "a_analyze_ms": 22761.27324033334,
+  "b_analyze_ms": 22419.388649999997,
+  "a_cv2_ms": 15303.147382500003,
+  "b_cv2_ms": 14888.402153,
+  "a_other_ms": 7458.125857833336,
+  "b_other_ms": 7530.986496999996,
+  "a_cv2_share": 0.6723326599929648,
+  "b_cv2_share": 0.6640860009802275,
+  "x_cv2": 1.0278569335539094,
+  "x_other": 0.9903252197841964,
+  "x_analyze_traced": 1.0152495054914596,
+  "x_predicted_from_cv2": 1.0185597167174667,
+  "x_if_cv2_twice_as_fast": 1.5064014454022812
+ },
+ "invariance": {
+  "available": true,
+  "n_inputs": 85,
+  "canonical_sha256": [
+   "2a3fa732f2ac5ea673d0506ac8520e595ee4d6e36df460f1b14f3ff1e44979c1",
+   "13dc541f8dcdda63d38d073df0e5eb9a041c203b4632faf4652951f01d6c0cb1"
+  ],
+  "identical": false,
+  "n_cracks_compared": 220,
+  "dw_max_mm": 0.000300000000000078,
+  "dw_p99_mm": 9.999999999998899e-05,
+  "dw_mean_mm": 3.6363636363637403e-06,
+  "n_cracks_dw_nonzero": 6,
+  "cert_flips": [],
+  "crack_set_diffs": [],
+  "truth": {
+   "n": 220,
+   "a": {
+    "mean_abs": 0.12195363636363636,
+    "median_abs": 0.061450000000000005,
+    "p95_abs": 0.49100999999999956,
+    "bias": -0.005493636363636366
+   },
+   "b": {
+    "mean_abs": 0.12195454545454544,
+    "median_abs": 0.061450000000000005,
+    "p95_abs": 0.49100999999999956,
+    "bias": -0.00549181818181818
+   },
+   "certified": [
+    109,
+    109
+   ],
+   "mean_abs_err_b_minus_a": 9.090909090913136e-07,
+   "ci95": [
+    -1.818181818181618e-06,
+    4.5454545454555586e-06
+   ]
+  },
+  "flip_detail": [],
+  "n_leaves_compared": 10182,
+  "n_leaf_diffs": 203,
+  "max_abs_diff_any": 0.0010000000000000009,
+  "max_abs_diff_mm": 0.0006000000000000449,
+  "max_abs_width_mm": 0.000300000000000078,
+  "differing_inputs": [
+   "raw/IMG20261019080657.jpg",
+   "raw/IMG20261019080703.jpg",
+   "raw/IMG20261019080706.jpg",
+   "raw/IMG20261019080709.jpg",
+   "raw/IMG20261019080711.jpg",
+   "raw/IMG20261019080712.jpg",
+   "raw/IMG20261019080716.jpg",
+   "raw/IMG20261019080719.jpg",
+   "raw/IMG20261019080737.jpg",
+   "raw/IMG20261019080739.jpg",
+   "raw/IMG20261019080746.jpg",
+   "raw/IMG20261019080751.jpg",
+   "raw/IMG20261019080802_BURST000_COVER.jpg",
+   "raw/IMG20261019080802_BURST001.jpg",
+   "raw/IMG20261019080807.jpg",
+   "raw/IMG20261019080815.jpg",
+   "raw/IMG20261019080817.jpg",
+   "raw/IMG20261019080819.jpg",
+   "raw/IMG20261019080820.jpg",
+   "raw/IMG20261019080841.jpg",
+   "samples/blurry-oblique.jpg",
+   "samples/move-closer.jpg",
+   "samples/tilted.jpg",
+   "synth/synth_00280.jpg"
+  ],
+  "worst": [
+   [
+    "raw/IMG20261019080712.jpg",
+    "cracks.C3.estimators.wt_core",
+    "0x1.b333333333333p-2",
+    "0x1.b22d0e5604189p-2",
+    0.0010000000000000009
+   ],
+   [
+    "raw/IMG20261019080751.jpg",
+    "cracks.C3.estimators.wt_core",
+    "0x1.9db22d0e56042p-3",
+    "0x1.9fbe76c8b4396p-3",
+    0.0010000000000000009
+   ],
+   [
+    "samples/tilted.jpg",
+    "cracks.C2.estimators.wt_core",
+    "0x1.b020c49ba5e35p-3",
+    "0x1.b22d0e5604189p-3",
+    0.0010000000000000009
+   ],
+   [
+    "samples/move-closer.jpg",
+    "cracks.C3.estimators.wt_core",
+    "0x1.e353f7ced9168p-5",
+    "0x1.db22d0e560419p-5",
+    0.000999999999999994
+   ],
+   [
+    "raw/IMG20261019080706.jpg",
+    "cracks.C3.width_blackcore_mm",
+    "0x1.22b6ae7d566cfp-1",
+    "0x1.2305532617c1cp-1",
+    0.0006000000000000449
+   ],
+   [
+    "raw/IMG20261019080706.jpg",
+    "cracks.C3.quality.dt_rel",
+    "0x1.25460aa64c2f8p-3",
+    "0x1.264c2f837b4a2p-3",
+    0.0005000000000000004
+   ],
+   [
+    "raw/IMG20261019080706.jpg",
+    "cracks.C3.quality.disagree_rel",
+    "0x1.cb923a29c779ap-5",
+    "0x1.c84b5dcc63f14p-5",
+    0.0003999999999999976
+   ],
+   [
+    "raw/IMG20261019080746.jpg",
+    "cracks.C6.quality.sigma_px",
+    "0x1.925460aa64c30p+0",
+    "0x1.9240b780346dcp+0",
+    0.000300000000000189
+   ],
+   [
+    "raw/IMG20261019080751.jpg",
+    "cracks.C5.quality.sigma_px",
+    "0x1.dd6a161e4f766p+1",
+    "0x1.dd604189374bcp+1",
+    0.000300000000000189
+   ],
+   [
+    "raw/IMG20261019080706.jpg",
+    "cracks.C3.estimators.profile",
+    "0x1.16e2eb1c432cap-1",
+    "0x1.170a3d70a3d71p-1",
+    0.000300000000000078
+   ]
+  ],
+  "internal_scalar_diffs": 1824,
+  "internal_max_abs_diff": 1.3709068298339844,
+  "call_diffs": {
+   "cv2.resize": [
+    191,
+    1065
+   ],
+   "cv2.erode": [
+    12,
+    603
+   ],
+   "cv2.GaussianBlur": [
+    451,
+    1196
+   ],
+   "cv2.dilate": [
+    203,
+    449
+   ],
+   "cv2.warpPerspective": [
+    167,
+    1052
+   ],
+   "cv2.medianBlur": [
+    78,
+    449
+   ],
+   "py._bg_map": [
+    112,
+    449
+   ],
+   "cv2.morphologyEx": [
+    44,
+    77
+   ],
+   "cv2.connectedComponentsWithStats": [
+    49,
+    302
+   ],
+   "cv2.copyMakeBorder": [
+    24,
+    849
+   ],
+   "cv2.ximgproc.thinning": [
+    11,
+    849
+   ],
+   "py._longest_path": [
+    6,
+    849
+   ],
+   "py._locate_cracks": [
+    44,
+    77
+   ],
+   "py._match_specimens": [
+    5,
+    77
+   ],
+   "py._edge_sigma": [
+    68,
+    77
+   ],
+   "py._extract_roi": [
+    2,
+    372
+   ],
+   "cv2.distanceTransform": [
+    5,
+    225
+   ],
+   "py._smooth_resample": [
+    2,
+    222
+   ],
+   "cv2.remap": [
+    2,
+    444
+   ],
+   "py._fwhm": [
+    186,
+    442
+   ],
+   "py._station_widths": [
+    147,
+    221
+   ],
+   "py._black_core": [
+    181,
+    221
+   ],
+   "cv2.findContours": [
+    5,
+    221
+   ],
+   "py._measure_roi": [
+    181,
+    372
+   ],
+   "py._uncertainty": [
+    180,
+    220
+   ]
+  },
+  "call_totals": {
+   "cv2.cvtColor": 85,
+   "cv2.resize": 1065,
+   "cv2.aruco.CharucoDetector.detectBoard": 85,
+   "cv2.findHomography": 232,
+   "cv2.cornerSubPix": 77,
+   "py._detect_board": 85,
+   "cv2.solvePnP": 77,
+   "cv2.Rodrigues": 77,
+   "py._pose_obliquity": 77,
+   "cv2.Laplacian": 85,
+   "cv2.fillConvexPoly": 77,
+   "cv2.erode": 603,
+   "cv2.filter2D": 77,
+   "cv2.GaussianBlur": 1196,
+   "cv2.Sobel": 154,
+   "cv2.magnitude": 77,
+   "cv2.dilate": 449,
+   "py._noise_sigma": 77,
+   "cv2.warpPerspective": 1052,
+   "cv2.rectangle": 77,
+   "cv2.medianBlur": 449,
+   "py._bg_map": 449,
+   "cv2.getStructuringElement": 449,
+   "cv2.morphologyEx": 77,
+   "cv2.connectedComponentsWithStats": 302,
+   "cv2.copyMakeBorder": 849,
+   "cv2.ximgproc.thinning": 849,
+   "py._longest_path": 849,
+   "py._locate_cracks": 77,
+   "py._match_specimens": 77,
+   "py._edge_sigma": 77,
+   "py._extract_roi": 372,
+   "cv2.polylines": 372,
+   "cv2.distanceTransform": 225,
+   "py._smooth_resample": 222,
+   "cv2.remap": 444,
+   "py._fwhm": 442,
+   "py._station_widths": 221,
+   "py._black_core": 221,
+   "cv2.findContours": 221,
+   "py._measure_roi": 372,
+   "py._uncertainty": 220,
+   "py.gate.assess": 77,
+   "cv2.contourArea": 21
+  },
+  "first_divergence": [
+   "raw/IMG20261019080657.jpg",
+   23,
+   "cv2.warpPerspective"
+  ],
+  "decode_identical": true,
+  "deterministic_within_run": [
+   true,
+   true
+  ]
+ },
+ "a": "snap_koff",
+ "b": "snap_kon"
+}

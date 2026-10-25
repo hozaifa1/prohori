@@ -1,0 +1,321 @@
+== date
+Sun Oct 25 02:08:50 UTC 2026
+Linux ip-172-31-39-218 6.17.0-1019-aws #19~24.04.1-Ubuntu SMP Tue Jun 23 18:34:05 UTC 2026 aarch64 aarch64 aarch64 GNU/Linux
+PRETTY_NAME="Ubuntu 24.04.3 LTS"
+NAME="Ubuntu"
+VERSION_ID="24.04"
+VERSION="24.04.3 LTS (Noble Numbat)"
+== lscpu
+Architecture:                            aarch64
+CPU op-mode(s):                          64-bit
+Byte Order:                              Little Endian
+CPU(s):                                  2
+On-line CPU(s) list:                     0,1
+Vendor ID:                               ARM
+Model name:                              Neoverse-V2
+Model:                                   1
+Thread(s) per core:                      1
+Core(s) per socket:                      2
+Socket(s):                               1
+Stepping:                                r0p1
+BogoMIPS:                                2000.00
+Flags:                                   fp asimd evtstrm aes pmull sha1 sha2 crc32 atomics fphp asimdhp cpuid asimdrdm jscvt fcma lrcpc dcpop sha3 asimddp sha512 sve asimdfhm dit uscat ilrcpc flagm sb paca pacg dcpodp sve2 sveaes svepmull svebitperm svesha3 flagm2 frint svei8mm svebf16 i8mm bf16 dgh rng bti
+L1d cache:                               128 KiB (2 instances)
+L1i cache:                               128 KiB (2 instances)
+L2 cache:                                4 MiB (2 instances)
+L3 cache:                                36 MiB (1 instance)
+NUMA node(s):                            1
+NUMA node0 CPU(s):                       0,1
+Vulnerability Gather data sampling:      Not affected
+Vulnerability Ghostwrite:                Not affected
+Vulnerability Indirect target selection: Not affected
+Vulnerability Itlb multihit:             Not affected
+Vulnerability L1tf:                      Not affected
+Vulnerability Mds:                       Not affected
+Vulnerability Meltdown:                  Not affected
+Vulnerability Mmio stale data:           Not affected
+Vulnerability Old microcode:             Not affected
+Vulnerability Reg file data sampling:    Not affected
+Vulnerability Retbleed:                  Not affected
+Vulnerability Spec rstack overflow:      Not affected
+Vulnerability Spec store bypass:         Mitigation; Speculative Store Bypass disabled via prctl
+Vulnerability Spectre v1:                Mitigation; __user pointer sanitization
+Vulnerability Spectre v2:                Mitigation; CSV2, BHB
+Vulnerability Srbds:                     Not affected
+Vulnerability Tsa:                       Not affected
+Vulnerability Tsx async abort:           Not affected
+Vulnerability Vmscape:                   Not affected
+== IMDSv2
+instance-type=c8g.large
+ami-id=ami-033e481a24f94c8cb
+instance-id=i-04c1fb4fbcc9a4f67
+placement/availability-zone=us-east-1d
+== /opt/cool
+total 32
+drwxr-xr-x 8 root root 4096 Jul 13 07:45 .
+drwxr-xr-x 7 root root 4096 Oct 25 02:06 ..
+drwxr-xr-x 4 root root 4096 Jul 13 07:45 cpp_sdk
+drwxr-xr-x 3 root root 4096 Jul 13 07:45 python_3.10
+drwxr-xr-x 3 root root 4096 Jul 13 07:45 python_3.11
+drwxr-xr-x 3 root root 4096 Jul 13 07:45 python_3.12
+drwxr-xr-x 5 root root 4096 Jun 30 09:54 samples
+drwxr-xr-x 5 root root 4096 Jul 13 07:45 venvs
+total 20
+drwxr-xr-x 5 root root 4096 Jul 13 07:45 .
+drwxr-xr-x 8 root root 4096 Jul 13 07:45 ..
+drwxr-xr-x 5 root root 4096 Jul 13 07:45 python_3.10
+drwxr-xr-x 5 root root 4096 Jul 13 07:45 python_3.11
+drwxr-xr-x 5 root root 4096 Jul 13 07:45 python_3.12
+---- /opt/cool/samples/README.md
+## COOL SDK: Performance Benchmarking Manual
+
+This guide explains how to run the performance tests of the ***Optimized COOL Build***.
+
+
+
+### Test Suite Description
+The suite contains 3 standardized tests designed to stress CPU/SIMD pipelines:
+1.  ***Augmentation:*** (Rotate, Resize 2x, MedianBlur, Float Conv, GaussianBlur)
+2.  ***Analysis:*** (CLAHE, Hist, HoughCircles, FindContours)
+3.  ***Video:*** (MJPG Transcoding Read/Write)
+
+
+### Performance Results
+
+Below are the benchmark results comparing the optimized `COOL` build (OpenCV 5.1.0) against the standard tag build (OpenCV 5.0.0) on AWS Graviton (aarch64). For Python, the comparison is against the standard `pip install opencv-python` (OpenCV 5.0.0) wheel; for C++, against a local unoptimized build from the same 5.0.0 tag (pip does not ship a C++ SDK).
+
+#### Python Performance ( Python 3.12 )
+| Test Case | pip install (OpenCV 5.0.0) | Optimized (COOL) |
+| :--- | :--- | :--- |
+| **Augmentation** | 17.69 ms | **11.84 ms** |
+| **Analysis** | 1774.04 ms | **1658.69 ms** |
+| **Video Transcode** | 116.34 ms | **102.15 ms** |
+
+#### C++ Performance
+| Test Case | Standard (OpenCV 5.0.0) | Optimized (COOL) |
+| :--- | :--- | :--- |
+| **Augmentation** | 15.29 ms | **14.48 ms** |
+| **Analysis** | 1657.22 ms | **1643.77 ms** |
+| **Video Transcode** | 116.28 ms | **80.63 ms** |
+
+---
+
+### Part 1: Python Benchmarking
+
+#### Testing the Optimized Build (COOL)
+1.  ***Activate the Environment:***
+
+    `
+    source /opt/cool/venvs/python_3.12/bin/activate
+    `
+2.  ***Verify Optimization:***
+
+    `
+    python3 -c "import cv2; print(f'Active OpenCV: {cv2.__version__} from {cv2.__file__}')"
+    `
+3.  ***Run Test (Example):***
+
+    `
+    python3 /opt/cool/samples/python/test_augmentation.py 
+        --input /opt/cool/samples/data/lena.jpg 
+    `
+
+---
+
+### Part 2: C++ Benchmarking
+
+#### A. Testing the Optimized Build (COOL)
+1.  ***Build the Binaries:***
+
+    `
+    cd /opt/cool/samples/cpp
+    `
+
+    `sudo ./build.sh
+    `
+2.  ***Run Test:***
+
+    `
+    /opt/cool/samples/cpp/build/test_aug /opt/cool/samples/data/lena.jpg 
+    `
+
+#### B. Building Your Own Custom Tests (Development Guide)
+
+If you wish to compile your **own personal C++ files** against the optimized **COOL** binaries, follow these steps. 
+Create `<path_to_your_work_dir>/build` folder.
+
+1.  ***Create a CMakeLists.txt:***
+    Create a file named `CMakeLists.txt` inside the build directory with this content:
+
+    ```
+    cmake_minimum_required(VERSION 3.10)
+    project
+---- /opt/cool/samples/cpp/CMakeLists.txt
+cmake_minimum_required(VERSION 3.10)
+project(CoolSamples)
+set(CMAKE_CXX_STANDARD 11)
+
+# Point to COOL SDK
+set(OpenCV_DIR "/opt/cool/cpp_sdk/lib/cmake/opencv5")
+find_package(OpenCV REQUIRED)
+
+# Test 1
+add_executable(test_aug test_augmentation.cpp)
+target_link_libraries(test_aug ${OpenCV_LIBS})
+
+# Test 2
+add_executable(test_analysis test_analysis.cpp)
+target_link_libraries(test_analysis ${OpenCV_LIBS})
+
+# Test 3
+add_executable(test_video test_video.cpp)
+target_link_libraries(test_video ${OpenCV_LIBS})
+
+== cool python
+3.12.3 (main, Jun 19 2026, 12:46:00) [GCC 13.3.0]
+cv2 5.1.0-dev /opt/cool/python_3.12/site-packages/cv2/python-3.12/cv2.cpython-312-aarch64-linux-gnu.so
+numpy 2.5.1
+ximgproc False aruco True threads 2 cpus 2
+SVE NEON FP16 NEON_DOTPROD NEON_FP16 NEON_BF16
+== cv2 submodules / thinning
+['Error', 'aruco', 'barcode', 'ccm', 'cuda', 'detail', 'dnn', 'fisheye', 'flann', 'instr', 'ipp', 'mcc', 'ocl', 'ogl', 'parallel', 'samples', 'segmentation', 'utils', 'videoio_registry']
+ximgproc False ['CALIB_THIN_PRISM_MODEL']
+== COOL cv2.getBuildInformation()
+
+General configuration for OpenCV 5.1.0-dev =====================================
+  Version control:               unknown
+
+  Platform:
+    Timestamp:                   2026-07-13T03:56:14Z
+    Host:                        Linux 6.17.0-1019-aws aarch64
+    CMake:                       3.28.3
+    CMake generator:             Ninja
+    CMake build tool:            /usr/bin/ninja
+    Configuration:               Release
+    Algorithm Hint:              ALGO_HINT_ACCURATE
+
+  CPU/HW features:
+    Baseline:                    SVE NEON FP16 NEON_DOTPROD NEON_FP16 NEON_BF16
+      requested:                 DETECT
+    Dispatched code generation:
+      requested:                 NEON_DOTPROD NEON_FP16 NEON_BF16
+
+  C/C++:
+    Built as dynamic libs?:      YES
+    C++ standard:                17
+    C++ Compiler:                /usr/bin/c++  (ver 13.3.0)
+    C++ flags (Release):         -O3 -mcpu=neoverse-v2 -fvisibility=hidden -fvisibility-inlines-hidden   -fsigned-char -W -Wall -Wreturn-type -Wnon-virtual-dtor -Waddress -Wsequence-point -Wformat -Wformat-security -Wmissing-declarations -Wundef -Winit-self -Wpointer-arith -Wshadow -Wsign-promo -Wuninitialized -Wsuggest-override -Wno-delete-non-virtual-dtor -Wno-comment -Wimplicit-fallthrough=3 -Wno-strict-overflow -fdiagnostics-show-option -pthread -fomit-frame-pointer -ffunction-sections -fdata-sections -flto=auto  -O3 -DNDEBUG  -DNDEBUG
+    C++ flags (Debug):           -O3 -mcpu=neoverse-v2 -fvisibility=hidden -fvisibility-inlines-hidden   -fsigned-char -W -Wall -Wreturn-type -Wnon-virtual-dtor -Waddress -Wsequence-point -Wformat -Wformat-security -Wmissing-declarations -Wundef -Winit-self -Wpointer-arith -Wshadow -Wsign-promo -Wuninitialized -Wsuggest-override -Wno-delete-non-virtual-dtor -Wno-comment -Wimplicit-fallthrough=3 -Wno-strict-overflow -fdiagnostics-show-option -pthread -fomit-frame-pointer -ffunction-sections -fdata-sections -flto=auto  -g  -DDEBUG -D_DEBUG
+    C Compiler:                  /usr/bin/cc
+    C flags (Release):           -O3 -mcpu=neoverse-v2 -fvisibility=hidden -fvisibility-inlines-hidden    -O3 -DNDEBUG  -DNDEBUG
+    C flags (Debug):             -O3 -mcpu=neoverse-v2 -fvisibility=hidden -fvisibility-inlines-hidden    -g  -DDEBUG -D_DEBUG
+    Linker flags (Release):      -Wl,-rpath,/opt/arm/armpl_25.07.1_gcc/lib -Wl,-rpath,/opt/ffmpeg/lib  -Wl,--gc-sections -Wl,--as-needed -Wl,--no-undefined  
+    Linker flags (Debug):        -Wl,-rpath,/opt/arm/armpl_25.07.1_gcc/lib -Wl,-rpath,/opt/ffmpeg/lib  -Wl,--gc-sections -Wl,--as-needed -Wl,--no-undefined  
+    ccache:                      NO
+    Precompiled headers:         NO
+    Extra dependencies:          dl m pthread rt
+    3rdparty dependencies:
+
+  OpenCV modules:
+    To be built:                 calib core dnn features flann geometry highgui imgcodecs imgproc objdetect photo ptcloud python3 stereo stitching ts video videoio
+    Disabled:                    world
+    Disabled by dependency:      -
+    Unavailable:                 java
+    Applications:                tests perf_tests
+    Documentation:               NO
+    Non-free algorithms:         NO
+
+  GUI:                           NONE
+    GTK+:                        NO
+    VTK support:                 NO
+    Built-in Unicode font:       YES
+
+  Media I/O: 
+    ZLib:                        /usr/lib/aarch64-linux-gnu/libz.so (ver 1.3)
+    JPEG:                        build-libjpeg-turbo (ver 3.1.2-70)
+      SIMD Support Request:      YES
+      SIMD Support:              YES
+    WEBP:                        build (ver decoder: 0x0210, encoder: 0x0210, demux: 0x0107)
+    AVIF:                        NO
+    PNG:                         build (ver 1.6.57)
+      Metadata Support:          EXIF XMP ICC cICP
+    TIFF:                        build (ver 42 - 4.7.1)
+    JPEG 2000:                   build (ver 2.5.3)
+    OpenEXR:                     NO
+    GIF:                         YES
+    HDR:                         YES
+    SUNRASTER:                   YES
+    PXM:                         YES
+    PFM:                         YES
+
+  Video I/O:
+    FFMPEG:                      YES
+      avcodec:                   YES (62.28.101)
+      avformat:                  YES (62.12.101)
+      avutil:                    YES (60.26.101)
+      swscale:                   YES (9.5.101)
+      avdevice:                  YES (62.3.101)
+    GStreamer:                   NO
+    v4l/v4l2:                    YES (linux/videodev2.h)
+    Orbbec:                      YES
+
+  Parallel framework:            pthreads
+
+  Trace:                         YES (with Intel ITT(3.25.4))
+
+  Other third-party libraries:
+    Lapack:                      YES (Unknown /opt/arm/armpl_25.07.1_gcc/lib/libarmpl_lp64.so /opt/arm/armpl_25.07.1_gcc/lib/libamath.so /opt/arm/armpl_25.07.1_gcc/lib/libastring.so -lgfortran -lm)
+    DNN MLAS:                    YES (SGEMM-only, vendored)
+      ASM kernels:               YES (ARM64: NEON SGEMM, NEON SGEMV)
+    Eigen:                       NO
+    Custom HAL:                  YES (carotene (ver 0.0.1) KleidiCV (ver 0.7.0))
+    Protobuf:                    build (3.19.1)
+    Flatbuffers:                 builtin/3rdparty (25.9.23)
+
+  OpenCL:                        YES (no extra features)
+    Include path:                /home/ubuntu/opencv-5x-cool/3rdparty/include/opencl/1.2
+    Link libraries:              Dynamic load
+
+  ONNX Runtime:                  NO
+
+  Python 3:
+    Interpreter:                 /home/ubuntu/build_artifacts_secure/venv_3.12/bin/python3.12 (ver 3.12.3)
+    Libraries:                   /usr/lib/aarch64-linux-gnu/libpython3.12.so (ver 3.12.3)
+    Limited API:                 NO
+    numpy:                       /home/ubuntu/build_artifacts_secure/venv_3.12/lib/python3.12/site-packages/numpy/_core/include (ver 2.5.1)
+    install path:                /home/ubuntu/build_artifacts_secure/venv_3.12/lib/python3.12/site-packages/cv2/python-3.12
+
+  Python (for build):            /home/ubuntu/build_artifacts_secure/venv_3.12/bin/python3.12
+
+  Install to:                    /home/ubuntu/build_artifacts_secure/install_3.12
+-----------------------------------------------------------------
+
+
+== pip freeze (COOL venv)
+numpy==2.5.1
+== cv2 shared objects and KleidiCV symbols
+-rw-r--r-- 1 root root 5283456 Jul 13 07:45 /opt/cool/python_3.12/site-packages/cv2/python-3.12/cv2.cpython-312-aarch64-linux-gnu.so
+ldd /opt/cool/python_3.12/site-packages/cv2/python-3.12/cv2.cpython-312-aarch64-linux-gnu.so
+	linux-vdso.so.1 (0x0000efad3cb2c000)
+	libopencv_photo.so.501 => not found
+	libopencv_ptcloud.so.501 => not found
+	libopencv_stitching.so.501 => not found
+	libopencv_video.so.501 => not found
+	libopencv_calib.so.501 => not found
+	libopencv_highgui.so.501 => not found
+	libopencv_stereo.so.501 => not found
+	libopencv_objdetect.so.501 => not found
+	libopencv_features.so.501 => not found
+	libopencv_dnn.so.501 => not found
+	libopencv_videoio.so.501 => not found
+	libopencv_imgcodecs.so.501 => not found
+	libopencv_imgproc.so.501 => not found
+	libopencv_geometry.so.501 => not found
+	libopencv_flann.so.501 => not found
+	libopencv_core.so.501 => not found
+	libstdc++.so.6 => /lib/aarch64-linux-gnu/libstdc++.so.6 (0x0000efad3c340000)
+	libm.so.6 => /lib/aarch64-linux-gnu/libm.so.6 (0x0000efad3c290000)
+	libgcc_s.so.1 => /lib/aarch64-linux-gnu/libgcc_s.so.1 (0x0000efad3c250000)
+	libc.so.6 => /lib/aarch64-linux-gnu/libc.so.6 (0x0000efad3c090000)
+	/lib/ld-linux-aarch64.so.1 (0x0000efad3caf0000)
+/opt/cool/python_3.12/site-packages/cv2/python-3.12/cv2.cpython-312-aarch64-linux-gnu.so: kleidicv string count 0

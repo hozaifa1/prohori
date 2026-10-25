@@ -1,0 +1,1 @@
+5.0.0 /home/ubuntu/ocv_500_koff/lib/python3.12/site-packages/cv2/__init__.py 2.5.1

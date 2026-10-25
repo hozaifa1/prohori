@@ -1,0 +1,1005 @@
+ninja: Entering directory `/home/ubuntu/ocvsrc/build_5.x_2026-07-13T03_56_14Z_kOFF'
+[1/658] Building C object 3rdparty/zlib/CMakeFiles/zlib.dir/compress.c.o
+[2/658] Building C object 3rdparty/zlib/CMakeFiles/zlib.dir/gzclose.c.o
+[3/658] Building C object 3rdparty/zlib/CMakeFiles/zlib.dir/adler32.c.o
+[4/658] Building C object 3rdparty/zlib/CMakeFiles/zlib.dir/crc32.c.o
+[5/658] Building C object 3rdparty/zlib/CMakeFiles/zlib.dir/gzlib.c.o
+[6/658] Building C object 3rdparty/zlib/CMakeFiles/zlib.dir/gzread.c.o
+[7/658] Building C object 3rdparty/zlib/CMakeFiles/zlib.dir/gzwrite.c.o
+[8/658] Building C object 3rdparty/zlib/CMakeFiles/zlib.dir/inftrees.c.o
+[9/658] Building C object 3rdparty/zlib/CMakeFiles/zlib.dir/infback.c.o
+[10/658] Building C object 3rdparty/zlib/CMakeFiles/zlib.dir/deflate.c.o
+[11/658] Building C object 3rdparty/zlib/CMakeFiles/zlib.dir/inffast.c.o
+[12/658] Building C object 3rdparty/zlib/CMakeFiles/zlib.dir/zutil.c.o
+[13/658] Building C object 3rdparty/zlib/CMakeFiles/zlib.dir/uncompr.c.o
+[14/658] Building C object 3rdparty/libjpeg-turbo/CMakeFiles/jpeg12-static.dir/src/jcapistd.c.o
+[15/658] Building C object 3rdparty/zlib/CMakeFiles/zlib.dir/inflate.c.o
+[16/658] Building C object 3rdparty/zlib/CMakeFiles/zlib.dir/trees.c.o
+[17/658] Building C object 3rdparty/libjpeg-turbo/CMakeFiles/jpeg12-static.dir/src/jcdiffct.c.o
+[18/658] Linking C static library 3rdparty/lib/libzlib.a
+[19/658] Building C object 3rdparty/libjpeg-turbo/CMakeFiles/jpeg12-static.dir/src/jclossls.c.o
+[20/658] Building C object 3rdparty/libjpeg-turbo/CMakeFiles/jpeg12-static.dir/src/jcmainct.c.o
+[21/658] Building C object 3rdparty/libjpeg-turbo/CMakeFiles/jpeg12-static.dir/src/jcprepct.c.o
+[22/658] Building C object 3rdparty/libjpeg-turbo/CMakeFiles/jpeg12-static.dir/src/jdapistd.c.o
+[23/658] Building C object 3rdparty/libjpeg-turbo/CMakeFiles/jpeg12-static.dir/src/jcsample.c.o
+[24/658] Building C object 3rdparty/libjpeg-turbo/CMakeFiles/jpeg12-static.dir/src/jddiffct.c.o
+[25/658] Building C object 3rdparty/libjpeg-turbo/CMakeFiles/jpeg12-static.dir/src/jccolor.c.o
+[26/658] Building C object 3rdparty/libjpeg-turbo/CMakeFiles/jpeg12-static.dir/src/jdlossls.c.o
+[27/658] Building C object 3rdparty/libjpeg-turbo/CMakeFiles/jpeg12-static.dir/src/jdpostct.c.o
+[28/658] Building C object 3rdparty/libjpeg-turbo/CMakeFiles/jpeg12-static.dir/src/jdmainct.c.o
+[29/658] Building C object 3rdparty/libjpeg-turbo/CMakeFiles/jpeg12-static.dir/src/jutils.c.o
+[30/658] Building C object 3rdparty/libjpeg-turbo/CMakeFiles/jpeg12-static.dir/src/jccoefct.c.o
+[31/658] Building C object 3rdparty/libjpeg-turbo/CMakeFiles/jpeg12-static.dir/src/jdsample.c.o
+[32/658] Building C object 3rdparty/libjpeg-turbo/CMakeFiles/jpeg12-static.dir/src/jcdctmgr.c.o
+[33/658] Building C object 3rdparty/libjpeg-turbo/CMakeFiles/jpeg12-static.dir/src/jddctmgr.c.o
+[34/658] Building C object 3rdparty/libjpeg-turbo/CMakeFiles/jpeg12-static.dir/src/jfdctfst.c.o
+[35/658] Building C object 3rdparty/libjpeg-turbo/CMakeFiles/jpeg12-static.dir/src/jfdctint.c.o
+[36/658] Building C object 3rdparty/libjpeg-turbo/CMakeFiles/jpeg12-static.dir/src/jdcolor.c.o
+[37/658] Building C object 3rdparty/libjpeg-turbo/CMakeFiles/jpeg12-static.dir/src/jidctflt.c.o
+[38/658] Building C object 3rdparty/libjpeg-turbo/CMakeFiles/jpeg12-static.dir/src/jidctfst.c.o
+[39/658] Building C object 3rdparty/libjpeg-turbo/CMakeFiles/jpeg12-static.dir/src/jdcoefct.c.o
+[40/658] Building C object 3rdparty/libjpeg-turbo/CMakeFiles/jpeg12-static.dir/src/jidctred.c.o
+[41/658] Building C object 3rdparty/libjpeg-turbo/CMakeFiles/jpeg12-static.dir/src/jdmerge.c.o
+[42/658] Building C object 3rdparty/libjpeg-turbo/CMakeFiles/jpeg16-static.dir/src/jcapistd.c.o
+[43/658] Building C object 3rdparty/libjpeg-turbo/CMakeFiles/jpeg12-static.dir/src/jquant1.c.o
+[44/658] Building C object 3rdparty/libjpeg-turbo/CMakeFiles/jpeg16-static.dir/src/jcdiffct.c.o
+[45/658] Building C object 3rdparty/libjpeg-turbo/CMakeFiles/jpeg12-static.dir/src/jquant2.c.o
+[46/658] Building C object 3rdparty/libjpeg-turbo/CMakeFiles/jpeg16-static.dir/src/jclossls.c.o
+[47/658] Building C object 3rdparty/libjpeg-turbo/CMakeFiles/jpeg16-static.dir/src/jccolor.c.o
+[48/658] Building C object 3rdparty/libjpeg-turbo/CMakeFiles/jpeg16-static.dir/src/jcmainct.c.o
+[49/658] Building C object 3rdparty/libjpeg-turbo/CMakeFiles/jpeg16-static.dir/src/jdapistd.c.o
+[50/658] Building C object 3rdparty/libjpeg-turbo/CMakeFiles/jpeg16-static.dir/src/jcprepct.c.o
+[51/658] Building C object 3rdparty/libjpeg-turbo/CMakeFiles/jpeg16-static.dir/src/jddiffct.c.o
+[52/658] Building C object 3rdparty/libjpeg-turbo/CMakeFiles/jpeg16-static.dir/src/jcsample.c.o
+[53/658] Building C object 3rdparty/libjpeg-turbo/CMakeFiles/jpeg16-static.dir/src/jdlossls.c.o
+[54/658] Building C object 3rdparty/libjpeg-turbo/CMakeFiles/jpeg16-static.dir/src/jdpostct.c.o
+[55/658] Building C object 3rdparty/libjpeg-turbo/CMakeFiles/jpeg16-static.dir/src/jdmainct.c.o
+[56/658] Building C object 3rdparty/libjpeg-turbo/CMakeFiles/jpeg16-static.dir/src/jutils.c.o
+[57/658] Building C object 3rdparty/libjpeg-turbo/CMakeFiles/libjpeg-turbo.dir/src/jcapistd.c.o
+[58/658] Building C object 3rdparty/libjpeg-turbo/CMakeFiles/jpeg16-static.dir/src/jdsample.c.o
+[59/658] Building C object 3rdparty/libjpeg-turbo/CMakeFiles/jpeg16-static.dir/src/jdcolor.c.o
+[60/658] Building C object 3rdparty/libjpeg-turbo/CMakeFiles/libjpeg-turbo.dir/src/jcdiffct.c.o
+[61/658] Building C object 3rdparty/libjpeg-turbo/CMakeFiles/libjpeg-turbo.dir/src/jcmainct.c.o
+[62/658] Building C object 3rdparty/libjpeg-turbo/CMakeFiles/libjpeg-turbo.dir/src/jclossls.c.o
+[63/658] Building C object 3rdparty/libjpeg-turbo/CMakeFiles/libjpeg-turbo.dir/src/jcprepct.c.o
+[64/658] Building C object 3rdparty/libjpeg-turbo/CMakeFiles/jpeg12-static.dir/src/jidctint.c.o
+[65/658] Building C object 3rdparty/libjpeg-turbo/CMakeFiles/libjpeg-turbo.dir/src/jcsample.c.o
+[66/658] Building C object 3rdparty/libjpeg-turbo/CMakeFiles/libjpeg-turbo.dir/src/jccolor.c.o
+[67/658] Building C object 3rdparty/libjpeg-turbo/CMakeFiles/libjpeg-turbo.dir/src/jdapistd.c.o
+[68/658] Building C object 3rdparty/libjpeg-turbo/CMakeFiles/libjpeg-turbo.dir/src/jddiffct.c.o
+[69/658] Building C object 3rdparty/libjpeg-turbo/CMakeFiles/libjpeg-turbo.dir/src/jdlossls.c.o
+[70/658] Building C object 3rdparty/libjpeg-turbo/CMakeFiles/libjpeg-turbo.dir/src/jdpostct.c.o
+[71/658] Building C object 3rdparty/libjpeg-turbo/CMakeFiles/libjpeg-turbo.dir/src/jdmainct.c.o
+[72/658] Building C object 3rdparty/libjpeg-turbo/CMakeFiles/libjpeg-turbo.dir/src/jutils.c.o
+[73/658] Building C object 3rdparty/libjpeg-turbo/CMakeFiles/libjpeg-turbo.dir/src/jdsample.c.o
+[74/658] Building C object 3rdparty/libjpeg-turbo/CMakeFiles/libjpeg-turbo.dir/src/jccoefct.c.o
+[75/658] Building C object 3rdparty/libjpeg-turbo/CMakeFiles/libjpeg-turbo.dir/src/jcdctmgr.c.o
+[76/658] Building C object 3rdparty/libjpeg-turbo/CMakeFiles/libjpeg-turbo.dir/src/jddctmgr.c.o
+[77/658] Building C object 3rdparty/libjpeg-turbo/CMakeFiles/libjpeg-turbo.dir/src/jfdctfst.c.o
+[78/658] Building C object 3rdparty/libjpeg-turbo/CMakeFiles/libjpeg-turbo.dir/src/jfdctint.c.o
+[79/658] Building C object 3rdparty/libjpeg-turbo/CMakeFiles/libjpeg-turbo.dir/src/jidctflt.c.o
+[80/658] Building C object 3rdparty/libjpeg-turbo/CMakeFiles/libjpeg-turbo.dir/src/jdcolor.c.o
+[81/658] Building C object 3rdparty/libjpeg-turbo/CMakeFiles/libjpeg-turbo.dir/src/jdcoefct.c.o
+[82/658] Building C object 3rdparty/libjpeg-turbo/CMakeFiles/libjpeg-turbo.dir/src/jidctfst.c.o
+[83/658] Building C object 3rdparty/libjpeg-turbo/CMakeFiles/libjpeg-turbo.dir/src/jidctred.c.o
+[84/658] Building C object 3rdparty/libjpeg-turbo/CMakeFiles/libjpeg-turbo.dir/src/jdmerge.c.o
+[85/658] Building C object 3rdparty/libjpeg-turbo/CMakeFiles/libjpeg-turbo.dir/src/jcapimin.c.o
+[86/658] Building C object 3rdparty/libjpeg-turbo/CMakeFiles/libjpeg-turbo.dir/src/jquant1.c.o
+[87/658] Building C object 3rdparty/libjpeg-turbo/CMakeFiles/libjpeg-turbo.dir/src/jcicc.c.o
+[88/658] Building C object 3rdparty/libjpeg-turbo/CMakeFiles/libjpeg-turbo.dir/src/jcinit.c.o
+[89/658] Building C object 3rdparty/libjpeg-turbo/CMakeFiles/libjpeg-turbo.dir/src/jclhuff.c.o
+[90/658] Building C object 3rdparty/libjpeg-turbo/CMakeFiles/libjpeg-turbo.dir/src/jquant2.c.o
+[91/658] Building C object 3rdparty/libjpeg-turbo/CMakeFiles/libjpeg-turbo.dir/src/jcmaster.c.o
+[92/658] Building C object 3rdparty/libjpeg-turbo/CMakeFiles/libjpeg-turbo.dir/src/jcomapi.c.o
+[93/658] Building C object 3rdparty/libjpeg-turbo/CMakeFiles/libjpeg-turbo.dir/src/jcmarker.c.o
+[94/658] Building C object 3rdparty/libjpeg-turbo/CMakeFiles/libjpeg-turbo.dir/src/jcparam.c.o
+[95/658] Building C object 3rdparty/libjpeg-turbo/CMakeFiles/libjpeg-turbo.dir/src/jctrans.c.o
+[96/658] Building C object 3rdparty/libjpeg-turbo/CMakeFiles/libjpeg-turbo.dir/src/jcphuff.c.o
+[97/658] Building C object 3rdparty/libjpeg-turbo/CMakeFiles/libjpeg-turbo.dir/src/jdatadst.c.o
+[98/658] Building C object 3rdparty/libjpeg-turbo/CMakeFiles/libjpeg-turbo.dir/src/jdapimin.c.o
+[99/658] Building C object 3rdparty/libjpeg-turbo/CMakeFiles/libjpeg-turbo.dir/src/jdatasrc.c.o
+[100/658] Building C object 3rdparty/libjpeg-turbo/CMakeFiles/libjpeg-turbo.dir/src/jdicc.c.o
+[101/658] Building C object 3rdparty/libjpeg-turbo/CMakeFiles/libjpeg-turbo.dir/src/jidctint.c.o
+[102/658] Building C object 3rdparty/libjpeg-turbo/CMakeFiles/libjpeg-turbo.dir/src/jdinput.c.o
+[103/658] Building C object 3rdparty/libjpeg-turbo/CMakeFiles/libjpeg-turbo.dir/src/jdlhuff.c.o
+[104/658] Building C object 3rdparty/libjpeg-turbo/CMakeFiles/libjpeg-turbo.dir/src/jdhuff.c.o
+[105/658] Building C object 3rdparty/libjpeg-turbo/CMakeFiles/libjpeg-turbo.dir/src/jdmaster.c.o
+[106/658] Building C object 3rdparty/libjpeg-turbo/CMakeFiles/libjpeg-turbo.dir/src/jdtrans.c.o
+[107/658] Building C object 3rdparty/libjpeg-turbo/CMakeFiles/libjpeg-turbo.dir/src/jerror.c.o
+[108/658] Building C object 3rdparty/libjpeg-turbo/CMakeFiles/libjpeg-turbo.dir/src/jdphuff.c.o
+[109/658] Building C object 3rdparty/libjpeg-turbo/CMakeFiles/libjpeg-turbo.dir/src/jdmarker.c.o
+[110/658] Building C object 3rdparty/libjpeg-turbo/CMakeFiles/libjpeg-turbo.dir/src/jfdctflt.c.o
+[111/658] Building C object 3rdparty/libjpeg-turbo/CMakeFiles/libjpeg-turbo.dir/src/jpeg_nbits.c.o
+[112/658] Building C object 3rdparty/libjpeg-turbo/CMakeFiles/libjpeg-turbo.dir/src/jmemnobs.c.o
+[113/658] Building C object 3rdparty/libjpeg-turbo/CMakeFiles/libjpeg-turbo.dir/src/jaricom.c.o
+[114/658] Building C object 3rdparty/libjpeg-turbo/CMakeFiles/libjpeg-turbo.dir/src/jmemmgr.c.o
+[115/658] Building C object 3rdparty/libjpeg-turbo/CMakeFiles/libjpeg-turbo.dir/src/jdarith.c.o
+[116/658] Building C object 3rdparty/libjpeg-turbo/CMakeFiles/libjpeg-turbo.dir/src/jcarith.c.o
+[117/658] Building C object 3rdparty/libjpeg-turbo/simd/CMakeFiles/simd.dir/arm/jcgray-neon.c.o
+[118/658] Building C object 3rdparty/libjpeg-turbo/simd/CMakeFiles/simd.dir/arm/jcphuff-neon.c.o
+[119/658] Building C object 3rdparty/libjpeg-turbo/simd/CMakeFiles/simd.dir/arm/jcsample-neon.c.o
+[120/658] Building C object 3rdparty/libjpeg-turbo/simd/CMakeFiles/simd.dir/arm/jfdctfst-neon.c.o
+[121/658] Building C object 3rdparty/libjpeg-turbo/simd/CMakeFiles/simd.dir/arm/jdsample-neon.c.o
+[122/658] Building C object 3rdparty/libjpeg-turbo/simd/CMakeFiles/simd.dir/arm/jidctred-neon.c.o
+[123/658] Building C object 3rdparty/libjpeg-turbo/simd/CMakeFiles/simd.dir/arm/jquanti-neon.c.o
+[124/658] Building C object 3rdparty/libjpeg-turbo/simd/CMakeFiles/simd.dir/arm/jdmerge-neon.c.o
+[125/658] Building C object 3rdparty/libjpeg-turbo/simd/CMakeFiles/simd.dir/arm/jidctint-neon.c.o
+[126/658] Building C object 3rdparty/libjpeg-turbo/simd/CMakeFiles/simd.dir/arm/jidctfst-neon.c.o
+[127/658] Building C object 3rdparty/libjpeg-turbo/simd/CMakeFiles/simd.dir/arm/jccolor-neon.c.o
+[128/658] Building C object 3rdparty/libjpeg-turbo/simd/CMakeFiles/simd.dir/arm/aarch64/jchuff-neon.c.o
+[129/658] Building C object 3rdparty/libjpeg-turbo/simd/CMakeFiles/simd.dir/arm/jdcolor-neon.c.o
+[130/658] Building C object 3rdparty/libjpeg-turbo/simd/CMakeFiles/simd.dir/arm/jfdctint-neon.c.o
+[131/658] Building C object 3rdparty/libjpeg-turbo/simd/CMakeFiles/simd.dir/arm/aarch64/jsimd.c.o
+[132/658] Building C object 3rdparty/libpng/CMakeFiles/libpng.dir/pngerror.c.o
+[133/658] Building C object 3rdparty/libpng/CMakeFiles/libpng.dir/pngmem.c.o
+[134/658] Building C object 3rdparty/libpng/CMakeFiles/libpng.dir/pngget.c.o
+[135/658] Building C object 3rdparty/libjpeg-turbo/CMakeFiles/libjpeg-turbo.dir/src/jchuff.c.o
+[136/658] Linking C static library 3rdparty/lib/liblibjpeg-turbo.a
+[137/658] Building C object 3rdparty/libpng/CMakeFiles/libpng.dir/pngrio.c.o
+[138/658] Building C object 3rdparty/libpng/CMakeFiles/libpng.dir/pngpread.c.o
+[139/658] Building C object 3rdparty/libpng/CMakeFiles/libpng.dir/png.c.o
+[140/658] Building C object 3rdparty/libpng/CMakeFiles/libpng.dir/pngset.c.o
+[141/658] Building C object 3rdparty/libpng/CMakeFiles/libpng.dir/pngread.c.o
+[142/658] Building C object 3rdparty/libpng/CMakeFiles/libpng.dir/pngwio.c.o
+[143/658] Building C object 3rdparty/libpng/CMakeFiles/libpng.dir/pngtrans.c.o
+[144/658] Building C object 3rdparty/libpng/CMakeFiles/libpng.dir/pngwtran.c.o
+[145/658] Building C object 3rdparty/libpng/CMakeFiles/libpng.dir/pngrutil.c.o
+[146/658] Building C object 3rdparty/libpng/CMakeFiles/libpng.dir/arm/arm_init.c.o
+[147/658] Building C object 3rdparty/libpng/CMakeFiles/libpng.dir/pngwrite.c.o
+[148/658] Building C object 3rdparty/libpng/CMakeFiles/libpng.dir/arm/filter_neon_intrinsics.c.o
+[149/658] Building ASM object 3rdparty/libpng/CMakeFiles/libpng.dir/arm/filter_neon.S.o
+[150/658] Building C object 3rdparty/libpng/CMakeFiles/libpng.dir/arm/palette_neon_intrinsics.c.o
+[151/658] Building C object 3rdparty/libpng/CMakeFiles/libpng.dir/pngrtran.c.o
+[152/658] Building C object 3rdparty/libpng/CMakeFiles/libpng.dir/pngwutil.c.o
+[153/658] Linking C static library 3rdparty/lib/liblibpng.a
+[154/658] Building CXX object 3rdparty/harfbuzz/CMakeFiles/libharfbuzz.dir/src/hb-blob.cc.o
+[155/658] Building CXX object 3rdparty/harfbuzz/CMakeFiles/libharfbuzz.dir/src/hb-common.cc.o
+[156/658] Building CXX object 3rdparty/harfbuzz/CMakeFiles/libharfbuzz.dir/src/hb-draw.cc.o
+[157/658] Building CXX object 3rdparty/harfbuzz/CMakeFiles/libharfbuzz.dir/src/hb-buffer.cc.o
+[158/658] Building CXX object 3rdparty/harfbuzz/CMakeFiles/libharfbuzz.dir/src/hb-face-builder.cc.o
+[159/658] Building CXX object 3rdparty/harfbuzz/CMakeFiles/libharfbuzz.dir/src/hb-face.cc.o
+[160/658] Building CXX object 3rdparty/harfbuzz/CMakeFiles/libharfbuzz.dir/src/hb-number.cc.o
+[161/658] Building CXX object 3rdparty/harfbuzz/CMakeFiles/libharfbuzz.dir/src/hb-map.cc.o
+[162/658] Building CXX object 3rdparty/harfbuzz/CMakeFiles/libharfbuzz.dir/src/hb-font.cc.o
+[163/658] Building CXX object 3rdparty/harfbuzz/CMakeFiles/libharfbuzz.dir/src/OT/Var/VARC/VARC.cc.o
+[164/658] Building CXX object 3rdparty/harfbuzz/CMakeFiles/libharfbuzz.dir/src/hb-ot-cff2-table.cc.o
+[165/658] Building CXX object 3rdparty/harfbuzz/CMakeFiles/libharfbuzz.dir/src/hb-ot-cff1-table.cc.o
+[166/658] Building CXX object 3rdparty/harfbuzz/CMakeFiles/libharfbuzz.dir/src/hb-ot-color.cc.o
+[167/658] Building CXX object 3rdparty/harfbuzz/CMakeFiles/libharfbuzz.dir/src/hb-ot-map.cc.o
+[168/658] Building CXX object 3rdparty/harfbuzz/CMakeFiles/libharfbuzz.dir/src/hb-ot-face.cc.o
+[169/658] Building CXX object 3rdparty/harfbuzz/CMakeFiles/libharfbuzz.dir/src/hb-ot-metrics.cc.o
+[170/658] Building CXX object 3rdparty/harfbuzz/CMakeFiles/libharfbuzz.dir/src/hb-ot-shape-normalize.cc.o
+[171/658] Building CXX object 3rdparty/harfbuzz/CMakeFiles/libharfbuzz.dir/src/hb-ot-shape-fallback.cc.o
+[172/658] Building CXX object 3rdparty/harfbuzz/CMakeFiles/libharfbuzz.dir/src/hb-ot-shape.cc.o
+[173/658] Building CXX object 3rdparty/harfbuzz/CMakeFiles/libharfbuzz.dir/src/hb-ot-font.cc.o
+[174/658] Building CXX object 3rdparty/harfbuzz/CMakeFiles/libharfbuzz.dir/src/hb-ot-shaper-default.cc.o
+[175/658] Building CXX object 3rdparty/harfbuzz/CMakeFiles/libharfbuzz.dir/src/hb-ot-shaper-arabic.cc.o
+[176/658] Building CXX object 3rdparty/harfbuzz/CMakeFiles/libharfbuzz.dir/src/hb-ot-shaper-hangul.cc.o
+[177/658] Building CXX object 3rdparty/harfbuzz/CMakeFiles/libharfbuzz.dir/src/hb-ot-shaper-hebrew.cc.o
+[178/658] Building CXX object 3rdparty/harfbuzz/CMakeFiles/libharfbuzz.dir/src/hb-ot-shaper-indic-table.cc.o
+[179/658] Building CXX object 3rdparty/harfbuzz/CMakeFiles/libharfbuzz.dir/src/hb-ot-shaper-khmer.cc.o
+[180/658] Building CXX object 3rdparty/harfbuzz/CMakeFiles/libharfbuzz.dir/src/hb-ot-layout.cc.o
+[181/658] Building CXX object 3rdparty/harfbuzz/CMakeFiles/libharfbuzz.dir/src/hb-ot-shaper-indic.cc.o
+[182/658] Building CXX object 3rdparty/harfbuzz/CMakeFiles/libharfbuzz.dir/src/hb-ot-shaper-myanmar.cc.o
+[183/658] Building CXX object 3rdparty/harfbuzz/CMakeFiles/libharfbuzz.dir/src/hb-ot-shaper-syllabic.cc.o
+[184/658] Building CXX object 3rdparty/harfbuzz/CMakeFiles/libharfbuzz.dir/src/hb-ot-shaper-thai.cc.o
+[185/658] Building CXX object 3rdparty/harfbuzz/CMakeFiles/libharfbuzz.dir/src/hb-ot-shaper-vowel-constraints.cc.o
+[186/658] Building CXX object 3rdparty/harfbuzz/CMakeFiles/libharfbuzz.dir/src/hb-outline.cc.o
+[187/658] Building CXX object 3rdparty/harfbuzz/CMakeFiles/libharfbuzz.dir/src/hb-ot-tag.cc.o
+[188/658] Building CXX object 3rdparty/harfbuzz/CMakeFiles/libharfbuzz.dir/src/hb-paint-bounded.cc.o
+[189/658] Building CXX object 3rdparty/harfbuzz/CMakeFiles/libharfbuzz.dir/src/hb-ot-shaper-use.cc.o
+[190/658] Building CXX object 3rdparty/harfbuzz/CMakeFiles/libharfbuzz.dir/src/hb-paint-extents.cc.o
+[191/658] Building CXX object 3rdparty/harfbuzz/CMakeFiles/libharfbuzz.dir/src/hb-ot-var.cc.o
+[192/658] Building CXX object 3rdparty/harfbuzz/CMakeFiles/libharfbuzz.dir/src/hb-paint.cc.o
+[193/658] Building CXX object 3rdparty/harfbuzz/CMakeFiles/libharfbuzz.dir/src/hb-raster-draw.cc.o
+[194/658] Building CXX object 3rdparty/harfbuzz/CMakeFiles/libharfbuzz.dir/src/hb-raster-image.cc.o
+[195/658] Building CXX object 3rdparty/harfbuzz/CMakeFiles/libharfbuzz.dir/src/hb-shape.cc.o
+[196/658] Building CXX object 3rdparty/harfbuzz/CMakeFiles/libharfbuzz.dir/src/hb-shape-plan.cc.o
+[197/658] Building CXX object 3rdparty/harfbuzz/CMakeFiles/libharfbuzz.dir/src/hb-shaper.cc.o
+[198/658] Building CXX object 3rdparty/harfbuzz/CMakeFiles/libharfbuzz.dir/src/hb-ucd.cc.o
+[199/658] Building CXX object 3rdparty/harfbuzz/CMakeFiles/libharfbuzz.dir/src/hb-raster-paint.cc.o
+[200/658] Building C object 3rdparty/clapack/CMakeFiles/libclapack.dir/src/cgemm.c.o
+[201/658] Building C object 3rdparty/clapack/CMakeFiles/libclapack.dir/src/dcopy.c.o
+[202/658] Building C object 3rdparty/clapack/CMakeFiles/libclapack.dir/src/ddot.c.o
+[203/658] Building CXX object 3rdparty/harfbuzz/CMakeFiles/libharfbuzz.dir/src/hb-unicode.cc.o
+[204/658] Building C object 3rdparty/clapack/CMakeFiles/libclapack.dir/src/dgemm.c.o
+[205/658] Building C object 3rdparty/clapack/CMakeFiles/libclapack.dir/src/dgemv.c.o
+[206/658] Building CXX object 3rdparty/harfbuzz/CMakeFiles/libharfbuzz.dir/src/hb-set.cc.o
+[207/658] Building C object 3rdparty/clapack/CMakeFiles/libclapack.dir/src/disnan.c.o
+[208/658] Building C object 3rdparty/clapack/CMakeFiles/libclapack.dir/src/dlacpy.c.o
+[209/658] Building C object 3rdparty/clapack/CMakeFiles/libclapack.dir/src/dlange.c.o
+[210/658] Building C object 3rdparty/clapack/CMakeFiles/libclapack.dir/src/dlapy2.c.o
+[211/658] Building C object 3rdparty/clapack/CMakeFiles/libclapack.dir/src/dlarf.c.o
+[212/658] Building CXX object 3rdparty/harfbuzz/CMakeFiles/libharfbuzz.dir/src/hb-static.cc.o
+[213/658] Linking CXX static library 3rdparty/lib/liblibharfbuzz.a
+[214/658] Building C object 3rdparty/clapack/CMakeFiles/libclapack.dir/src/dlarfg.c.o
+[215/658] Building C object 3rdparty/clapack/CMakeFiles/libclapack.dir/src/dlarfb.c.o
+[216/658] Building C object 3rdparty/clapack/CMakeFiles/libclapack.dir/src/dlartg.c.o
+[217/658] Building C object 3rdparty/clapack/CMakeFiles/libclapack.dir/src/dlarft.c.o
+[218/658] Building C object 3rdparty/clapack/CMakeFiles/libclapack.dir/src/dlascl.c.o
+[219/658] Building C object 3rdparty/clapack/CMakeFiles/libclapack.dir/src/dlaset.c.o
+[220/658] Building C object 3rdparty/clapack/CMakeFiles/libclapack.dir/src/dlassq.c.o
+[221/658] Building C object 3rdparty/clapack/CMakeFiles/libclapack.dir/src/dnrm2.c.o
+[222/658] Building C object 3rdparty/clapack/CMakeFiles/libclapack.dir/src/dorgqr.c.o
+[223/658] Building C object 3rdparty/clapack/CMakeFiles/libclapack.dir/src/dormqr.c.o
+[224/658] Building C object 3rdparty/clapack/CMakeFiles/libclapack.dir/src/dscal.c.o
+[225/658] Building C object 3rdparty/clapack/CMakeFiles/libclapack.dir/src/drot.c.o
+[226/658] Building C object 3rdparty/clapack/CMakeFiles/libclapack.dir/src/dswap.c.o
+[227/658] Building C object 3rdparty/clapack/CMakeFiles/libclapack.dir/src/dtrmv.c.o
+[228/658] Building C object 3rdparty/clapack/CMakeFiles/libclapack.dir/src/dtrmm.c.o
+[229/658] Building C object 3rdparty/clapack/CMakeFiles/libclapack.dir/src/ilaenv.c.o
+[230/658] Building C object 3rdparty/clapack/CMakeFiles/libclapack.dir/src/sgemm.c.o
+[231/658] Building C object 3rdparty/clapack/CMakeFiles/libclapack.dir/runtime/cblas_wrap.c.o
+[232/658] Building C object 3rdparty/clapack/CMakeFiles/libclapack.dir/runtime/dlamch_custom.c.o
+[233/658] Building C object 3rdparty/clapack/CMakeFiles/libclapack.dir/runtime/lapack_stubs.c.o
+[234/658] Building C object 3rdparty/clapack/CMakeFiles/libclapack.dir/runtime/lsame_custom.c.o
+[235/658] Building C object 3rdparty/clapack/CMakeFiles/libclapack.dir/runtime/pow_di.c.o
+[236/658] Building C object 3rdparty/clapack/CMakeFiles/libclapack.dir/src/zgemm.c.o
+[237/658] Building C object 3rdparty/clapack/CMakeFiles/libclapack.dir/runtime/pow_ii.c.o
+[238/658] Building C object 3rdparty/clapack/CMakeFiles/libclapack.dir/runtime/s_cat.c.o
+[239/658] Building C object 3rdparty/clapack/CMakeFiles/libclapack.dir/runtime/s_cmp.c.o
+[240/658] Building C object 3rdparty/clapack/CMakeFiles/libclapack.dir/runtime/slamch_custom.c.o
+[241/658] Building CXX object hal/carotene/hal/CMakeFiles/tegra_hal.dir/dummy.cpp.o
+[242/658] Building C object 3rdparty/clapack/CMakeFiles/libclapack.dir/runtime/xerbla_custom.c.o
+[243/658] Building CXX object hal/carotene/hal/carotene/CMakeFiles/carotene_objs.dir/src/absdiff.cpp.o
+[244/658] Building C object 3rdparty/clapack/CMakeFiles/libclapack.dir/src/dgeev.c.o
+[245/658] Building CXX object hal/carotene/hal/carotene/CMakeFiles/carotene_objs.dir/src/accumulate.cpp.o
+[246/658] Building C object 3rdparty/clapack/CMakeFiles/libclapack.dir/src/dgesdd.c.o
+[247/658] Linking C static library 3rdparty/lib/liblibclapack.a
+[248/658] Building CXX object hal/carotene/hal/carotene/CMakeFiles/carotene_objs.dir/src/add.cpp.o
+[249/658] Building CXX object hal/carotene/hal/carotene/CMakeFiles/carotene_objs.dir/src/bitwise.cpp.o
+[250/658] Building CXX object hal/carotene/hal/carotene/CMakeFiles/carotene_objs.dir/src/add_weighted.cpp.o
+[251/658] Building CXX object hal/carotene/hal/carotene/CMakeFiles/carotene_objs.dir/src/blur.cpp.o
+[252/658] Building CXX object hal/carotene/hal/carotene/CMakeFiles/carotene_objs.dir/src/channel_extract.cpp.o
+[253/658] Building CXX object hal/carotene/hal/carotene/CMakeFiles/carotene_objs.dir/src/canny.cpp.o
+[254/658] Building CXX object hal/carotene/hal/carotene/CMakeFiles/carotene_objs.dir/src/channels_combine.cpp.o
+[255/658] Building CXX object hal/carotene/hal/carotene/CMakeFiles/carotene_objs.dir/src/common.cpp.o
+[256/658] Building CXX object hal/carotene/hal/carotene/CMakeFiles/carotene_objs.dir/src/convert.cpp.o
+[257/658] Building CXX object hal/carotene/hal/carotene/CMakeFiles/carotene_objs.dir/src/cmp.cpp.o
+[258/658] Building CXX object hal/carotene/hal/carotene/CMakeFiles/carotene_objs.dir/src/colorconvert.cpp.o
+[259/658] Building CXX object hal/carotene/hal/carotene/CMakeFiles/carotene_objs.dir/src/convert_depth.cpp.o
+[260/658] Building CXX object hal/carotene/hal/carotene/CMakeFiles/carotene_objs.dir/src/convolution.cpp.o
+[261/658] Building CXX object hal/carotene/hal/carotene/CMakeFiles/carotene_objs.dir/src/count_nonzero.cpp.o
+[262/658] Building CXX object hal/carotene/hal/carotene/CMakeFiles/carotene_objs.dir/src/dummy.cpp.o
+[263/658] Building CXX object hal/carotene/hal/carotene/CMakeFiles/carotene_objs.dir/src/dot_product.cpp.o
+[264/658] Building CXX object hal/carotene/hal/carotene/CMakeFiles/carotene_objs.dir/src/convert_scale.cpp.o
+[265/658] Building CXX object hal/carotene/hal/carotene/CMakeFiles/carotene_objs.dir/src/fast.cpp.o
+[266/658] Building CXX object hal/carotene/hal/carotene/CMakeFiles/carotene_objs.dir/src/div.cpp.o
+[267/658] Building CXX object hal/carotene/hal/carotene/CMakeFiles/carotene_objs.dir/src/flip.cpp.o
+[268/658] Building CXX object hal/carotene/hal/carotene/CMakeFiles/carotene_objs.dir/src/fill_minmaxloc.cpp.o
+[269/658] Building CXX object hal/carotene/hal/carotene/CMakeFiles/carotene_objs.dir/src/in_range.cpp.o
+[270/658] Building CXX object hal/carotene/hal/carotene/CMakeFiles/carotene_objs.dir/src/integral.cpp.o
+[271/658] Building CXX object hal/carotene/hal/carotene/CMakeFiles/carotene_objs.dir/src/meanstddev.cpp.o
+[272/658] Building CXX object hal/carotene/hal/carotene/CMakeFiles/carotene_objs.dir/src/magnitude.cpp.o
+[273/658] Building CXX object hal/carotene/hal/carotene/CMakeFiles/carotene_objs.dir/src/gaussian_blur.cpp.o
+[274/658] Building CXX object hal/carotene/hal/carotene/CMakeFiles/carotene_objs.dir/src/laplacian.cpp.o
+[275/658] Building CXX object hal/carotene/hal/carotene/CMakeFiles/carotene_objs.dir/src/median_filter.cpp.o
+[276/658] Building CXX object hal/carotene/hal/carotene/CMakeFiles/carotene_objs.dir/src/min_max.cpp.o
+[277/658] Building CXX object hal/carotene/hal/carotene/CMakeFiles/carotene_objs.dir/src/minmaxloc.cpp.o
+[278/658] Building CXX object hal/carotene/hal/carotene/CMakeFiles/carotene_objs.dir/src/morph.cpp.o
+[279/658] Building CXX object hal/carotene/hal/carotene/CMakeFiles/carotene_objs.dir/src/norm.cpp.o
+[280/658] Building CXX object hal/carotene/hal/carotene/CMakeFiles/carotene_objs.dir/src/opticalflow.cpp.o
+[281/658] Building CXX object hal/carotene/hal/carotene/CMakeFiles/carotene_objs.dir/src/phase.cpp.o
+[282/658] Building CXX object hal/carotene/hal/carotene/CMakeFiles/carotene_objs.dir/src/reduce.cpp.o
+[283/658] Building CXX object hal/carotene/hal/carotene/CMakeFiles/carotene_objs.dir/src/remap.cpp.o
+[284/658] Building CXX object hal/carotene/hal/carotene/CMakeFiles/carotene_objs.dir/src/pyramid.cpp.o
+[285/658] Building CXX object hal/carotene/hal/carotene/CMakeFiles/carotene_objs.dir/src/scharr.cpp.o
+[286/658] Building CXX object hal/carotene/hal/carotene/CMakeFiles/carotene_objs.dir/src/sobel.cpp.o
+[287/658] Building CXX object hal/carotene/hal/carotene/CMakeFiles/carotene_objs.dir/src/resize.cpp.o
+[288/658] Building CXX object hal/carotene/hal/carotene/CMakeFiles/carotene_objs.dir/src/sub.cpp.o
+[289/658] Building CXX object hal/carotene/hal/carotene/CMakeFiles/carotene_objs.dir/src/sum.cpp.o
+[290/658] Building CXX object hal/carotene/hal/carotene/CMakeFiles/carotene_objs.dir/src/separable_filter.cpp.o
+[291/658] Building CXX object hal/carotene/hal/carotene/CMakeFiles/carotene_objs.dir/src/template_matching.cpp.o
+[292/658] Building CXX object hal/carotene/hal/carotene/CMakeFiles/carotene_objs.dir/src/warp_affine.cpp.o
+[293/658] Building CXX object hal/carotene/hal/carotene/CMakeFiles/carotene_objs.dir/src/warp_perspective.cpp.o
+[294/658] Building CXX object hal/carotene/hal/carotene/CMakeFiles/carotene_objs.dir/src/threshold.cpp.o
+[295/658] Building C object 3rdparty/ittnotify/CMakeFiles/ittnotify.dir/src/ittnotify/jitprofiling.c.o
+[296/658] Building CXX object hal/carotene/hal/carotene/CMakeFiles/carotene_objs.dir/src/mul.cpp.o
+[297/658] Linking CXX static library 3rdparty/lib/libtegra_hal.a
+[298/658] Generate files for Python bindings and documentation
+[299/658] Building C object 3rdparty/ittnotify/CMakeFiles/ittnotify.dir/src/ittnotify/ittnotify_static.c.o
+[300/658] Linking C static library 3rdparty/lib/libittnotify.a
+[301/658] Processing OpenCL kernels (core)
+[302/658] Building CXX object modules/core/CMakeFiles/opencv_core.dir/src/alloc.cpp.o
+[303/658] Building CXX object modules/core/CMakeFiles/opencv_core.dir/src/algorithm.cpp.o
+[304/658] Building CXX object modules/core/CMakeFiles/opencv_core.dir/src/arithm.cpp.o
+[305/658] Building CXX object modules/core/CMakeFiles/opencv_core.dir/src/batch_distance.cpp.o
+[306/658] Building CXX object modules/core/CMakeFiles/opencv_core.dir/src/async.cpp.o
+[307/658] Building CXX object modules/core/CMakeFiles/opencv_core.dir/src/buffer_area.cpp.o
+[308/658] Building CXX object modules/core/CMakeFiles/opencv_core.dir/src/bindings_utils.cpp.o
+[309/658] Building CXX object modules/core/CMakeFiles/opencv_core.dir/src/channels.cpp.o
+[310/658] Building CXX object modules/core/CMakeFiles/opencv_core.dir/src/check.cpp.o
+[311/658] Building CXX object modules/core/CMakeFiles/opencv_core.dir/src/conjugate_gradient.cpp.o
+[312/658] Building CXX object modules/core/CMakeFiles/opencv_core.dir/src/arithm.dispatch.cpp.o
+[313/658] Building CXX object modules/core/CMakeFiles/opencv_core.dir/src/command_line_parser.cpp.o
+[314/658] Building CXX object modules/core/CMakeFiles/opencv_core.dir/src/count_non_zero.dispatch.cpp.o
+[315/658] Building CXX object modules/core/CMakeFiles/opencv_core.dir/src/copy.cpp.o
+[316/658] Building CXX object modules/core/CMakeFiles/opencv_core.dir/src/cuda_gpu_mat.cpp.o
+[317/658] Building CXX object modules/core/CMakeFiles/opencv_core.dir/src/convert.dispatch.cpp.o
+[318/658] Building CXX object modules/core/CMakeFiles/opencv_core.dir/src/cuda_gpu_mat_nd.cpp.o
+[319/658] Building CXX object modules/core/CMakeFiles/opencv_core.dir/src/convert_scale.dispatch.cpp.o
+[320/658] Building CXX object modules/core/CMakeFiles/opencv_core.dir/src/cuda_host_mem.cpp.o
+[321/658] Building CXX object modules/core/CMakeFiles/opencv_core.dir/src/cuda_info.cpp.o
+[322/658] Building CXX object modules/core/CMakeFiles/opencv_core.dir/src/cuda_stream.cpp.o
+[323/658] Building CXX object modules/core/CMakeFiles/opencv_core.dir/src/directx.cpp.o
+[324/658] Building CXX object modules/core/CMakeFiles/opencv_core.dir/src/downhill_simplex.cpp.o
+[325/658] Building CXX object modules/core/CMakeFiles/opencv_core.dir/src/gl_core_3_1.cpp.o
+[326/658] Building CXX object modules/core/CMakeFiles/opencv_core.dir/src/glob.cpp.o
+[327/658] Building CXX object modules/core/CMakeFiles/opencv_core.dir/src/has_non_zero.dispatch.cpp.o
+[328/658] Building CXX object modules/core/CMakeFiles/opencv_core.dir/src/hal_internal.cpp.o
+[329/658] Building CXX object modules/core/CMakeFiles/opencv_core.dir/src/kmeans.cpp.o
+[330/658] Building CXX object modules/core/CMakeFiles/opencv_core.dir/src/dxt.cpp.o
+[331/658] Building CXX object modules/core/CMakeFiles/opencv_core.dir/src/logger.cpp.o
+[332/658] Building CXX object modules/core/CMakeFiles/opencv_core.dir/src/lapack.cpp.o
+[333/658] Building CXX object modules/core/CMakeFiles/opencv_core.dir/src/lpsolver.cpp.o
+[334/658] Building CXX object modules/core/CMakeFiles/opencv_core.dir/src/lda.cpp.o
+[335/658] Building CXX object modules/core/CMakeFiles/opencv_core.dir/src/lut.cpp.o
+[336/658] Building CXX object modules/core/CMakeFiles/opencv_core.dir/src/lut.dispatch.cpp.o
+[337/658] Building CXX object modules/core/CMakeFiles/opencv_core.dir/src/mathfuncs_core.dispatch.cpp.o
+[338/658] Building CXX object modules/core/CMakeFiles/opencv_core.dir/src/mathfuncs.cpp.o
+[339/658] Building CXX object modules/core/CMakeFiles/opencv_core.dir/src/matrix.cpp.o
+[340/658] Building CXX object modules/core/CMakeFiles/opencv_core.dir/src/matrix_decomp.cpp.o
+[341/658] Building CXX object modules/core/CMakeFiles/opencv_core.dir/src/matrix_expressions.cpp.o
+[342/658] Building CXX object modules/core/CMakeFiles/opencv_core.dir/src/matrix_iterator.cpp.o
+[343/658] Building CXX object modules/core/CMakeFiles/opencv_core.dir/src/matrix_sparse.cpp.o
+[344/658] Building CXX object modules/core/CMakeFiles/opencv_core.dir/src/matrix_transform.cpp.o
+[345/658] Building CXX object modules/core/CMakeFiles/opencv_core.dir/src/matmul.dispatch.cpp.o
+[346/658] Building CXX object modules/core/CMakeFiles/opencv_core.dir/src/mean.dispatch.cpp.o
+[347/658] Building CXX object modules/core/CMakeFiles/opencv_core.dir/src/merge.dispatch.cpp.o
+[348/658] Building CXX object modules/core/CMakeFiles/opencv_core.dir/src/matrix_operations.cpp.o
+[349/658] Building CXX object modules/core/CMakeFiles/opencv_core.dir/src/nan_mask.dispatch.cpp.o
+[350/658] Building CXX object modules/core/CMakeFiles/opencv_core.dir/src/minmax.dispatch.cpp.o
+[351/658] Building CXX object modules/core/CMakeFiles/opencv_core.dir/src/matrix_wrap.cpp.o
+[352/658] Building CXX object modules/core/CMakeFiles/opencv_core.dir/src/ocl.cpp.o
+[353/658] Building CXX object modules/core/CMakeFiles/opencv_core.dir/src/opencl/runtime/opencl_clblas.cpp.o
+[354/658] Building CXX object modules/core/CMakeFiles/opencv_core.dir/src/opencl/runtime/opencl_clfft.cpp.o
+[355/658] Building CXX object modules/core/CMakeFiles/opencv_core.dir/src/opencl/runtime/opencl_core.cpp.o
+[356/658] Building CXX object modules/core/CMakeFiles/opencv_core.dir/src/opengl.cpp.o
+[357/658] Building CXX object modules/core/CMakeFiles/opencv_core.dir/src/norm.dispatch.cpp.o
+[358/658] Building CXX object modules/core/CMakeFiles/opencv_core.dir/src/parallel.cpp.o
+[359/658] Building CXX object modules/core/CMakeFiles/opencv_core.dir/src/out.cpp.o
+[360/658] Building CXX object modules/core/CMakeFiles/opencv_core.dir/src/parallel/parallel_openmp.cpp.o
+[361/658] Building CXX object modules/core/CMakeFiles/opencv_core.dir/src/parallel/parallel_tbb.cpp.o
+[362/658] Building CXX object modules/core/CMakeFiles/opencv_core.dir/src/parallel_impl.cpp.o
+[363/658] Building CXX object modules/core/CMakeFiles/opencv_core.dir/src/parallel/parallel.cpp.o
+[364/658] Building CXX object modules/core/CMakeFiles/opencv_core.dir/src/pca.cpp.o
+[365/658] Building CXX object modules/core/CMakeFiles/opencv_core.dir/src/persistence_base64_encoding.cpp.o
+[366/658] Building CXX object modules/core/CMakeFiles/opencv_core.dir/src/persistence_types.cpp.o
+[367/658] Building CXX object modules/core/CMakeFiles/opencv_core.dir/src/persistence_json.cpp.o
+[368/658] Building CXX object modules/core/CMakeFiles/opencv_core.dir/src/persistence.cpp.o
+[369/658] Building CXX object modules/core/CMakeFiles/opencv_core.dir/src/persistence_xml.cpp.o
+[370/658] Building CXX object modules/core/CMakeFiles/opencv_core.dir/src/persistence_yml.cpp.o
+[371/658] Building CXX object modules/core/CMakeFiles/opencv_core.dir/src/rand.cpp.o
+[372/658] Building CXX object modules/core/CMakeFiles/opencv_core.dir/src/reduce.dispatch.cpp.o
+[373/658] Building CXX object modules/core/CMakeFiles/opencv_core.dir/src/split.dispatch.cpp.o
+[374/658] Building CXX object modules/core/CMakeFiles/opencv_core.dir/src/stat.dispatch.cpp.o
+[375/658] Building CXX object modules/core/CMakeFiles/opencv_core.dir/src/softfloat.cpp.o
+[376/658] Building CXX object modules/core/CMakeFiles/opencv_core.dir/src/stl.cpp.o
+[377/658] Building CXX object modules/core/CMakeFiles/opencv_core.dir/src/tables.cpp.o
+[378/658] Building CXX object modules/core/CMakeFiles/opencv_core.dir/src/sum.dispatch.cpp.o
+[379/658] Building CXX object modules/core/CMakeFiles/opencv_core.dir/src/system.cpp.o
+[380/658] Building CXX object modules/core/CMakeFiles/opencv_core.dir/src/types.cpp.o
+[381/658] Building CXX object modules/core/CMakeFiles/opencv_core.dir/src/trace.cpp.o
+[382/658] Building CXX object modules/core/CMakeFiles/opencv_core.dir/src/umatrix.cpp.o
+[383/658] Building CXX object modules/core/CMakeFiles/opencv_core.dir/src/utils/logtagconfigparser.cpp.o
+[384/658] Building CXX object modules/core/CMakeFiles/opencv_core.dir/src/utils/datafile.cpp.o
+[385/658] Building CXX object modules/core/CMakeFiles/opencv_core.dir/src/utils/filesystem.cpp.o
+[386/658] Building CXX object modules/core/CMakeFiles/opencv_core.dir/src/va_intel.cpp.o
+[387/658] Building CXX object modules/core/CMakeFiles/opencv_core.dir/opencl_kernels_core.cpp.o
+[388/658] Building CXX object modules/core/CMakeFiles/opencv_core.dir/src/utils/samples.cpp.o
+[389/658] Building CXX object modules/core/CMakeFiles/opencv_core.dir/src/utils/logtagmanager.cpp.o
+[390/658] Building CXX object modules/core/CMakeFiles/opencv_core.dir/transpose.neon.cpp.o
+[391/658] Building CXX object modules/core/CMakeFiles/opencv_core.dir/reduce.neon_dotprod.cpp.o
+[392/658] Building CXX object modules/flann/CMakeFiles/opencv_flann.dir/src/flann.cpp.o
+[393/658] Building CXX object modules/core/CMakeFiles/opencv_core.dir/matmul.neon_dotprod.cpp.o
+[394/658] Building CXX object modules/core/CMakeFiles/opencv_core.dir/norm.neon_dotprod.cpp.o
+[395/658] Linking CXX shared library lib/libopencv_core.so.5.1.0
+[396/658] Creating library symlink lib/libopencv_core.so.501 lib/libopencv_core.so
+[397/658] Building CXX object modules/flann/CMakeFiles/opencv_flann.dir/src/miniflann.cpp.o
+[398/658] Linking CXX shared library lib/libopencv_flann.so.5.1.0
+[399/658] Creating library symlink lib/libopencv_flann.so.501 lib/libopencv_flann.so
+[400/658] Processing OpenCL kernels (geometry)
+[401/658] Building CXX object modules/geometry/CMakeFiles/opencv_geometry.dir/src/approx.cpp.o
+[402/658] Building CXX object modules/geometry/CMakeFiles/opencv_geometry.dir/src/convhull.cpp.o
+[403/658] Building CXX object modules/geometry/CMakeFiles/opencv_geometry.dir/src/ap3p.cpp.o
+[404/658] Building CXX object modules/geometry/CMakeFiles/opencv_geometry.dir/src/calibration_base.cpp.o
+[405/658] Building CXX object modules/geometry/CMakeFiles/opencv_geometry.dir/src/epnp.cpp.o
+[406/658] Building CXX object modules/geometry/CMakeFiles/opencv_geometry.dir/src/fisheye.cpp.o
+[407/658] Building CXX object modules/geometry/CMakeFiles/opencv_geometry.dir/src/fundam.cpp.o
+[408/658] Building CXX object modules/geometry/CMakeFiles/opencv_geometry.dir/src/geometry.cpp.o
+[409/658] Building CXX object modules/geometry/CMakeFiles/opencv_geometry.dir/src/homography_decomp.cpp.o
+[410/658] Building CXX object modules/geometry/CMakeFiles/opencv_geometry.dir/src/intersection.cpp.o
+[411/658] Building CXX object modules/geometry/CMakeFiles/opencv_geometry.dir/src/ippe.cpp.o
+[412/658] Building CXX object modules/geometry/CMakeFiles/opencv_geometry.dir/src/levmarq.cpp.o
+[413/658] Building CXX object modules/geometry/CMakeFiles/opencv_geometry.dir/src/linefit.cpp.o
+[414/658] Building CXX object modules/geometry/CMakeFiles/opencv_geometry.dir/src/main.cpp.o
+[415/658] Building CXX object modules/geometry/CMakeFiles/opencv_geometry.dir/src/matchcontours.cpp.o
+[416/658] Building CXX object modules/geometry/CMakeFiles/opencv_geometry.dir/src/min_enclosing_triangle.cpp.o
+[417/658] Building CXX object modules/geometry/CMakeFiles/opencv_geometry.dir/src/five-point.cpp.o
+[418/658] Building CXX object modules/geometry/CMakeFiles/opencv_geometry.dir/src/min_enclosing_convex_polygon.cpp.o
+[419/658] Building CXX object modules/geometry/CMakeFiles/opencv_geometry.dir/src/moments.cpp.o
+[420/658] Building CXX object modules/geometry/CMakeFiles/opencv_geometry.dir/src/polynom_solver.cpp.o
+[421/658] Building CXX object modules/geometry/CMakeFiles/opencv_geometry.dir/src/p3p.cpp.o
+[422/658] Building CXX object modules/geometry/CMakeFiles/opencv_geometry.dir/src/pinhole.cpp.o
+[423/658] Building CXX object modules/geometry/CMakeFiles/opencv_geometry.dir/src/mst.cpp.o
+[424/658] Building CXX object modules/geometry/CMakeFiles/opencv_geometry.dir/src/ptcloud/normal_estimation.cpp.o
+[425/658] Building CXX object modules/geometry/CMakeFiles/opencv_geometry.dir/src/ptcloud/ptcloud_utils.cpp.o
+[426/658] Building CXX object modules/geometry/CMakeFiles/opencv_geometry.dir/src/ptcloud/region_growing_3d.cpp.o
+[427/658] Building CXX object modules/geometry/CMakeFiles/opencv_geometry.dir/src/ptcloud/sac_segmentation.cpp.o
+[428/658] Building CXX object modules/geometry/CMakeFiles/opencv_geometry.dir/src/ptcloud/sampling.cpp.o
+[429/658] Building CXX object modules/geometry/CMakeFiles/opencv_geometry.dir/src/rotcalipers.cpp.o
+[430/658] Building CXX object modules/geometry/CMakeFiles/opencv_geometry.dir/src/rho.cpp.o
+[431/658] Building CXX object modules/geometry/CMakeFiles/opencv_geometry.dir/src/ptsetreg.cpp.o
+[432/658] Building CXX object modules/geometry/CMakeFiles/opencv_geometry.dir/src/shapedescr.cpp.o
+[433/658] Building CXX object modules/geometry/CMakeFiles/opencv_geometry.dir/src/sqpnp.cpp.o
+[434/658] Building CXX object modules/geometry/CMakeFiles/opencv_geometry.dir/src/solvepnp.cpp.o
+[435/658] Building CXX object modules/geometry/CMakeFiles/opencv_geometry.dir/src/subdivision2d.cpp.o
+[436/658] Building CXX object modules/geometry/CMakeFiles/opencv_geometry.dir/src/triangulate.cpp.o
+[437/658] Building CXX object modules/geometry/CMakeFiles/opencv_geometry.dir/src/usac/bundle.cpp.o
+[438/658] Building CXX object modules/geometry/CMakeFiles/opencv_geometry.dir/src/usac/essential_solver.cpp.o
+[439/658] Building CXX object modules/geometry/CMakeFiles/opencv_geometry.dir/src/usac/degeneracy.cpp.o
+[440/658] Building CXX object modules/geometry/CMakeFiles/opencv_geometry.dir/src/usac/estimator.cpp.o
+[441/658] Building CXX object modules/geometry/CMakeFiles/opencv_geometry.dir/src/usac/gamma_values.cpp.o
+[442/658] Building CXX object modules/geometry/CMakeFiles/opencv_geometry.dir/src/usac/fundamental_solver.cpp.o
+[443/658] Building CXX object modules/geometry/CMakeFiles/opencv_geometry.dir/src/usac/dls_solver.cpp.o
+[444/658] Building CXX object modules/geometry/CMakeFiles/opencv_geometry.dir/src/usac/homography_solver.cpp.o
+[445/658] Building CXX object modules/geometry/CMakeFiles/opencv_geometry.dir/src/usac/plane_solver.cpp.o
+[446/658] Building CXX object modules/geometry/CMakeFiles/opencv_geometry.dir/src/usac/local_optimization.cpp.o
+[447/658] Building CXX object modules/geometry/CMakeFiles/opencv_geometry.dir/src/usac/pnp_solver.cpp.o
+[448/658] Building CXX object modules/geometry/CMakeFiles/opencv_geometry.dir/src/usac/quality.cpp.o
+/home/ubuntu/ocvsrc/opencv_5.x_2026-07-13T03_56_14Z/modules/geometry/src/usac/quality.cpp: In member function ‘std::pair<double, double> cv::usac::AdaptiveSPRTImpl::estimateThresholdA(double, double)’:
+/home/ubuntu/ocvsrc/opencv_5.x_2026-07-13T03_56_14Z/modules/geometry/src/usac/quality.cpp:568:80: note: parameter passing for argument of type ‘std::pair<double, double>’ when C++17 is enabled changed to match C++14 in GCC 10.1
+  568 |     std::pair<double,double> estimateThresholdA (double epsilon, double delta) {
+      |                                                                                ^
+[449/658] Building CXX object modules/geometry/CMakeFiles/opencv_geometry.dir/src/usac/sampler.cpp.o
+[450/658] Building CXX object modules/geometry/CMakeFiles/opencv_geometry.dir/src/usac/sphere_solver.cpp.o
+[451/658] Building CXX object modules/geometry/CMakeFiles/opencv_geometry.dir/src/usac/termination.cpp.o
+[452/658] Building CXX object modules/geometry/CMakeFiles/opencv_geometry.dir/opencl_kernels_geometry.cpp.o
+[453/658] Building CXX object modules/geometry/CMakeFiles/opencv_geometry.dir/src/usac/ransac_solvers.cpp.o
+[454/658] Building CXX object modules/geometry/CMakeFiles/opencv_geometry.dir/src/usac/utils.cpp.o
+[455/658] Linking CXX shared library lib/libopencv_geometry.so.5.1.0
+[456/658] Creating library symlink lib/libopencv_geometry.so.501 lib/libopencv_geometry.so
+[457/658] Processing OpenCL kernels (imgproc)
+[458/658] Building CXX object modules/imgproc/CMakeFiles/opencv_imgproc.dir/src/accum.cpp.o
+[459/658] Building CXX object modules/imgproc/CMakeFiles/opencv_imgproc.dir/src/blend.cpp.o
+[460/658] Building CXX object modules/imgproc/CMakeFiles/opencv_imgproc.dir/src/bilateral_filter.dispatch.cpp.o
+[461/658] Building CXX object modules/imgproc/CMakeFiles/opencv_imgproc.dir/src/accum.dispatch.cpp.o
+[462/658] Building CXX object modules/imgproc/CMakeFiles/opencv_imgproc.dir/src/canny.cpp.o
+[463/658] Building CXX object modules/imgproc/CMakeFiles/opencv_imgproc.dir/src/clahe.cpp.o
+[464/658] Building CXX object modules/imgproc/CMakeFiles/opencv_imgproc.dir/src/color.cpp.o
+[465/658] Building CXX object modules/imgproc/CMakeFiles/opencv_imgproc.dir/src/color_hsv.dispatch.cpp.o
+[466/658] Building CXX object modules/imgproc/CMakeFiles/opencv_imgproc.dir/src/box_filter.dispatch.cpp.o
+[467/658] Building CXX object modules/imgproc/CMakeFiles/opencv_imgproc.dir/src/color_rgb.dispatch.cpp.o
+[468/658] Building CXX object modules/imgproc/CMakeFiles/opencv_imgproc.dir/src/color_lab.cpp.o
+[469/658] Building CXX object modules/imgproc/CMakeFiles/opencv_imgproc.dir/src/colormap.cpp.o
+[470/658] Building CXX object modules/imgproc/CMakeFiles/opencv_imgproc.dir/src/contours_approx.cpp.o
+[471/658] Building CXX object modules/imgproc/CMakeFiles/opencv_imgproc.dir/src/contours_common.cpp.o
+[472/658] Building CXX object modules/imgproc/CMakeFiles/opencv_imgproc.dir/src/color_yuv.dispatch.cpp.o
+[473/658] Building CXX object modules/imgproc/CMakeFiles/opencv_imgproc.dir/src/contours_link.cpp.o
+[474/658] Building CXX object modules/imgproc/CMakeFiles/opencv_imgproc.dir/src/contours_new.cpp.o
+[475/658] Building CXX object modules/imgproc/CMakeFiles/opencv_imgproc.dir/src/contours_truco.cpp.o
+[476/658] Building CXX object modules/imgproc/CMakeFiles/opencv_imgproc.dir/src/corner.cpp.o
+[477/658] Building CXX object modules/imgproc/CMakeFiles/opencv_imgproc.dir/src/cornersubpix.cpp.o
+[478/658] Building CXX object modules/imgproc/CMakeFiles/opencv_imgproc.dir/src/deriv.cpp.o
+[479/658] Building CXX object modules/imgproc/CMakeFiles/opencv_imgproc.dir/src/distransform.cpp.o
+[480/658] Building CXX object modules/imgproc/CMakeFiles/opencv_imgproc.dir/src/demosaicing.cpp.o
+[481/658] Building CXX object modules/imgproc/CMakeFiles/opencv_imgproc.dir/src/emd_new.cpp.o
+[482/658] Building CXX object modules/imgproc/CMakeFiles/opencv_imgproc.dir/src/drawing.cpp.o
+[483/658] Building CXX object modules/imgproc/CMakeFiles/opencv_imgproc.dir/src/equalize_hist.dispatch.cpp.o
+[484/658] Building CXX object modules/imgproc/CMakeFiles/opencv_imgproc.dir/src/fisheye.cpp.o
+[485/658] Building CXX object modules/imgproc/CMakeFiles/opencv_imgproc.dir/src/drawing_text.cpp.o
+[486/658] Building CXX object modules/imgproc/CMakeFiles/opencv_imgproc.dir/src/floodfill.cpp.o
+[487/658] Building CXX object modules/imgproc/CMakeFiles/opencv_imgproc.dir/src/gabor.cpp.o
+[488/658] Building CXX object modules/imgproc/CMakeFiles/opencv_imgproc.dir/src/connectedcomponents.cpp.o
+[489/658] Building CXX object modules/imgproc/CMakeFiles/opencv_imgproc.dir/src/generalized_hough.cpp.o
+[490/658] Building CXX object modules/imgproc/CMakeFiles/opencv_imgproc.dir/src/grabcut.cpp.o
+[491/658] Building CXX object modules/imgproc/CMakeFiles/opencv_imgproc.dir/src/filter.dispatch.cpp.o
+[492/658] Building CXX object modules/imgproc/CMakeFiles/opencv_imgproc.dir/src/histogram.cpp.o
+[493/658] Building CXX object modules/imgproc/CMakeFiles/opencv_imgproc.dir/src/main.cpp.o
+[494/658] Building CXX object modules/imgproc/CMakeFiles/opencv_imgproc.dir/src/hough.cpp.o
+[495/658] Building CXX object modules/imgproc/CMakeFiles/opencv_imgproc.dir/src/lsd.cpp.o
+[496/658] Building CXX object modules/imgproc/CMakeFiles/opencv_imgproc.dir/src/phasecorr.cpp.o
+[497/658] Building CXX object modules/imgproc/CMakeFiles/opencv_imgproc.dir/src/median_blur.dispatch.cpp.o
+[498/658] Building CXX object modules/imgproc/CMakeFiles/opencv_imgproc.dir/src/phasecorr_iterative.cpp.o
+[499/658] Building CXX object modules/imgproc/CMakeFiles/opencv_imgproc.dir/src/morph.dispatch.cpp.o
+[500/658] Building CXX object modules/imgproc/CMakeFiles/opencv_imgproc.dir/src/samplers.cpp.o
+[501/658] Building CXX object modules/imgproc/CMakeFiles/opencv_imgproc.dir/src/pyramids.cpp.o
+[502/658] Building CXX object modules/imgproc/CMakeFiles/opencv_imgproc.dir/src/segmentation.cpp.o
+[503/658] Building CXX object modules/imgproc/CMakeFiles/opencv_imgproc.dir/src/spatialgradient.cpp.o
+[504/658] Building CXX object modules/imgproc/CMakeFiles/opencv_imgproc.dir/src/resize.cpp.o
+[505/658] Building CXX object modules/imgproc/CMakeFiles/opencv_imgproc.dir/src/stackblur.cpp.o
+[506/658] Building CXX object modules/imgproc/CMakeFiles/opencv_imgproc.dir/src/tables.cpp.o
+[507/658] Building CXX object modules/imgproc/CMakeFiles/opencv_imgproc.dir/src/sumpixels.dispatch.cpp.o
+[508/658] Building CXX object modules/imgproc/CMakeFiles/opencv_imgproc.dir/src/smooth.dispatch.cpp.o
+[509/658] Building CXX object modules/imgproc/CMakeFiles/opencv_imgproc.dir/src/templmatch.cpp.o
+[510/658] Building CXX object modules/imgproc/CMakeFiles/opencv_imgproc.dir/src/utils.cpp.o
+[511/658] Building CXX object modules/imgproc/CMakeFiles/opencv_imgproc.dir/src/thresh.cpp.o
+[512/658] Building CXX object modules/imgproc/CMakeFiles/opencv_imgproc.dir/opencl_kernels_imgproc.cpp.o
+[513/658] Building CXX object modules/imgproc/CMakeFiles/opencv_imgproc.dir/src/undistort.dispatch.cpp.o
+[514/658] Building CXX object modules/imgcodecs/CMakeFiles/opencv_imgcodecs.dir/src/loadsave.cpp.o
+[515/658] Building CXX object modules/imgcodecs/CMakeFiles/opencv_imgcodecs.dir/src/utils.cpp.o
+[516/658] Building CXX object modules/imgcodecs/CMakeFiles/opencv_imgcodecs.dir/src/grfmt_avif.cpp.o
+[517/658] Building CXX object modules/imgcodecs/CMakeFiles/opencv_imgcodecs.dir/src/grfmt_base.cpp.o
+[518/658] Building CXX object modules/imgcodecs/CMakeFiles/opencv_imgcodecs.dir/src/grfmt_bmp.cpp.o
+[519/658] Building CXX object modules/imgproc/CMakeFiles/opencv_imgproc.dir/src/imgwarp.cpp.o
+[520/658] Building CXX object modules/imgcodecs/CMakeFiles/opencv_imgcodecs.dir/src/grfmt_exr.cpp.o
+[521/658] Building CXX object modules/imgcodecs/CMakeFiles/opencv_imgcodecs.dir/src/grfmt_gdal.cpp.o
+[522/658] Building CXX object modules/imgcodecs/CMakeFiles/opencv_imgcodecs.dir/src/grfmt_gdcm.cpp.o
+[523/658] Building CXX object modules/imgcodecs/CMakeFiles/opencv_imgcodecs.dir/src/grfmt_hdr.cpp.o
+[524/658] Building CXX object modules/imgcodecs/CMakeFiles/opencv_imgcodecs.dir/src/grfmt_gif.cpp.o
+[525/658] Building CXX object modules/imgcodecs/CMakeFiles/opencv_imgcodecs.dir/src/grfmt_jpeg.cpp.o
+[526/658] Building CXX object modules/imgcodecs/CMakeFiles/opencv_imgcodecs.dir/src/grfmt_jpeg2000.cpp.o
+[527/658] Building CXX object modules/imgcodecs/CMakeFiles/opencv_imgcodecs.dir/src/grfmt_jpeg2000_openjpeg.cpp.o
+[528/658] Building CXX object modules/imgcodecs/CMakeFiles/opencv_imgcodecs.dir/src/grfmt_jpegxl.cpp.o
+[529/658] Building CXX object modules/imgcodecs/CMakeFiles/opencv_imgcodecs.dir/src/grfmt_pfm.cpp.o
+[530/658] Building CXX object modules/imgcodecs/CMakeFiles/opencv_imgcodecs.dir/src/grfmt_pam.cpp.o
+[531/658] Building CXX object modules/imgcodecs/CMakeFiles/opencv_imgcodecs.dir/src/grfmt_pxm.cpp.o
+[532/658] Building CXX object modules/imgcodecs/CMakeFiles/opencv_imgcodecs.dir/src/grfmt_spng.cpp.o
+[533/658] Building CXX object modules/imgcodecs/CMakeFiles/opencv_imgcodecs.dir/src/grfmt_png.cpp.o
+[534/658] Building CXX object modules/imgcodecs/CMakeFiles/opencv_imgcodecs.dir/src/grfmt_sunras.cpp.o
+[535/658] Building CXX object modules/imgcodecs/CMakeFiles/opencv_imgcodecs.dir/src/grfmt_webp.cpp.o
+[536/658] Building CXX object modules/imgproc/CMakeFiles/opencv_imgproc.dir/warp_kernels.neon.cpp.o
+[537/658] Building CXX object modules/imgcodecs/CMakeFiles/opencv_imgcodecs.dir/src/grfmt_tiff.cpp.o
+[538/658] Building CXX object modules/imgcodecs/CMakeFiles/opencv_imgcodecs.dir/src/bitstrm.cpp.o
+[539/658] Building CXX object modules/imgcodecs/CMakeFiles/opencv_imgcodecs.dir/src/rgbe.cpp.o
+[540/658] Building CXX object modules/imgcodecs/CMakeFiles/opencv_imgcodecs.dir/src/exif.cpp.o
+[541/658] Building CXX object modules/imgproc/CMakeFiles/opencv_imgproc.dir/warp_kernels.neon_fp16.cpp.o
+[542/658] Linking CXX shared library lib/libopencv_imgproc.so.5.1.0
+[543/658] Creating library symlink lib/libopencv_imgproc.so.501 lib/libopencv_imgproc.so
+[544/658] Processing OpenCL kernels (stereo)
+[545/658] Processing OpenCL kernels (features)
+[546/658] Linking CXX shared library lib/libopencv_imgcodecs.so.5.1.0
+[547/658] Building CXX object modules/stereo/CMakeFiles/opencv_stereo.dir/src/main.cpp.o
+[548/658] Building CXX object modules/stereo/CMakeFiles/opencv_stereo.dir/opencl_kernels_stereo.cpp.o
+[549/658] Building CXX object modules/stereo/CMakeFiles/opencv_stereo.dir/src/stereo_geom.cpp.o
+[550/658] Building CXX object modules/stereo/CMakeFiles/opencv_stereo.dir/src/stereosgbm.cpp.o
+[551/658] Building CXX object modules/features/CMakeFiles/opencv_features.dir/src/affine_feature.cpp.o
+[552/658] Building CXX object modules/stereo/CMakeFiles/opencv_stereo.dir/src/stereobm.cpp.o
+[553/658] Linking CXX shared library lib/libopencv_stereo.so.5.1.0
+[554/658] Creating library symlink lib/libopencv_stereo.so.501 lib/libopencv_stereo.so
+[555/658] Building CXX object modules/features/CMakeFiles/opencv_features.dir/src/disk.cpp.o
+[556/658] Building CXX object modules/features/CMakeFiles/opencv_features.dir/src/draw.cpp.o
+[557/658] Building CXX object modules/features/CMakeFiles/opencv_features.dir/src/blobdetector.cpp.o
+[558/658] Building CXX object modules/features/CMakeFiles/opencv_features.dir/src/dynamic.cpp.o
+[559/658] Building CXX object modules/features/CMakeFiles/opencv_features.dir/src/fast_score.cpp.o
+[560/658] Building CXX object modules/features/CMakeFiles/opencv_features.dir/src/fast.cpp.o
+[561/658] Building CXX object modules/features/CMakeFiles/opencv_features.dir/src/evaluation.cpp.o
+[562/658] Building CXX object modules/features/CMakeFiles/opencv_features.dir/src/feature2d.cpp.o
+[563/658] Building CXX object modules/features/CMakeFiles/opencv_features.dir/src/annoy.cpp.o
+[564/658] Building CXX object modules/features/CMakeFiles/opencv_features.dir/src/feature2d_aliked.cpp.o
+[565/658] Building CXX object modules/features/CMakeFiles/opencv_features.dir/src/featureselect.cpp.o
+[566/658] Building CXX object modules/features/CMakeFiles/opencv_features.dir/src/main.cpp.o
+[567/658] Building CXX object modules/features/CMakeFiles/opencv_features.dir/src/gftt.cpp.o
+[568/658] Building CXX object modules/features/CMakeFiles/opencv_features.dir/src/keypoint.cpp.o
+[569/658] Building CXX object modules/features/CMakeFiles/opencv_features.dir/src/matchers_lightglue.cpp.o
+[570/658] Building CXX object modules/features/CMakeFiles/opencv_features.dir/src/matchers.cpp.o
+[571/658] Building CXX object modules/features/CMakeFiles/opencv_features.dir/src/mser.cpp.o
+[572/658] Creating library symlink lib/libopencv_imgcodecs.so.501 lib/libopencv_imgcodecs.so
+[573/658] Building CXX object modules/features/CMakeFiles/opencv_features.dir/src/orb.cpp.o
+[574/658] Building CXX object modules/features/CMakeFiles/opencv_features.dir/opencl_kernels_features.cpp.o
+[575/658] Building CXX object modules/features/CMakeFiles/opencv_features.dir/src/sift.dispatch.cpp.o
+[576/658] Linking CXX shared library lib/libopencv_features.so.5.1.0
+[577/658] Building CXX object modules/objdetect/CMakeFiles/opencv_objdetect.dir/src/aruco/apriltag/zmaxheap.cpp.o
+[578/658] Creating library symlink lib/libopencv_features.so.501 lib/libopencv_features.so
+[579/658] Building CXX object modules/objdetect/CMakeFiles/opencv_objdetect.dir/src/aruco/apriltag/apriltag_quad_thresh.cpp.o
+[580/658] Building CXX object modules/objdetect/CMakeFiles/opencv_objdetect.dir/src/aruco/aruco_board.cpp.o
+[581/658] Building CXX object modules/objdetect/CMakeFiles/opencv_objdetect.dir/src/aruco/aruco_dictionary.cpp.o
+[582/658] Building CXX object modules/objdetect/CMakeFiles/opencv_objdetect.dir/src/aruco/aruco_utils.cpp.o
+[583/658] Building CXX object modules/objdetect/CMakeFiles/opencv_objdetect.dir/src/barcode_decoder/abs_decoder.cpp.o
+[584/658] Building CXX object modules/objdetect/CMakeFiles/opencv_objdetect.dir/src/barcode.cpp.o
+[585/658] Building CXX object modules/objdetect/CMakeFiles/opencv_objdetect.dir/src/aruco/charuco_detector.cpp.o
+[586/658] Building CXX object modules/objdetect/CMakeFiles/opencv_objdetect.dir/src/barcode_decoder/common/hybrid_binarizer.cpp.o
+[587/658] Building CXX object modules/objdetect/CMakeFiles/opencv_objdetect.dir/src/barcode_decoder/common/super_scale.cpp.o
+[588/658] Building CXX object modules/objdetect/CMakeFiles/opencv_objdetect.dir/src/barcode_decoder/common/utils.cpp.o
+[589/658] Building CXX object modules/objdetect/CMakeFiles/opencv_objdetect.dir/src/aruco/aruco_detector.cpp.o
+[590/658] Building CXX object modules/objdetect/CMakeFiles/opencv_objdetect.dir/src/barcode_decoder/ean13_decoder.cpp.o
+[591/658] Building CXX object modules/objdetect/CMakeFiles/opencv_objdetect.dir/src/barcode_decoder/ean8_decoder.cpp.o
+[592/658] Building CXX object modules/objdetect/CMakeFiles/opencv_objdetect.dir/src/barcode_decoder/upcean_decoder.cpp.o
+[593/658] Building CXX object modules/objdetect/CMakeFiles/opencv_objdetect.dir/src/barcode_detector/bardetect.cpp.o
+[594/658] Building CXX object modules/objdetect/CMakeFiles/opencv_objdetect.dir/src/checkchessboard.cpp.o
+[595/658] Building CXX object modules/objdetect/CMakeFiles/opencv_objdetect.dir/src/face_detect.cpp.o
+[596/658] Building CXX object modules/objdetect/CMakeFiles/opencv_objdetect.dir/src/face_recognize.cpp.o
+[597/658] Building CXX object modules/objdetect/CMakeFiles/opencv_objdetect.dir/src/graphical_code_detector.cpp.o
+[598/658] Building CXX object modules/objdetect/CMakeFiles/opencv_objdetect.dir/src/circlesgrid.cpp.o
+[599/658] Building CXX object modules/objdetect/CMakeFiles/opencv_objdetect.dir/src/main.cpp.o
+[600/658] Building CXX object modules/objdetect/CMakeFiles/opencv_objdetect.dir/src/mcc/bound_min.cpp.o
+[601/658] Building CXX object modules/objdetect/CMakeFiles/opencv_objdetect.dir/src/mcc/charts.cpp.o
+[602/658] Building CXX object modules/objdetect/CMakeFiles/opencv_objdetect.dir/src/chessboard.cpp.o
+In file included from /usr/include/c++/13/bits/stl_algobase.h:64,
+                 from /usr/include/c++/13/algorithm:60,
+                 from /home/ubuntu/ocvsrc/opencv_5.x_2026-07-13T03_56_14Z/modules/core/include/opencv2/core/base.hpp:55,
+                 from /home/ubuntu/ocvsrc/opencv_5.x_2026-07-13T03_56_14Z/modules/core/include/opencv2/core.hpp:53,
+                 from /home/ubuntu/ocvsrc/opencv_5.x_2026-07-13T03_56_14Z/modules/objdetect/src/precomp.hpp:46,
+                 from /home/ubuntu/ocvsrc/opencv_5.x_2026-07-13T03_56_14Z/modules/objdetect/src/chessboard.cpp:5:
+/usr/include/c++/13/bits/stl_pair.h: In instantiation of ‘constexpr std::pair<typename std::__strip_reference_wrapper<typename std::decay<_Tp>::type>::__type, typename std::__strip_reference_wrapper<typename std::decay<_Tp2>::type>::__type> std::make_pair(_T1&&, _T2&&) [with _T1 = const cv::Point_<float>&; _T2 = const cv::Point_<float>&; typename __strip_reference_wrapper<typename decay<_Tp>::type>::__type = cv::Point_<float>; typename decay<_Tp>::type = cv::Point_<float>; typename __strip_reference_wrapper<typename decay<_Tp2>::type>::__type = cv::Point_<float>; typename decay<_Tp2>::type = cv::Point_<float>]’:
+/home/ubuntu/ocvsrc/opencv_5.x_2026-07-13T03_56_14Z/modules/objdetect/src/chessboard.cpp:3306:47:   required from here
+/usr/include/c++/13/bits/stl_pair.h:922:5: note: parameter passing for argument of type ‘std::pair<cv::Point_<float>, cv::Point_<float> >’ when C++17 is enabled changed to match C++14 in GCC 10.1
+  922 |     make_pair(_T1&& __x, _T2&& __y)
+      |     ^~~~~~~~~
+[603/658] Building CXX object modules/objdetect/CMakeFiles/opencv_objdetect.dir/src/calibinit.cpp.o
+[604/658] Building CXX object modules/objdetect/CMakeFiles/opencv_objdetect.dir/src/mcc/common.cpp.o
+[605/658] Building CXX object modules/objdetect/CMakeFiles/opencv_objdetect.dir/src/mcc/debug.cpp.o
+[606/658] Building CXX object modules/objdetect/CMakeFiles/opencv_objdetect.dir/src/mcc/checker_model.cpp.o
+[607/658] Building CXX object modules/objdetect/CMakeFiles/opencv_objdetect.dir/src/mcc/graph_cluster.cpp.o
+[608/658] Building CXX object modules/objdetect/CMakeFiles/opencv_objdetect.dir/src/mcc/wiener_filter.cpp.o
+[609/658] Building CXX object modules/objdetect/CMakeFiles/opencv_objdetect.dir/src/mcc/checker_detector.cpp.o
+[610/658] Processing OpenCL kernels (video)
+[611/658] Building CXX object modules/objdetect/CMakeFiles/opencv_objdetect.dir/src/quadsubpix.cpp.o
+[612/658] Building CXX object modules/video/CMakeFiles/opencv_video.dir/src/bgfg_KNN.cpp.o
+[613/658] Building CXX object modules/video/CMakeFiles/opencv_video.dir/src/bgfg_gaussmix2.cpp.o
+[614/658] Building CXX object modules/objdetect/CMakeFiles/opencv_objdetect.dir/src/qrcode_encoder.cpp.o
+[615/658] Building CXX object modules/video/CMakeFiles/opencv_video.dir/src/camshift.cpp.o
+[616/658] Building CXX object modules/video/CMakeFiles/opencv_video.dir/src/ecc.cpp.o
+[617/658] Building CXX object modules/video/CMakeFiles/opencv_video.dir/src/dis_flow.cpp.o
+[618/658] Building CXX object modules/video/CMakeFiles/opencv_video.dir/src/kalman.cpp.o
+[619/658] Building CXX object modules/video/CMakeFiles/opencv_video.dir/src/eccms.cpp.o
+[620/658] Building CXX object modules/video/CMakeFiles/opencv_video.dir/src/lkpyramid.cpp.o
+[621/658] Building CXX object modules/video/CMakeFiles/opencv_video.dir/src/lkpyramid.dispatch.cpp.o
+[622/658] Building CXX object modules/video/CMakeFiles/opencv_video.dir/src/optflowgf.cpp.o
+[623/658] Building CXX object modules/video/CMakeFiles/opencv_video.dir/src/tracking/detail/tracker_feature.cpp.o
+[624/658] Building CXX object modules/video/CMakeFiles/opencv_video.dir/src/optical_flow_io.cpp.o
+[625/658] Building CXX object modules/objdetect/CMakeFiles/opencv_objdetect.dir/src/qrcode.cpp.o
+[626/658] Linking CXX shared library lib/libopencv_objdetect.so.5.1.0
+[627/658] Creating library symlink lib/libopencv_objdetect.so.501 lib/libopencv_objdetect.so
+[628/658] Building CXX object modules/video/CMakeFiles/opencv_video.dir/src/tracking/detail/tracker_feature_set.cpp.o
+[629/658] Building CXX object modules/video/CMakeFiles/opencv_video.dir/src/tracking/detail/tracker_mil_model.cpp.o
+[630/658] Building CXX object modules/video/CMakeFiles/opencv_video.dir/src/tracking/detail/tracker_mil_state.cpp.o
+[631/658] Building CXX object modules/video/CMakeFiles/opencv_video.dir/src/tracking/detail/tracker_model.cpp.o
+[632/658] Building CXX object modules/video/CMakeFiles/opencv_video.dir/src/tracking/detail/tracker_sampler.cpp.o
+[633/658] Building CXX object modules/video/CMakeFiles/opencv_video.dir/src/tracking/detail/tracker_state_estimator.cpp.o
+[634/658] Building CXX object modules/video/CMakeFiles/opencv_video.dir/src/tracking/detail/tracker_sampler_algorithm.cpp.o
+[635/658] Building CXX object modules/video/CMakeFiles/opencv_video.dir/src/tracking/detail/tracking_feature.cpp.o
+[636/658] Building CXX object modules/video/CMakeFiles/opencv_video.dir/src/tracking/tracker.cpp.o
+[637/658] Building CXX object modules/video/CMakeFiles/opencv_video.dir/src/tracking/tracker_dasiamrpn.cpp.o
+[638/658] Building CXX object modules/video/CMakeFiles/opencv_video.dir/src/tracking/detail/tracking_online_mil.cpp.o
+[639/658] Building CXX object modules/video/CMakeFiles/opencv_video.dir/src/tracking/tracker_nano.cpp.o
+[640/658] Building CXX object modules/video/CMakeFiles/opencv_video.dir/src/tracking/tracker_vit.cpp.o
+[641/658] Building CXX object modules/video/CMakeFiles/opencv_video.dir/src/tracking/tracker_mil.cpp.o
+[642/658] Building CXX object modules/video/CMakeFiles/opencv_video.dir/opencl_kernels_video.cpp.o
+[643/658] Building CXX object modules/video/CMakeFiles/opencv_video.dir/src/variational_refinement.cpp.o
+[644/658] Linking CXX shared library lib/libopencv_video.so.5.1.0
+[645/658] Creating library symlink lib/libopencv_video.so.501 lib/libopencv_video.so
+[646/658] Building CXX object modules/calib/CMakeFiles/opencv_calib.dir/src/main.cpp.o
+[647/658] Building CXX object modules/calib/CMakeFiles/opencv_calib.dir/src/calibration_handeye.cpp.o
+[648/658] Building CXX object modules/calib/CMakeFiles/opencv_calib.dir/src/fisheye.cpp.o
+[649/658] Building CXX object modules/python3/CMakeFiles/opencv_python3.dir/__/src2/cv2_util.cpp.o
+[650/658] Building CXX object modules/calib/CMakeFiles/opencv_calib.dir/src/calibration.cpp.o
+[651/658] Building CXX object modules/python3/CMakeFiles/opencv_python3.dir/__/src2/cv2_numpy.cpp.o
+[652/658] Building CXX object modules/calib/CMakeFiles/opencv_calib.dir/src/multiview_calibration.cpp.o
+[653/658] Linking CXX shared library lib/libopencv_calib.so.5.1.0
+[654/658] Building CXX object modules/python3/CMakeFiles/opencv_python3.dir/__/src2/cv2_highgui.cpp.o
+[655/658] Creating library symlink lib/libopencv_calib.so.501 lib/libopencv_calib.so
+[656/658] Building CXX object modules/python3/CMakeFiles/opencv_python3.dir/__/src2/cv2_convert.cpp.o
+[657/658] Building CXX object modules/python3/CMakeFiles/opencv_python3.dir/__/src2/cv2.cpp.o
+[658/658] Linking CXX shared module lib/python3/cv2.cpython-312-aarch64-linux-gnu.so
+ninja: Entering directory `/home/ubuntu/ocvsrc/build_5.x_2026-07-13T03_56_14Z_kOFF'
+[0/1] Install the project...
+-- Install configuration: "Release"
+-- Installing: /home/ubuntu/ocv_snap_koff/share/licenses/opencv5/dlpack-LICENSE
+-- Installing: /home/ubuntu/ocv_snap_koff/share/licenses/opencv5/flatbuffers-LICENSE.txt
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/cvconfig.h
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/opencv_modules.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/lib/cmake/opencv5/OpenCVModules.cmake
+-- Installing: /home/ubuntu/ocv_snap_koff/lib/cmake/opencv5/OpenCVModules-release.cmake
+-- Installing: /home/ubuntu/ocv_snap_koff/lib/cmake/opencv5/OpenCVConfig-version.cmake
+-- Installing: /home/ubuntu/ocv_snap_koff/lib/cmake/opencv5/OpenCVConfig.cmake
+-- Installing: /home/ubuntu/ocv_snap_koff/bin/setup_vars_opencv5.sh
+-- Installing: /home/ubuntu/ocv_snap_koff/share/opencv5/valgrind.supp
+-- Installing: /home/ubuntu/ocv_snap_koff/share/opencv5/valgrind_3rdparty.supp
+-- Installing: /home/ubuntu/ocv_snap_koff/share/licenses/opencv5/zlib-LICENSE
+-- Installing: /home/ubuntu/ocv_snap_koff/share/licenses/opencv5/libjpeg-turbo-README.md
+-- Installing: /home/ubuntu/ocv_snap_koff/share/licenses/opencv5/libjpeg-turbo-LICENSE.md
+-- Installing: /home/ubuntu/ocv_snap_koff/share/licenses/opencv5/libjpeg-turbo-README.ijg
+-- Installing: /home/ubuntu/ocv_snap_koff/share/licenses/opencv5/libpng-LICENSE
+-- Installing: /home/ubuntu/ocv_snap_koff/share/licenses/opencv5/libpng-README
+-- Installing: /home/ubuntu/ocv_snap_koff/share/licenses/opencv5/clapack-lapack_LICENSE
+-- Installing: /home/ubuntu/ocv_snap_koff/share/licenses/opencv5/protobuf-LICENSE
+-- Installing: /home/ubuntu/ocv_snap_koff/share/licenses/opencv5/protobuf-README.md
+-- Installing: /home/ubuntu/ocv_snap_koff/share/licenses/opencv5/ittnotify-BSD-3-Clause.txt
+-- Installing: /home/ubuntu/ocv_snap_koff/share/licenses/opencv5/ittnotify-GPL-2.0-only.txt
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/opencv.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/lib/libopencv_core.so.5.1.0
+-- Installing: /home/ubuntu/ocv_snap_koff/lib/libopencv_core.so.501
+-- Set non-toolchain portion of runtime path of "/home/ubuntu/ocv_snap_koff/lib/libopencv_core.so.5.1.0" to "/home/ubuntu/ocv_snap_koff/lib"
+-- Installing: /home/ubuntu/ocv_snap_koff/lib/libopencv_core.so
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/affine.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/async.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/base.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/bindings_utils.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/bufferpool.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/check.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/core.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/cuda.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/cuda.inl.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/cuda/block.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/cuda/border_interpolate.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/cuda/color.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/cuda/common.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/cuda/cuda_compat.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/cuda/datamov_utils.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/cuda/detail/color_detail.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/cuda/detail/reduce.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/cuda/detail/reduce_key_val.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/cuda/detail/transform_detail.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/cuda/detail/type_traits_detail.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/cuda/detail/vec_distance_detail.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/cuda/dynamic_smem.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/cuda/emulation.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/cuda/filters.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/cuda/funcattrib.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/cuda/functional.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/cuda/limits.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/cuda/reduce.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/cuda/saturate_cast.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/cuda/scan.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/cuda/simd_functions.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/cuda/transform.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/cuda/type_traits.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/cuda/utility.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/cuda/vec_distance.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/cuda/vec_math.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/cuda/vec_traits.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/cuda/warp.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/cuda/warp_reduce.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/cuda/warp_shuffle.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/cuda_stream_accessor.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/cuda_types.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/cv_cpu_dispatch.h
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/cv_cpu_helper.h
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/cvdef.h
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/cvstd.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/cvstd.inl.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/cvstd_wrapper.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/detail/async_promise.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/detail/dispatch_helper.impl.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/detail/exception_ptr.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/directx.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/dualquaternion.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/dualquaternion.inl.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/eigen.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/exception.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/fast_math.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/fwddecl.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/hal/hal.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/hal/interface.h
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/hal/intrin.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/hal/intrin_avx.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/hal/intrin_avx512.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/hal/intrin_cpp.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/hal/intrin_forward.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/hal/intrin_lasx.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/hal/intrin_legacy_ops.h
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/hal/intrin_lsx.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/hal/intrin_math.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/hal/intrin_msa.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/hal/intrin_neon.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/hal/intrin_rvv071.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/hal/intrin_rvv_scalable.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/hal/intrin_sse.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/hal/intrin_sse_em.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/hal/intrin_vsx.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/hal/intrin_wasm.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/hal/msa_macros.h
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/hal/simd_utils.impl.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/mat.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/mat.inl.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/matx.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/matx.inl.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/neon_utils.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/ocl.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/ocl_genbase.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/opencl/ocl_defs.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/opencl/opencl_info.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/opencl/opencl_svm.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/opencl/runtime/autogenerated/opencl_clblas.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/opencl/runtime/autogenerated/opencl_clfft.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/opencl/runtime/autogenerated/opencl_core.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/opencl/runtime/autogenerated/opencl_core_wrappers.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/opencl/runtime/autogenerated/opencl_gl.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/opencl/runtime/autogenerated/opencl_gl_wrappers.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/opencl/runtime/opencl_clblas.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/opencl/runtime/opencl_clfft.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/opencl/runtime/opencl_core.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/opencl/runtime/opencl_core_wrappers.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/opencl/runtime/opencl_gl.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/opencl/runtime/opencl_gl_wrappers.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/opencl/runtime/opencl_svm_20.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/opencl/runtime/opencl_svm_definitions.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/opencl/runtime/opencl_svm_hsa_extension.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/opengl.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/operations.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/optim.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/parallel/backend/parallel_for.openmp.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/parallel/backend/parallel_for.tbb.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/parallel/parallel_backend.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/persistence.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/quaternion.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/quaternion.inl.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/saturate.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/simd_intrinsics.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/softfloat.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/traits.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/types.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/utility.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/utils/allocator_stats.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/utils/allocator_stats.impl.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/utils/filesystem.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/utils/fp_control_utils.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/utils/instrumentation.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/utils/logger.defines.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/utils/logger.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/utils/logtag.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/utils/tls.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/utils/trace.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/va_intel.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/version.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/core/vsx_utils.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/share/licenses/opencv5/SoftFloat-COPYING.txt
+-- Installing: /home/ubuntu/ocv_snap_koff/lib/libopencv_flann.so.5.1.0
+-- Installing: /home/ubuntu/ocv_snap_koff/lib/libopencv_flann.so.501
+-- Set non-toolchain portion of runtime path of "/home/ubuntu/ocv_snap_koff/lib/libopencv_flann.so.5.1.0" to "/home/ubuntu/ocv_snap_koff/lib"
+-- Installing: /home/ubuntu/ocv_snap_koff/lib/libopencv_flann.so
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/flann.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/flann/all_indices.h
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/flann/allocator.h
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/flann/any.h
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/flann/autotuned_index.h
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/flann/composite_index.h
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/flann/config.h
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/flann/defines.h
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/flann/dist.h
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/flann/dummy.h
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/flann/dynamic_bitset.h
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/flann/flann.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/flann/flann_base.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/flann/general.h
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/flann/ground_truth.h
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/flann/heap.h
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/flann/hierarchical_clustering_index.h
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/flann/index_testing.h
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/flann/kdtree_index.h
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/flann/kdtree_single_index.h
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/flann/kmeans_index.h
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/flann/linear_index.h
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/flann/logger.h
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/flann/lsh_index.h
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/flann/lsh_table.h
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/flann/matrix.h
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/flann/miniflann.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/flann/nn_index.h
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/flann/object_factory.h
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/flann/params.h
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/flann/random.h
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/flann/result_set.h
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/flann/sampling.h
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/flann/saving.h
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/flann/simplex_downhill.h
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/flann/timer.h
+-- Installing: /home/ubuntu/ocv_snap_koff/lib/libopencv_geometry.so.5.1.0
+-- Installing: /home/ubuntu/ocv_snap_koff/lib/libopencv_geometry.so.501
+-- Set non-toolchain portion of runtime path of "/home/ubuntu/ocv_snap_koff/lib/libopencv_geometry.so.5.1.0" to "/home/ubuntu/ocv_snap_koff/lib"
+-- Installing: /home/ubuntu/ocv_snap_koff/lib/libopencv_geometry.so
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/geometry.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/geometry/2d.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/geometry/3d.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/geometry/detail/gcgraph.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/geometry/detail/optimizer.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/geometry/mst.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/geometry/segment.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/lib/libopencv_imgproc.so.5.1.0
+-- Installing: /home/ubuntu/ocv_snap_koff/lib/libopencv_imgproc.so.501
+-- Set non-toolchain portion of runtime path of "/home/ubuntu/ocv_snap_koff/lib/libopencv_imgproc.so.5.1.0" to "/home/ubuntu/ocv_snap_koff/lib"
+-- Installing: /home/ubuntu/ocv_snap_koff/lib/libopencv_imgproc.so
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/imgproc.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/imgproc/bindings.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/imgproc/hal/hal.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/imgproc/hal/interface.h
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/imgproc/imgproc.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/share/licenses/opencv5/fonts-Rubik_OFL.txt
+-- Installing: /home/ubuntu/ocv_snap_koff/share/licenses/opencv5/harfbuzz-COPYING
+-- Installing: /home/ubuntu/ocv_snap_koff/lib/libopencv_stereo.so.5.1.0
+-- Installing: /home/ubuntu/ocv_snap_koff/lib/libopencv_stereo.so.501
+-- Set non-toolchain portion of runtime path of "/home/ubuntu/ocv_snap_koff/lib/libopencv_stereo.so.5.1.0" to "/home/ubuntu/ocv_snap_koff/lib"
+-- Installing: /home/ubuntu/ocv_snap_koff/lib/libopencv_stereo.so
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/stereo.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/lib/libopencv_features.so.5.1.0
+-- Installing: /home/ubuntu/ocv_snap_koff/lib/libopencv_features.so.501
+-- Set non-toolchain portion of runtime path of "/home/ubuntu/ocv_snap_koff/lib/libopencv_features.so.5.1.0" to "/home/ubuntu/ocv_snap_koff/lib"
+-- Installing: /home/ubuntu/ocv_snap_koff/lib/libopencv_features.so
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/features.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/features/features.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/features/hal/interface.h
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/features2d.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/share/licenses/opencv5/mscr-chi_table_LICENSE.txt
+-- Installing: /home/ubuntu/ocv_snap_koff/share/licenses/opencv5/annoylib-LICENSE
+-- Installing: /home/ubuntu/ocv_snap_koff/lib/libopencv_imgcodecs.so.5.1.0
+-- Installing: /home/ubuntu/ocv_snap_koff/lib/libopencv_imgcodecs.so.501
+-- Set non-toolchain portion of runtime path of "/home/ubuntu/ocv_snap_koff/lib/libopencv_imgcodecs.so.5.1.0" to "/home/ubuntu/ocv_snap_koff/lib"
+-- Installing: /home/ubuntu/ocv_snap_koff/lib/libopencv_imgcodecs.so
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/imgcodecs.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/imgcodecs/imgcodecs.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/imgcodecs/ios.h
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/imgcodecs/macosx.h
+-- Installing: /home/ubuntu/ocv_snap_koff/lib/libopencv_objdetect.so.5.1.0
+-- Installing: /home/ubuntu/ocv_snap_koff/lib/libopencv_objdetect.so.501
+-- Set non-toolchain portion of runtime path of "/home/ubuntu/ocv_snap_koff/lib/libopencv_objdetect.so.5.1.0" to "/home/ubuntu/ocv_snap_koff/lib"
+-- Installing: /home/ubuntu/ocv_snap_koff/lib/libopencv_objdetect.so
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/objdetect.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/objdetect/aruco_board.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/objdetect/aruco_detector.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/objdetect/aruco_dictionary.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/objdetect/barcode.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/objdetect/charuco_detector.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/objdetect/face.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/objdetect/graphical_code_detector.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/objdetect/mcc_checker_detector.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/objdetect/objdetect.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/lib/libopencv_video.so.5.1.0
+-- Installing: /home/ubuntu/ocv_snap_koff/lib/libopencv_video.so.501
+-- Set non-toolchain portion of runtime path of "/home/ubuntu/ocv_snap_koff/lib/libopencv_video.so.5.1.0" to "/home/ubuntu/ocv_snap_koff/lib"
+-- Installing: /home/ubuntu/ocv_snap_koff/lib/libopencv_video.so
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/video.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/video/background_segm.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/video/detail/tracking.detail.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/video/legacy/constants_c.h
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/video/tracking.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/video/video.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/lib/libopencv_calib.so.5.1.0
+-- Installing: /home/ubuntu/ocv_snap_koff/lib/libopencv_calib.so.501
+-- Set non-toolchain portion of runtime path of "/home/ubuntu/ocv_snap_koff/lib/libopencv_calib.so.5.1.0" to "/home/ubuntu/ocv_snap_koff/lib"
+-- Installing: /home/ubuntu/ocv_snap_koff/lib/libopencv_calib.so
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/calib.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/include/opencv5/opencv2/calib3d.hpp
+-- Installing: /home/ubuntu/ocv_snap_koff/lib/python3.12/site-packages/cv2/__init__.py
+-- Installing: /home/ubuntu/ocv_snap_koff/lib/python3.12/site-packages/cv2/load_config_py2.py
+-- Installing: /home/ubuntu/ocv_snap_koff/lib/python3.12/site-packages/cv2/load_config_py3.py
+-- Installing: /home/ubuntu/ocv_snap_koff/lib/python3.12/site-packages/cv2/config.py
+-- Installing: /home/ubuntu/ocv_snap_koff/lib/python3.12/site-packages/cv2/misc/__init__.py
+-- Installing: /home/ubuntu/ocv_snap_koff/lib/python3.12/site-packages/cv2/misc/version.py
+-- Installing: /home/ubuntu/ocv_snap_koff/lib/python3.12/site-packages/cv2/mat_wrapper/__init__.py
+-- Installing: /home/ubuntu/ocv_snap_koff/lib/python3.12/site-packages/cv2/utils/__init__.py
+-- Up-to-date: /home/ubuntu/ocv_snap_koff/lib/python3.12/site-packages/cv2
+-- Installing: /home/ubuntu/ocv_snap_koff/lib/python3.12/site-packages/cv2/fisheye
+-- Installing: /home/ubuntu/ocv_snap_koff/lib/python3.12/site-packages/cv2/fisheye/__init__.pyi
+-- Installing: /home/ubuntu/ocv_snap_koff/lib/python3.12/site-packages/cv2/ocl
+-- Installing: /home/ubuntu/ocv_snap_koff/lib/python3.12/site-packages/cv2/ocl/__init__.pyi
+-- Installing: /home/ubuntu/ocv_snap_koff/lib/python3.12/site-packages/cv2/barcode
+-- Installing: /home/ubuntu/ocv_snap_koff/lib/python3.12/site-packages/cv2/barcode/__init__.pyi
+-- Installing: /home/ubuntu/ocv_snap_koff/lib/python3.12/site-packages/cv2/detail
+-- Installing: /home/ubuntu/ocv_snap_koff/lib/python3.12/site-packages/cv2/detail/__init__.pyi
+-- Installing: /home/ubuntu/ocv_snap_koff/lib/python3.12/site-packages/cv2/instr
+-- Installing: /home/ubuntu/ocv_snap_koff/lib/python3.12/site-packages/cv2/instr/__init__.pyi
+-- Up-to-date: /home/ubuntu/ocv_snap_koff/lib/python3.12/site-packages/cv2/utils
+-- Installing: /home/ubuntu/ocv_snap_koff/lib/python3.12/site-packages/cv2/utils/logging
+-- Installing: /home/ubuntu/ocv_snap_koff/lib/python3.12/site-packages/cv2/utils/logging/__init__.pyi
+-- Installing: /home/ubuntu/ocv_snap_koff/lib/python3.12/site-packages/cv2/utils/fs
+-- Installing: /home/ubuntu/ocv_snap_koff/lib/python3.12/site-packages/cv2/utils/fs/__init__.pyi
+-- Installing: /home/ubuntu/ocv_snap_koff/lib/python3.12/site-packages/cv2/utils/nested
+-- Installing: /home/ubuntu/ocv_snap_koff/lib/python3.12/site-packages/cv2/utils/nested/__init__.pyi
+-- Installing: /home/ubuntu/ocv_snap_koff/lib/python3.12/site-packages/cv2/utils/__init__.pyi
+-- Installing: /home/ubuntu/ocv_snap_koff/lib/python3.12/site-packages/cv2/flann
+-- Installing: /home/ubuntu/ocv_snap_koff/lib/python3.12/site-packages/cv2/flann/__init__.pyi
+-- Installing: /home/ubuntu/ocv_snap_koff/lib/python3.12/site-packages/cv2/ipp
+-- Installing: /home/ubuntu/ocv_snap_koff/lib/python3.12/site-packages/cv2/ipp/__init__.pyi
+-- Installing: /home/ubuntu/ocv_snap_koff/lib/python3.12/site-packages/cv2/Error
+-- Installing: /home/ubuntu/ocv_snap_koff/lib/python3.12/site-packages/cv2/Error/__init__.pyi
+-- Installing: /home/ubuntu/ocv_snap_koff/lib/python3.12/site-packages/cv2/py.typed
+-- Installing: /home/ubuntu/ocv_snap_koff/lib/python3.12/site-packages/cv2/aruco
+-- Installing: /home/ubuntu/ocv_snap_koff/lib/python3.12/site-packages/cv2/aruco/__init__.pyi
+-- Installing: /home/ubuntu/ocv_snap_koff/lib/python3.12/site-packages/cv2/typing
+-- Installing: /home/ubuntu/ocv_snap_koff/lib/python3.12/site-packages/cv2/typing/__init__.py
+-- Installing: /home/ubuntu/ocv_snap_koff/lib/python3.12/site-packages/cv2/mcc
+-- Installing: /home/ubuntu/ocv_snap_koff/lib/python3.12/site-packages/cv2/mcc/__init__.pyi
+-- Installing: /home/ubuntu/ocv_snap_koff/lib/python3.12/site-packages/cv2/parallel
+-- Installing: /home/ubuntu/ocv_snap_koff/lib/python3.12/site-packages/cv2/parallel/__init__.pyi
+-- Installing: /home/ubuntu/ocv_snap_koff/lib/python3.12/site-packages/cv2/ogl
+-- Installing: /home/ubuntu/ocv_snap_koff/lib/python3.12/site-packages/cv2/ogl/__init__.pyi
+-- Installing: /home/ubuntu/ocv_snap_koff/lib/python3.12/site-packages/cv2/__init__.pyi
+-- Installing: /home/ubuntu/ocv_snap_koff/lib/python3.12/site-packages/cv2/cuda
+-- Installing: /home/ubuntu/ocv_snap_koff/lib/python3.12/site-packages/cv2/cuda/__init__.pyi
+-- Installing: /home/ubuntu/ocv_snap_koff/lib/python3.12/site-packages/cv2/samples
+-- Installing: /home/ubuntu/ocv_snap_koff/lib/python3.12/site-packages/cv2/samples/__init__.pyi
+-- Installing: /home/ubuntu/ocv_snap_koff/lib/python3.12/site-packages/cv2/python-3.12/cv2.cpython-312-aarch64-linux-gnu.so
+-- Set non-toolchain portion of runtime path of "/home/ubuntu/ocv_snap_koff/lib/python3.12/site-packages/cv2/python-3.12/cv2.cpython-312-aarch64-linux-gnu.so" to "/home/ubuntu/ocv_snap_koff/lib"
+-- Installing: /home/ubuntu/ocv_snap_koff/lib/python3.12/site-packages/cv2/config-3.12.py

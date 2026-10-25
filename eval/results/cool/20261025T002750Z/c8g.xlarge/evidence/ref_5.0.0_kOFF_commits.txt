@@ -1,0 +1,5 @@
+opencv 40738fb16ceddb5fb3fea747585f7ce6abb0605b 2026-06-05T21:50:05+03:00 ref 5.0.0
+opencv_contrib 755e50675d97db9b7d449d8bd6b09888646f6c6e ref 5.0.0
+gcc gcc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0
+cmake cmake version 3.28.3
+kleidicv=OFF contrib=1

@@ -1,0 +1,115 @@
+== start 2026-10-25T02:23:29Z mode=ccl vcpu=4
+== date
+Sun Oct 25 02:23:30 UTC 2026
+Linux ip-172-31-46-72 6.17.0-1019-aws #19~24.04.1-Ubuntu SMP Tue Jun 23 18:34:05 UTC 2026 aarch64 aarch64 aarch64 GNU/Linux
+PRETTY_NAME="Ubuntu 24.04.3 LTS"
+NAME="Ubuntu"
+VERSION_ID="24.04"
+VERSION="24.04.3 LTS (Noble Numbat)"
+== lscpu
+Architecture:                            aarch64
+CPU op-mode(s):                          64-bit
+Byte Order:                              Little Endian
+CPU(s):                                  4
+On-line CPU(s) list:                     0-3
+Vendor ID:                               ARM
+Model name:                              Neoverse-V2
+Model:                                   1
+Thread(s) per core:                      1
+Core(s) per socket:                      4
+Socket(s):                               1
+Stepping:                                r0p1
+BogoMIPS:                                2000.00
+Flags:                                   fp asimd evtstrm aes pmull sha1 sha2 crc32 atomics fphp asimdhp cpuid asimdrdm jscvt fcma lrcpc dcpop sha3 asimddp sha512 sve asimdfhm dit uscat ilrcpc flagm sb paca pacg dcpodp sve2 sveaes svepmull svebitperm svesha3 flagm2 frint svei8mm svebf16 i8mm bf16 dgh rng bti
+L1d cache:                               256 KiB (4 instances)
+L1i cache:                               256 KiB (4 instances)
+L2 cache:                                8 MiB (4 instances)
+L3 cache:                                36 MiB (1 instance)
+NUMA node(s):                            1
+NUMA node0 CPU(s):                       0-3
+Vulnerability Gather data sampling:      Not affected
+Vulnerability Ghostwrite:                Not affected
+Vulnerability Indirect target selection: Not affected
+Vulnerability Itlb multihit:             Not affected
+Vulnerability L1tf:                      Not affected
+Vulnerability Mds:                       Not affected
+Vulnerability Meltdown:                  Not affected
+Vulnerability Mmio stale data:           Not affected
+Vulnerability Old microcode:             Not affected
+Vulnerability Reg file data sampling:    Not affected
+Vulnerability Retbleed:                  Not affected
+Vulnerability Spec rstack overflow:      Not affected
+Vulnerability Spec store bypass:         Mitigation; Speculative Store Bypass disabled via prctl
+Vulnerability Spectre v1:                Mitigation; __user pointer sanitization
+Vulnerability Spectre v2:                Mitigation; CSV2, BHB
+Vulnerability Srbds:                     Not affected
+Vulnerability Tsa:                       Not affected
+Vulnerability Tsx async abort:           Not affected
+Vulnerability Vmscape:                   Not affected
+== IMDSv2
+instance-type=c8g.xlarge
+ami-id=ami-033e481a24f94c8cb
+instance-id=i-0d457901fabdbb3a7
+placement/availability-zone=us-east-1d
+== /opt/cool
+total 32
+drwxr-xr-x 8 root root 4096 Jul 13 07:45 .
+drwxr-xr-x 7 root root 4096 Oct 25 02:22 ..
+drwxr-xr-x 4 root root 4096 Jul 13 07:45 cpp_sdk
+drwxr-xr-x 3 root root 4096 Jul 13 07:45 python_3.10
+drwxr-xr-x 3 root root 4096 Jul 13 07:45 python_3.11
+drwxr-xr-x 3 root root 4096 Jul 13 07:45 python_3.12
+sweep configs: 1x1,1x2,1x4,2x1,4x1,2x2
+5.0.0 /home/ubuntu/venv_pip/lib/python3.12/site-packages/cv2/__init__.py 2.5.1
+== bench cool_t1 02:24:08 elapsed 39s
+[cool_t1] cv2 5.1.0-dev from /opt/cool/python_3.12/site-packages/cv2/python-3.12/cv2.cpython-312-aarch64-linux-gnu.so  threads=4 inputs=43 
+[cool_t1] ximgproc.thinning: shim
+[cool_t1] headline: 43 frames x 3 reps in 40.8s (3.16 fps in-process)
+[cool_t1] trace done (43 images)
+[cool_t1] done in 94s -> /home/ubuntu/results/cool_t1
+== bench pip_t1 02:25:43 elapsed 134s
+[pip_t1] cv2 5.0.0 from /home/ubuntu/venv_pip/lib/python3.12/site-packages/cv2/__init__.py  threads=4 inputs=43 
+[pip_t1] ximgproc.thinning: shim
+[pip_t1] headline: 43 frames x 3 reps in 40.9s (3.15 fps in-process)
+[pip_t1] trace done (43 images)
+[pip_t1] done in 94s -> /home/ubuntu/results/pip_t1
+== bench pip_t1_bbdt 02:27:17 elapsed 228s
+[pip_t1_bbdt] cv2 5.0.0 from /home/ubuntu/venv_pip/lib/python3.12/site-packages/cv2/__init__.py  threads=4 inputs=43 
+[pip_t1_bbdt] ximgproc.thinning: shim
+[pip_t1_bbdt] headline: 43 frames x 3 reps in 40.8s (3.16 fps in-process)
+[pip_t1_bbdt] trace done (43 images)
+[pip_t1_bbdt] done in 93s -> /home/ubuntu/results/pip_t1_bbdt
+== bench cool_t1_bbdt 02:28:51 elapsed 322s
+[cool_t1_bbdt] cv2 5.1.0-dev from /opt/cool/python_3.12/site-packages/cv2/python-3.12/cv2.cpython-312-aarch64-linux-gnu.so  threads=4 inputs=43 
+[cool_t1_bbdt] ximgproc.thinning: shim
+[cool_t1_bbdt] headline: 43 frames x 3 reps in 40.9s (3.16 fps in-process)
+[cool_t1_bbdt] trace done (43 images)
+[cool_t1_bbdt] done in 94s -> /home/ubuntu/results/cool_t1_bbdt
+== bench pip_t4 02:30:25 elapsed 416s
+[pip_t4] cv2 5.0.0 from /home/ubuntu/venv_pip/lib/python3.12/site-packages/cv2/__init__.py  threads=4 inputs=43 
+[pip_t4] ximgproc.thinning: shim
+[pip_t4] headline: 43 frames x 5 reps in 45.2s (4.76 fps in-process)
+[pip_t4] trace done (43 images)
+[pip_t4] done in 85s -> /home/ubuntu/results/pip_t4
+== bench pip_t4_bbdt 02:31:50 elapsed 501s
+[pip_t4_bbdt] cv2 5.0.0 from /home/ubuntu/venv_pip/lib/python3.12/site-packages/cv2/__init__.py  threads=4 inputs=43 
+[pip_t4_bbdt] ximgproc.thinning: shim
+[pip_t4_bbdt] headline: 43 frames x 5 reps in 45.5s (4.73 fps in-process)
+[pip_t4_bbdt] sweep 1x2: 3.97 fps  e2e p50 224 ms p95 361 ms  (18s)
+[pip_t4_bbdt] sweep 1x4: 4.49 fps  e2e p50 194 ms p95 323 ms  (15s)
+[pip_t4_bbdt] sweep 2x2: 7.77 fps  e2e p50 227 ms p95 381 ms  (9s)
+[pip_t4_bbdt] sweep 4x1: 11.56 fps  e2e p50 317 ms p95 472 ms  (7s)
+[pip_t4_bbdt] trace done (43 images)
+[pip_t4_bbdt] done in 134s -> /home/ubuntu/results/pip_t4_bbdt
+== bench cool_t4_bbdt 02:34:05 elapsed 636s
+[cool_t4_bbdt] cv2 5.1.0-dev from /opt/cool/python_3.12/site-packages/cv2/python-3.12/cv2.cpython-312-aarch64-linux-gnu.so  threads=4 inputs=43 
+[cool_t4_bbdt] ximgproc.thinning: shim
+[cool_t4_bbdt] headline: 43 frames x 5 reps in 44.3s (4.85 fps in-process)
+[cool_t4_bbdt] sweep 1x2: 3.92 fps  e2e p50 227 ms p95 364 ms  (18s)
+[cool_t4_bbdt] sweep 1x4: 4.60 fps  e2e p50 186 ms p95 328 ms  (15s)
+[cool_t4_bbdt] sweep 2x2: 7.65 fps  e2e p50 233 ms p95 380 ms  (10s)
+[cool_t4_bbdt] sweep 4x1: 11.35 fps  e2e p50 324 ms p95 477 ms  (7s)
+[cool_t4_bbdt] micro done
+[cool_t4_bbdt] trace done (43 images)
+[cool_t4_bbdt] done in 165s -> /home/ubuntu/results/cool_t4_bbdt
+== end 2026-10-25T02:36:51Z elapsed 802s

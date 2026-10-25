@@ -1,0 +1,185 @@
+== start 2026-10-25T00:59:17Z mode=main vcpu=4
+== date
+Sun Oct 25 00:59:17 UTC 2026
+Linux ip-172-31-36-233 6.17.0-1019-aws #19~24.04.1-Ubuntu SMP Tue Jun 23 18:34:05 UTC 2026 aarch64 aarch64 aarch64 GNU/Linux
+PRETTY_NAME="Ubuntu 24.04.3 LTS"
+NAME="Ubuntu"
+VERSION_ID="24.04"
+VERSION="24.04.3 LTS (Noble Numbat)"
+== lscpu
+Architecture:                            aarch64
+CPU op-mode(s):                          64-bit
+Byte Order:                              Little Endian
+CPU(s):                                  4
+On-line CPU(s) list:                     0-3
+Vendor ID:                               ARM
+Model name:                              Neoverse-V2
+Model:                                   1
+Thread(s) per core:                      1
+Core(s) per socket:                      4
+Socket(s):                               1
+Stepping:                                r0p1
+BogoMIPS:                                2000.00
+Flags:                                   fp asimd evtstrm aes pmull sha1 sha2 crc32 atomics fphp asimdhp cpuid asimdrdm jscvt fcma lrcpc dcpop sha3 asimddp sha512 sve asimdfhm dit uscat ilrcpc flagm sb paca pacg dcpodp sve2 sveaes svepmull svebitperm svesha3 flagm2 frint svei8mm svebf16 i8mm bf16 dgh rng bti
+L1d cache:                               256 KiB (4 instances)
+L1i cache:                               256 KiB (4 instances)
+L2 cache:                                8 MiB (4 instances)
+L3 cache:                                36 MiB (1 instance)
+NUMA node(s):                            1
+NUMA node0 CPU(s):                       0-3
+Vulnerability Gather data sampling:      Not affected
+Vulnerability Ghostwrite:                Not affected
+Vulnerability Indirect target selection: Not affected
+Vulnerability Itlb multihit:             Not affected
+Vulnerability L1tf:                      Not affected
+Vulnerability Mds:                       Not affected
+Vulnerability Meltdown:                  Not affected
+Vulnerability Mmio stale data:           Not affected
+Vulnerability Old microcode:             Not affected
+Vulnerability Reg file data sampling:    Not affected
+Vulnerability Retbleed:                  Not affected
+Vulnerability Spec rstack overflow:      Not affected
+Vulnerability Spec store bypass:         Mitigation; Speculative Store Bypass disabled via prctl
+Vulnerability Spectre v1:                Mitigation; __user pointer sanitization
+Vulnerability Spectre v2:                Mitigation; CSV2, BHB
+Vulnerability Srbds:                     Not affected
+Vulnerability Tsa:                       Not affected
+Vulnerability Tsx async abort:           Not affected
+Vulnerability Vmscape:                   Not affected
+== IMDSv2
+instance-type=c8g.xlarge
+ami-id=ami-033e481a24f94c8cb
+instance-id=i-0a328538d462d3fb9
+placement/availability-zone=us-east-1d
+== /opt/cool
+total 32
+drwxr-xr-x 8 root root 4096 Jul 13 07:45 .
+drwxr-xr-x 7 root root 4096 Oct 25 00:49 ..
+drwxr-xr-x 4 root root 4096 Jul 13 07:45 cpp_sdk
+drwxr-xr-x 3 root root 4096 Jul 13 07:45 python_3.10
+drwxr-xr-x 3 root root 4096 Jul 13 07:45 python_3.11
+drwxr-xr-x 3 root root 4096 Jul 13 07:45 python_3.12
+sweep configs: 1x1,1x2,1x4,2x1,4x1,2x2
+5.0.0 /home/ubuntu/venv_pip/lib/python3.12/site-packages/cv2/__init__.py 2.5.1
+== bench cool 00:59:20 elapsed 3s
+[cool] cv2 5.1.0-dev from /opt/cool/python_3.12/site-packages/cv2/python-3.12/cv2.cpython-312-aarch64-linux-gnu.so  threads=4 inputs=85 
+[cool] ximgproc.thinning: shim
+[cool] headline: 85 frames x 5 reps in 135.0s (3.15 fps in-process)
+[cool] sweep 1x1: 3.10 fps  e2e p50 327 ms p95 460 ms  (43s)
+corrupted size vs. prev_size
+[cool] sweep 1x2: FAILED BrokenProcessPool: A process in the process pool was terminated abruptly while the future was running or pending.
+corrupted size vs. prev_size
+[cool] sweep 1x4: FAILED BrokenProcessPool: A process in the process pool was terminated abruptly while the future was running or pending.
+[cool] sweep 2x1: 6.09 fps  e2e p50 329 ms p95 465 ms  (22s)
+[cool] sweep 4x1: 11.69 fps  e2e p50 342 ms p95 468 ms  (12s)
+corrupted size vs. prev_size
+corrupted size vs. prev_size
+[cool] sweep 2x2: FAILED BrokenProcessPool: A process in the process pool was terminated abruptly while the future was running or pending.
+[cool] micro done
+[cool] trace done (85 images)
+[cool] done in 362s -> /home/ubuntu/results/cool
+== bench pip 01:05:23 elapsed 366s
+[pip] cv2 5.0.0 from /home/ubuntu/venv_pip/lib/python3.12/site-packages/cv2/__init__.py  threads=4 inputs=85 
+[pip] ximgproc.thinning: shim
+[pip] headline: 85 frames x 5 reps in 136.8s (3.11 fps in-process)
+[pip] sweep 1x1: 3.06 fps  e2e p50 331 ms p95 460 ms  (43s)
+[pip] sweep 1x2: 4.09 fps  e2e p50 236 ms p95 373 ms  (32s)
+[pip] sweep 1x4: 4.63 fps  e2e p50 201 ms p95 335 ms  (29s)
+[pip] sweep 2x1: 6.06 fps  e2e p50 332 ms p95 463 ms  (22s)
+[pip] sweep 4x1: 11.75 fps  e2e p50 338 ms p95 477 ms  (12s)
+[pip] sweep 2x2: 7.97 fps  e2e p50 242 ms p95 378 ms  (17s)
+[pip] micro done
+[pip] trace done (85 images)
+[pip] done in 419s -> /home/ubuntu/results/pip
+== bench pip_native 01:12:23 elapsed 786s
+[pip_native] cv2 5.0.0 from /home/ubuntu/venv_pip/lib/python3.12/site-packages/cv2/__init__.py  threads=4 inputs=85 
+[pip_native] ximgproc.thinning: native
+[pip_native] headline: 85 frames x 3 reps in 83.5s (3.05 fps in-process)
+[pip_native] trace done (85 images)
+[pip_native] done in 190s -> /home/ubuntu/results/pip_native
+Note: switching to '40738fb16ceddb5fb3fea747585f7ce6abb0605b'.
+
+You are in 'detached HEAD' state. You can look around, make experimental
+changes and commit them, and you can discard any commits you make in this
+state without impacting any branches by switching back to a branch.
+
+If you want to create a new branch to retain commits you create, you may
+do so (now or later) by using -c with the switch command. Example:
+
+  git switch -c <new-branch-name>
+
+Or undo this operation with:
+
+  git switch -
+
+Turn off this advice by setting config variable advice.detachedHead to false
+
+Note: switching to '755e50675d97db9b7d449d8bd6b09888646f6c6e'.
+
+You are in 'detached HEAD' state. You can look around, make experimental
+changes and commit them, and you can discard any commits you make in this
+state without impacting any branches by switching back to a branch.
+
+If you want to create a new branch to retain commits you create, you may
+do so (now or later) by using -c with the switch command. Example:
+
+  git switch -c <new-branch-name>
+
+Or undo this operation with:
+
+  git switch -
+
+Turn off this advice by setting config variable advice.detachedHead to false
+
+ok: cv2 in /home/ubuntu/ocv_500_koff/lib/python3.12/site-packages
+5.0.0 /home/ubuntu/ocv_500_koff/lib/python3.12/site-packages/cv2/__init__.py 2.5.1
+== bench ref 01:20:29 elapsed 1272s
+[ref] cv2 5.0.0 from /home/ubuntu/ocv_500_koff/lib/python3.12/site-packages/cv2/__init__.py  threads=4 inputs=85 
+[ref] ximgproc.thinning: shim
+[ref] headline: 85 frames x 5 reps in 138.3s (3.07 fps in-process)
+[ref] sweep 1x1: 3.03 fps  e2e p50 334 ms p95 470 ms  (44s)
+[ref] sweep 1x2: 3.94 fps  e2e p50 250 ms p95 381 ms  (34s)
+[ref] sweep 1x4: 4.53 fps  e2e p50 208 ms p95 341 ms  (29s)
+[ref] sweep 2x1: 5.95 fps  e2e p50 338 ms p95 473 ms  (23s)
+[ref] sweep 4x1: 11.43 fps  e2e p50 346 ms p95 483 ms  (12s)
+[ref] sweep 2x2: 7.79 fps  e2e p50 245 ms p95 386 ms  (18s)
+[ref] micro done
+[ref] trace done (85 images)
+[ref] done in 426s -> /home/ubuntu/results/ref
+== bench ref_native 01:27:35 elapsed 1698s
+[ref_native] cv2 5.0.0 from /home/ubuntu/ocv_500_koff/lib/python3.12/site-packages/cv2/__init__.py  threads=4 inputs=85 
+[ref_native] ximgproc.thinning: native
+[ref_native] headline: 85 frames x 3 reps in 85.5s (2.98 fps in-process)
+[ref_native] done in 114s -> /home/ubuntu/results/ref_native
+== bench cool_repeat 01:29:30 elapsed 1813s
+[cool_repeat] cv2 5.1.0-dev from /opt/cool/python_3.12/site-packages/cv2/python-3.12/cv2.cpython-312-aarch64-linux-gnu.so  threads=4 inputs=85 
+[cool_repeat] ximgproc.thinning: shim
+[cool_repeat] headline: 85 frames x 3 reps in 81.6s (3.12 fps in-process)
+[cool_repeat] done in 109s -> /home/ubuntu/results/cool_repeat
+ok: cv2 in /home/ubuntu/ocv_snap_kon/lib/python3.12/site-packages
+5.1.0-dev /home/ubuntu/ocv_snap_kon/lib/python3.12/site-packages/cv2/__init__.py 2.5.1
+== bench snap_kon 01:36:13 elapsed 2216s
+[snap_kon] cv2 5.1.0-dev from /home/ubuntu/ocv_snap_kon/lib/python3.12/site-packages/cv2/__init__.py  threads=4 inputs=85 
+[snap_kon] ximgproc.thinning: shim
+[snap_kon] headline: 85 frames x 5 reps in 134.0s (3.17 fps in-process)
+[snap_kon] sweep 1x1: 3.13 fps  e2e p50 321 ms p95 453 ms  (42s)
+[snap_kon] sweep 1x2: 4.13 fps  e2e p50 237 ms p95 357 ms  (32s)
+[snap_kon] sweep 1x4: 4.73 fps  e2e p50 196 ms p95 332 ms  (28s)
+[snap_kon] sweep 2x1: 6.27 fps  e2e p50 313 ms p95 453 ms  (22s)
+[snap_kon] sweep 4x1: 12.15 fps  e2e p50 326 ms p95 464 ms  (12s)
+[snap_kon] sweep 2x2: 8.14 fps  e2e p50 233 ms p95 372 ms  (17s)
+[snap_kon] micro done
+[snap_kon] trace done (85 images)
+[snap_kon] done in 411s -> /home/ubuntu/results/snap_kon
+ok: cv2 in /home/ubuntu/ocv_snap_koff/lib/python3.12/site-packages
+5.1.0-dev /home/ubuntu/ocv_snap_koff/lib/python3.12/site-packages/cv2/__init__.py 2.5.1
+== bench snap_koff 01:47:29 elapsed 2892s
+[snap_koff] cv2 5.1.0-dev from /home/ubuntu/ocv_snap_koff/lib/python3.12/site-packages/cv2/__init__.py  threads=4 inputs=85 
+[snap_koff] ximgproc.thinning: shim
+[snap_koff] headline: 85 frames x 3 reps in 81.2s (3.14 fps in-process)
+[snap_koff] sweep 1x4: 4.54 fps  e2e p50 208 ms p95 339 ms  (29s)
+[snap_koff] sweep 4x1: 11.71 fps  e2e p50 337 ms p95 472 ms  (12s)
+[snap_koff] micro done
+[snap_koff] trace done (85 images)
+[snap_koff] done in 230s -> /home/ubuntu/results/snap_koff
+== end 2026-10-25T01:51:20Z elapsed 3123s

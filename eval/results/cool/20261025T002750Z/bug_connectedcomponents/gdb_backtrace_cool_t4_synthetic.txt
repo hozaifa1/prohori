@@ -1,0 +1,23 @@
+[Thread debugging using libthread_db enabled]
+Using host libthread_db library "/lib/aarch64-linux-gnu/libthread_db.so.1".
+[Detaching after vfork from child process 44048]
+[Detaching after vfork from child process 44050]
+[New Thread 0xffffdefff180 (LWP 44052)]
+[New Thread 0xffffde7ef180 (LWP 44053)]
+[New Thread 0xffffddfdf180 (LWP 44054)]
+cv2 5.1.0-dev (/opt/cool/python_3.12/site-packages/cv2/python-3.12/cv2.cpython-312-aarch64-linux-gnu.so) threads=4 mask=(1800, 1273) nonzero=5965 conn=8 algo=default
+[New Thread 0xffffdc651180 (LWP 44055)]
+[New Thread 0xffffdbe41180 (LWP 44056)]
+[New Thread 0xffffdb631180 (LWP 44057)]
+Fatal glibc error: malloc.c:2599 (sysmalloc): assertion failed: (old_top == initial_top (av) && old_size == 0) || ((unsigned long) (old_size) >= MINSIZE && prev_inuse (old_top) && ((unsigned long) old_end & (pagesize - 1)) == 0)
+
+Thread 1 "python" received signal SIGABRT, Aborted.
+__pthread_kill_implementation (threadid=281474842400544, signo=signo@entry=6, no_tid=no_tid@entry=0) at ./nptl/pthread_kill.c:44
+warning: 44	./nptl/pthread_kill.c: No such file or directory
+#0  __pthread_kill_implementation (threadid=281474842400544, signo=signo@entry=6, no_tid=no_tid@entry=0) at ./nptl/pthread_kill.c:44
+#1  0x0000fffff7d47540 in __pthread_kill_internal (signo=6, threadid=<optimized out>) at ./nptl/pthread_kill.c:78
+#2  0x0000fffff7cfcb3c in __GI_raise (sig=sig@entry=6) at ../sysdeps/posix/raise.c:26
+#3  0x0000fffff7ce7e00 in __GI_abort () at ./stdlib/abort.c:79
+#4  0x0000fffff7d3aac4 in __libc_message_impl (fmt=<optimized out>) at ../sysdeps/posix/libc_fatal.c:134
+#5  0x0000fffff7e1c883 in ?? () from /lib/aarch64-linux-gnu/libc.so.6
+Backtrace stopped: previous frame inner to this frame (corrupt stack?)

@@ -1,0 +1,202 @@
+== date
+Sun Oct 25 00:38:36 UTC 2026
+Linux ip-172-31-33-228 6.17.0-1019-aws #19~24.04.1-Ubuntu SMP Tue Jun 23 18:34:05 UTC 2026 aarch64 aarch64 aarch64 GNU/Linux
+PRETTY_NAME="Ubuntu 24.04.3 LTS"
+NAME="Ubuntu"
+VERSION_ID="24.04"
+VERSION="24.04.3 LTS (Noble Numbat)"
+== lscpu
+Architecture:                            aarch64
+CPU op-mode(s):                          64-bit
+Byte Order:                              Little Endian
+CPU(s):                                  4
+On-line CPU(s) list:                     0-3
+Vendor ID:                               ARM
+Model name:                              Neoverse-V2
+Model:                                   1
+Thread(s) per core:                      1
+Core(s) per socket:                      4
+Socket(s):                               1
+Stepping:                                r0p1
+BogoMIPS:                                2000.00
+Flags:                                   fp asimd evtstrm aes pmull sha1 sha2 crc32 atomics fphp asimdhp cpuid asimdrdm jscvt fcma lrcpc dcpop sha3 asimddp sha512 sve asimdfhm dit uscat ilrcpc flagm sb paca pacg dcpodp sve2 sveaes svepmull svebitperm svesha3 flagm2 frint svei8mm svebf16 i8mm bf16 dgh rng bti
+L1d cache:                               256 KiB (4 instances)
+L1i cache:                               256 KiB (4 instances)
+L2 cache:                                8 MiB (4 instances)
+L3 cache:                                36 MiB (1 instance)
+NUMA node(s):                            1
+NUMA node0 CPU(s):                       0-3
+Vulnerability Gather data sampling:      Not affected
+Vulnerability Ghostwrite:                Not affected
+Vulnerability Indirect target selection: Not affected
+Vulnerability Itlb multihit:             Not affected
+Vulnerability L1tf:                      Not affected
+Vulnerability Mds:                       Not affected
+Vulnerability Meltdown:                  Not affected
+Vulnerability Mmio stale data:           Not affected
+Vulnerability Old microcode:             Not affected
+Vulnerability Reg file data sampling:    Not affected
+Vulnerability Retbleed:                  Not affected
+Vulnerability Spec rstack overflow:      Not affected
+Vulnerability Spec store bypass:         Mitigation; Speculative Store Bypass disabled via prctl
+Vulnerability Spectre v1:                Mitigation; __user pointer sanitization
+Vulnerability Spectre v2:                Mitigation; CSV2, BHB
+Vulnerability Srbds:                     Not affected
+Vulnerability Tsa:                       Not affected
+Vulnerability Tsx async abort:           Not affected
+Vulnerability Vmscape:                   Not affected
+== IMDSv2
+instance-type=c8g.xlarge
+ami-id=ami-033e481a24f94c8cb
+instance-id=i-09d7b11b3360c44dd
+placement/availability-zone=us-east-1d
+== /opt/cool
+total 32
+drwxr-xr-x 8 root root 4096 Jul 13 07:45 .
+drwxr-xr-x 7 root root 4096 Oct 25 00:33 ..
+drwxr-xr-x 4 root root 4096 Jul 13 07:45 cpp_sdk
+drwxr-xr-x 3 root root 4096 Jul 13 07:45 python_3.10
+drwxr-xr-x 3 root root 4096 Jul 13 07:45 python_3.11
+drwxr-xr-x 3 root root 4096 Jul 13 07:45 python_3.12
+drwxr-xr-x 5 root root 4096 Jun 30 09:54 samples
+drwxr-xr-x 5 root root 4096 Jul 13 07:45 venvs
+total 20
+drwxr-xr-x 5 root root 4096 Jul 13 07:45 .
+drwxr-xr-x 8 root root 4096 Jul 13 07:45 ..
+drwxr-xr-x 5 root root 4096 Jul 13 07:45 python_3.10
+drwxr-xr-x 5 root root 4096 Jul 13 07:45 python_3.11
+drwxr-xr-x 5 root root 4096 Jul 13 07:45 python_3.12
+---- /opt/cool/samples/README.md
+## COOL SDK: Performance Benchmarking Manual
+
+This guide explains how to run the performance tests of the ***Optimized COOL Build***.
+
+
+
+### Test Suite Description
+The suite contains 3 standardized tests designed to stress CPU/SIMD pipelines:
+1.  ***Augmentation:*** (Rotate, Resize 2x, MedianBlur, Float Conv, GaussianBlur)
+2.  ***Analysis:*** (CLAHE, Hist, HoughCircles, FindContours)
+3.  ***Video:*** (MJPG Transcoding Read/Write)
+
+
+### Performance Results
+
+Below are the benchmark results comparing the optimized `COOL` build (OpenCV 5.1.0) against the standard tag build (OpenCV 5.0.0) on AWS Graviton (aarch64). For Python, the comparison is against the standard `pip install opencv-python` (OpenCV 5.0.0) wheel; for C++, against a local unoptimized build from the same 5.0.0 tag (pip does not ship a C++ SDK).
+
+#### Python Performance ( Python 3.12 )
+| Test Case | pip install (OpenCV 5.0.0) | Optimized (COOL) |
+| :--- | :--- | :--- |
+| **Augmentation** | 17.69 ms | **11.84 ms** |
+| **Analysis** | 1774.04 ms | **1658.69 ms** |
+| **Video Transcode** | 116.34 ms | **102.15 ms** |
+
+#### C++ Performance
+| Test Case | Standard (OpenCV 5.0.0) | Optimized (COOL) |
+| :--- | :--- | :--- |
+| **Augmentation** | 15.29 ms | **14.48 ms** |
+| **Analysis** | 1657.22 ms | **1643.77 ms** |
+| **Video Transcode** | 116.28 ms | **80.63 ms** |
+
+---
+
+### Part 1: Python Benchmarking
+
+#### Testing the Optimized Build (COOL)
+1.  ***Activate the Environment:***
+
+    `
+    source /opt/cool/venvs/python_3.12/bin/activate
+    `
+2.  ***Verify Optimization:***
+
+    `
+    python3 -c "import cv2; print(f'Active OpenCV: {cv2.__version__} from {cv2.__file__}')"
+    `
+3.  ***Run Test (Example):***
+
+    `
+    python3 /opt/cool/samples/python/test_augmentation.py 
+        --input /opt/cool/samples/data/lena.jpg 
+    `
+
+---
+
+### Part 2: C++ Benchmarking
+
+#### A. Testing the Optimized Build (COOL)
+1.  ***Build the Binaries:***
+
+    `
+    cd /opt/cool/samples/cpp
+    `
+
+    `sudo ./build.sh
+    `
+2.  ***Run Test:***
+
+    `
+    /opt/cool/samples/cpp/build/test_aug /opt/cool/samples/data/lena.jpg 
+    `
+
+#### B. Building Your Own Custom Tests (Development Guide)
+
+If you wish to compile your **own personal C++ files** against the optimized **COOL** binaries, follow these steps. 
+Create `<path_to_your_work_dir>/build` folder.
+
+1.  ***Create a CMakeLists.txt:***
+    Create a file named `CMakeLists.txt` inside the build directory with this content:
+
+    ```
+    cmake_minimum_required(VERSION 3.10)
+    project
+---- /opt/cool/samples/cpp/CMakeLists.txt
+cmake_minimum_required(VERSION 3.10)
+project(CoolSamples)
+set(CMAKE_CXX_STANDARD 11)
+
+# Point to COOL SDK
+set(OpenCV_DIR "/opt/cool/cpp_sdk/lib/cmake/opencv5")
+find_package(OpenCV REQUIRED)
+
+# Test 1
+add_executable(test_aug test_augmentation.cpp)
+target_link_libraries(test_aug ${OpenCV_LIBS})
+
+# Test 2
+add_executable(test_analysis test_analysis.cpp)
+target_link_libraries(test_analysis ${OpenCV_LIBS})
+
+# Test 3
+add_executable(test_video test_video.cpp)
+target_link_libraries(test_video ${OpenCV_LIBS})
+
+== cool python
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+ModuleNotFoundError: No module named 'cv2'
+== COOL cv2.getBuildInformation()
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+ModuleNotFoundError: No module named 'cv2'
+== pip freeze (COOL venv)
+numpy==2.5.1
+== cv2 shared objects and KleidiCV symbols
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+ModuleNotFoundError: No module named 'cv2'
+total 56
+drwxr-xr-x 8 ubuntu ubuntu 4096 Oct 25 00:38 .
+drwxr-xr-x 3 root   root   4096 Jan 27  2026 ..
+-rw-r--r-- 1 ubuntu ubuntu 6148 Jun 30 10:29 .DS_Store
+-rw-r--r-- 1 ubuntu ubuntu  220 Mar 31  2024 .bash_logout
+-rw-r--r-- 1 ubuntu ubuntu 3771 Mar 31  2024 .bashrc
+drwx------ 2 ubuntu ubuntu 4096 Oct 25 00:33 .cache
+drwx------ 3 ubuntu ubuntu 4096 Jun 15 09:20 .config
+-rw-r--r-- 1 ubuntu ubuntu  807 Mar 31  2024 .profile
+drwx------ 2 ubuntu ubuntu 4096 May 18 09:59 .ssh
+-rw-r--r-- 1 ubuntu ubuntu    0 Oct 25 00:34 .sudo_as_admin_successful
+drwxrwxr-x 5 ubuntu ubuntu 4096 Oct 25 00:38 inputs
+drwxrwxr-x 6 ubuntu ubuntu 4096 Oct 25 00:38 prohori
+-rw-rw-r-- 1 ubuntu ubuntu   47 Oct 25 00:38 remote.out
+drwxrwxr-x 3 ubuntu ubuntu 4096 Oct 25 00:38 results
