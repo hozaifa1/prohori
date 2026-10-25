@@ -283,16 +283,17 @@ def _noise_sigma(crop: np.ndarray, mask: np.ndarray) -> float:
     edges (smoothed gradient below 25 grey levels, dilated 7x7).  If almost nothing is flat (heavy noise, tiny board)
     falls back to the median of |response| over the whole region."""
     k = np.array([[1, -2, 1], [-2, 4, -2], [1, -2, 1]], np.float32)
-    r = np.abs(cv2.filter2D(crop, cv2.CV_32F, k))
-    mk = cv2.erode(mask.astype(np.uint8), np.ones((9, 9), np.uint8)) > 0
-    if mk.sum() < 100:
+    mk = cv2.erode(mask.view(np.uint8) if mask.dtype == bool else mask.astype(np.uint8), np.ones((9, 9), np.uint8)) > 0
+    if np.count_nonzero(mk) < 100:
         return 0.0
+    # the response is an exact small integer (|v| <= 16 * 255): computed as int16, converted to float32 only where it is used
+    resp = cv2.filter2D(crop, cv2.CV_16S, k)
     sm = cv2.GaussianBlur(crop, (0, 0), 1.0)
     gm = cv2.magnitude(cv2.Sobel(sm, cv2.CV_32F, 1, 0), cv2.Sobel(sm, cv2.CV_32F, 0, 1))  # 8 x gradient
-    flat = mk & ~(cv2.dilate((gm > 200).astype(np.uint8), np.ones((7, 7), np.uint8)) > 0)
-    if flat.sum() >= 2000:
-        return float(math.sqrt(math.pi / 2) / 6.0 * r[flat].mean())
-    return float(1.4826 * np.median(r[mk]) / 6.0)
+    flat = mk & (cv2.dilate(cv2.compare(gm, 200.0, cv2.CMP_GT), np.ones((7, 7), np.uint8)) == 0)
+    if np.count_nonzero(flat) >= 2000:
+        return float(math.sqrt(math.pi / 2) / 6.0 * np.abs(resp[flat]).astype(np.float32).mean())
+    return float(1.4826 * np.median(np.abs(resp[mk]).astype(np.float32)) / 6.0)
 
 
 # ----------------------------------------------------------------------------- COOL-safe building blocks
@@ -567,7 +568,7 @@ def _locate_cracks(canvas: np.ndarray, valid: np.ndarray, S: float, origin: np.n
     g = cv2.GaussianBlur(canvas, (0, 0), 0.7)
     med = _median_u8(g, valid)
     fill = int(med) if med is not None else 200
-    if not valid.all():
+    if np.count_nonzero(valid) != valid.size:
         g[~valid] = fill
     gf = g.astype(np.float32)
     bg = _bg_map(gf, int(8 * S))
@@ -780,7 +781,7 @@ def _measure_roi(rp: dict, ink_dark: float | None, sigma_mm: float, blend: dict 
     corr_b = corr > 0
     med = _median_u8(roi, val, _lin_lut())
     fillv = med if med is not None else 0.8
-    linf = np.where(val, lin, fillv).astype(np.float32)
+    linf = lin if np.count_nonzero(val) == val.size else np.where(val, lin, fillv).astype(np.float32)
     bgm = _bg_map(linf, int(6.0 * S))
     D = bgm - linf  # darkness, linear light
     Dsm = cv2.GaussianBlur(D, (0, 0), _smooth_mm(c, "mask_sigma_mm", sigma_mm) * S)
@@ -884,7 +885,7 @@ def _measure_roi(rp: dict, ink_dark: float | None, sigma_mm: float, blend: dict 
     frag_frac = float(max(0.0, 1.0 - a_best / max(tot, 1.0)))
     path_cover = float(min(1.5, length_mm / max(seed_len, 1e-6))) if seed_len > 0 else 1.0
     cb = corr_b & val
-    sat_frac = float(((roi >= 250) & cb).sum() / max(int(cb.sum()), 1))
+    sat_frac = float(np.count_nonzero((roi >= 250) & cb) / max(int(np.count_nonzero(cb)), 1))
     n_exp = max(1, len(good) - 2 * e) if len(good) > 2 * e + 4 else len(good)
     cov = float(min(1.0, good.sum() / n_exp))
     wmed = max(float(np.median(w_i)), 1e-6)
@@ -1259,12 +1260,12 @@ def _board_quality(grey: np.ndarray, Hinv: np.ndarray, w: int, h: int):
     blur_var, noise = 0.0, None
     if x1 - x0 > 16 and y1 - y0 > 16:
         crop = grey[y0:y1, x0:x1]
-        lap = cv2.Laplacian(crop, cv2.CV_32F)
+        lap = cv2.Laplacian(crop, cv2.CV_16S)  # exact small integers; float32 only where used
         mk = np.zeros(crop.shape, np.uint8)
         cv2.fillConvexPoly(mk, np.round(quad - [x0, y0]).astype(np.int32), 255)
         mk = cv2.erode(mk, np.ones((5, 5), np.uint8)) > 0
-        if mk.sum() > 100:
-            blur_var = round(float(lap[mk].var()), 1)
+        if np.count_nonzero(mk) > 100:
+            blur_var = round(float(lap[mk].astype(np.float32).var()), 1)
             noise = round(_noise_sigma(crop, mk), 3)
     return blur_var, noise
 
@@ -1366,7 +1367,8 @@ def _prepare(img: np.ndarray, panel_mode: bool, res: dict, extract: bool = True)
 
     # glare on page region: near-saturated fraction of valid, non-board pixels (page paper)
     pg = valid & ~excl
-    obs["glare_frac"] = round(float((canvas[pg] >= 250).mean()), 4) if pg.sum() > 1000 else 0.0
+    n_pg = np.count_nonzero(pg)
+    obs["glare_frac"] = round(float(np.count_nonzero((canvas >= 250) & pg) / n_pg), 4) if n_pg > 1000 else 0.0
 
     # ink level (linear light) from the black board squares: median of central parts of black squares
     ink_dark = None
