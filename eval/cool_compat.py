@@ -105,7 +105,10 @@ class ShimCv2:
 
 def install_thinning(measure, mode: str, ccl: str = "default") -> str:
     """mode: native | shim | auto (thinning).  ccl: default | bbdt (connected-component algorithm).
+    mode "none": install nothing (the tree brings its own COOL-safe thinning / labelling; used by eval/cool_loop.py).
     Returns what the pipeline will use for thinning ('native' or 'shim')."""
+    if mode == "none":
+        return "none"
     have = hasattr(cv2, "ximgproc") and hasattr(cv2.ximgproc, "thinning")
     use = "native" if (mode == "native" or (mode == "auto" and have)) else "shim"
     if mode == "native" and not have:
