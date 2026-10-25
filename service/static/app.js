@@ -53,6 +53,7 @@
     cracks: [],
     sel: 0,
     certified: false,
+    tiers: null,        // gate.tiers: held-out numbers per tier ("certified" = strict level, "indicative" = default level)
     crc: false,         // the deployed per-crack gate (cracks carry certified/status/interval_mm)
     cam: null,          // {w, h, photoW, photoH} from the live track
     imageCapture: null,
@@ -351,14 +352,39 @@
     if (crc && num(obs.noise_sigma)) box.append(gauge("Grain", fmt(obs.noise_sigma, 1), null, "lower is better", has("noisy")));
   }
 
+  // Two-tier certificate: certified (strict level), indicative (default level only), refused. Numbers come from the
+  // gate params the server sends (gate.tiers), never hard-coded here.
+  const TIER_NAME = { certified: "Certified", indicative: "Indicative", refused: "Flagged" };
+  const tierOf = (c) => (c && ["certified", "indicative", "refused"].includes(c.tier) ? c.tier : null);
+  function tierNote(t) {
+    const info = state.tiers && state.tiers[t];
+    const risk = info && num(info.heldout_mean_cond_risk) ? info.heldout_mean_cond_risk : null;
+    const per100 = risk == null ? null : Math.round((1 - risk) * 100);
+    if (t === "certified") {
+      return per100 == null ? "Certified at the strict level."
+        : `On held-out photos ~${per100} of 100 certified readings were within tolerance.`;
+    }
+    if (t === "indicative") {
+      return "Usable with the interval shown; retake closer or steadier for a certified reading."
+        + (per100 == null ? "" : ` (~${per100} of 100 such readings were within tolerance on held-out photos.)`);
+    }
+    return "";
+  }
+
   function renderHero(animate) {
     const hero = $("hero");
     const c = state.cracks[state.sel];
     // deployed gate: each crack carries its own verdict; legacy gate: the capture's verdict applies to every crack
     const cert = state.crc && c ? c.certified === true : state.certified;
+    const tier = state.crc && c ? tierOf(c) : null;   // null on a server without the two-tier gate: old behaviour
     hero.replaceChildren();
-    const badge = h("span", { class: "badge " + (cert ? "ok" : "warn") },
-      icon(cert ? "seal-check" : "warning"), cert ? "Certified" : state.crc ? "Flagged" : "Not certified");
+    const badge = tier === "indicative"
+      ? h("span", { class: "badge ind" }, icon("check-circle"), "Indicative")
+      : tier
+        ? h("span", { class: "badge " + (tier === "certified" ? "ok" : "warn") },
+            icon(tier === "certified" ? "seal-check" : "warning"), TIER_NAME[tier])
+        : h("span", { class: "badge " + (cert ? "ok" : "warn") },
+            icon(cert ? "seal-check" : "warning"), cert ? "Certified" : state.crc ? "Flagged" : "Not certified");
     if (!c) {
       hero.append(
         h("div", { class: "hero-top" }, h("span", { class: "hero-id", text: "No measurement" }), badge),
@@ -384,6 +410,10 @@
         : num(c.uncertainty_mm)
           ? h("div", { class: "hero-pm" }, h("span", { class: "pm", text: `± ${fmt(c.uncertainty_mm)}` }), h("span", { class: "pm-note", text: "mm uncertainty" }))
           : null,
+      tier === "certified" || tier === "indicative"
+        ? h("div", { class: "hero-tier " + tier }, tierNote(tier)) : null,
+      tier === "indicative" && Array.isArray(c.tier_reasons) && c.tier_reasons.length
+        ? h("div", { class: "hero-why" }, c.tier_reasons.map((r) => h("span", { class: "rchip", text: reasonText(r, true) }))) : null,
       state.crc && !cert && Array.isArray(c.reasons) && c.reasons.length
         ? h("div", { class: "hero-why" }, c.reasons.map((r) => h("span", { class: "rchip", text: reasonText(r, true) })))
         : null,
@@ -401,13 +431,14 @@
     if (state.cracks.length < 2) return;
     state.cracks.forEach((c, i) => {
       const flagged = state.crc && c.certified !== true;
+      const ind = !flagged && tierOf(c) === "indicative";
       box.append(h("button", {
-        class: "tile" + (flagged ? " flagged" : ""), type: "button", "aria-pressed": i === state.sel ? "true" : "false",
-        "aria-label": `Crack ${c.id}: ${fmt(c.width_mm)} millimetres` + (state.crc ? (flagged ? ", flagged" : ", certified") : ""),
+        class: "tile" + (flagged ? " flagged" : "") + (ind ? " indic" : ""), type: "button", "aria-pressed": i === state.sel ? "true" : "false",
+        "aria-label": `Crack ${c.id}: ${fmt(c.width_mm)} millimetres` + (state.crc ? (flagged ? ", flagged" : ind ? ", indicative" : ", certified") : ""),
         onclick: () => { state.sel = i; renderPicker(); renderHero(true); },
       },
       h("span", { class: "tile-top" }, h("span", { class: "tile-id", text: String(c.id ?? i + 1) }),
-        state.crc ? icon(flagged ? "warning" : "seal-check", "tile-st") : null),
+        state.crc ? icon(flagged ? "warning" : ind ? "check-circle" : "seal-check", "tile-st") : null),
       h("span", { class: "tile-w", text: fmt(c.width_mm) }),
       h("span", { class: "tile-u", text: num(c.uncertainty_mm) ? `±${fmt(c.uncertainty_mm)}` : "" })));
     });
@@ -461,7 +492,7 @@
       // summary of the per-crack verdicts
       const nc = gate.cracks_certified || 0, nt = gate.cracks_total, nf = nt - nc;
       g.append(h("div", { class: "reason " + (nc ? "ok" : "") }, icon(nc ? "seal-check" : "warning"),
-        h("div", null, nc ? `${nc} of ${nt} cracks certified` : `No crack certified (${nt} measured)`,
+        h("div", null, nc ? `${nc} of ${nt} cracks ${gate.tier === "indicative" ? "indicative" : "certified"}` : `No crack certified (${nt} measured)`,
           h("small", { text: nc
             ? (nf ? `${nf} flagged: still measured, with a wider range, but not certified. Tap a crack to see why.` : "All measured cracks passed the gate.")
             : "All readings are shown with their 90% range, but none can be vouched for." }))));
@@ -483,6 +514,7 @@
     // measurements
     state.cracks = Array.isArray(m.cracks) ? m.cracks : [];
     state.crc = crc;
+    state.tiers = gate.tiers || null;
     state.certified = gate.certified === true && !m.error;
     // open on the most trustworthy crack: lowest predicted error among the certified ones, else among all
     const rank = (c) => (num(c.risk_ratio) ? c.risk_ratio : Infinity);

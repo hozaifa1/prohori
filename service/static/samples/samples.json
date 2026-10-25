@@ -1,44 +1,68 @@
 [
   {
     "id": "good-straight",
-    "label": "Good capture, straight-on",
-    "note": "Whole board in view, sharp: should certify",
-    "url": "/static/samples/good-straight.jpg",
-    "source": "IMG20261019080722.jpg"
-  },
-  {
-    "id": "tilted",
-    "label": "Tilted view",
-    "note": "Phone held at a steep angle",
-    "url": "/static/samples/tilted.jpg",
-    "source": "IMG20261019080746.jpg"
+    "label": "Good capture",
+    "tag": "Sharp and straight-on",
+    "note": "Whole board in view, sharp, facing the wall. This is what a good photo looks like.",
+    "kind": "real",
+    "source": "IMG20261019080722.jpg",
+    "url": "/static/samples/good-straight.jpg"
   },
   {
     "id": "too-far",
-    "label": "Far away (still readable)",
-    "note": "Far from the wall (about 5 px/mm): most cracks still certify, the thin 0.5 mm one is flagged. Real photo, resized to 2048 px wide",
-    "url": "/static/samples/too-far.jpg",
-    "source": "IMG20261019080657.jpg"
+    "label": "A bit far away",
+    "tag": "About 5 px/mm",
+    "note": "Phone held far from the wall. Thick cracks still measure well. Watch which thin cracks get flagged.",
+    "kind": "real",
+    "source": "IMG20261019080657.jpg (resized to 2048 px wide)",
+    "url": "/static/samples/too-far.jpg"
   },
   {
     "id": "move-closer",
     "label": "Much too far away",
-    "note": "Simulation: the same real photo as the sample above, shrunk to 1/4 size (about 2.7 px/mm) to mimic standing further back. No crack certifies, so the agent says move closer",
-    "url": "/static/samples/move-closer.jpg",
-    "source": "IMG20261019080657.jpg (downscaled x0.25, cv2.INTER_AREA)"
+    "tag": "About 2.7 px/mm",
+    "note": "The same photo shrunk to a quarter of its size, to mimic standing back. Nothing can be certified, so the agent asks you to move closer.",
+    "kind": "simulated",
+    "story": 1,
+    "source": "IMG20261019080657.jpg (downscaled x0.25, cv2.INTER_AREA)",
+    "url": "/static/samples/move-closer.jpg"
+  },
+  {
+    "id": "closer",
+    "label": "Closer shot",
+    "tag": "About 8 px/mm",
+    "note": "The recovery shot: the same photo at 8 px/mm, the distance the agent asked for.",
+    "kind": "simulated",
+    "story": 2,
+    "hidden": true,
+    "source": "IMG20261019080657.jpg (downscaled to 3072 px wide, cv2.INTER_AREA)",
+    "url": "/static/samples/closer.jpg"
+  },
+  {
+    "id": "tilted",
+    "label": "Tilted view",
+    "tag": "Phone at an angle",
+    "note": "Phone held at a steep angle. The board is rectified, but fewer cracks pass the gate. Watch the certified count.",
+    "kind": "real",
+    "source": "IMG20261019080746.jpg",
+    "url": "/static/samples/tilted.jpg"
+  },
+  {
+    "id": "blurry-oblique",
+    "label": "Blurry and skewed",
+    "tag": "Shaky and oblique",
+    "note": "Soft focus and a steep angle. The agent asks you to hold steady and retake.",
+    "kind": "real",
+    "source": "IMG20261019080807.jpg",
+    "url": "/static/samples/blurry-oblique.jpg"
   },
   {
     "id": "board-partial",
     "label": "Board out of frame",
-    "note": "Board mostly cut off: agent asks to reposition",
-    "url": "/static/samples/board-partial.jpg",
-    "source": "IMG20261019080725.jpg"
-  },
-  {
-    "id": "blurry-oblique",
-    "label": "Blurry and oblique",
-    "note": "Shaky, far and skewed: agent asks for a retake",
-    "url": "/static/samples/blurry-oblique.jpg",
-    "source": "IMG20261019080807.jpg"
+    "tag": "Board cut off",
+    "note": "Most of the board is outside the picture. No scale, so no number: the agent asks you to reposition.",
+    "kind": "real",
+    "source": "IMG20261019080725.jpg",
+    "url": "/static/samples/board-partial.jpg"
   }
 ]

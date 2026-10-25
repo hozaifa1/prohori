@@ -42,6 +42,16 @@ def load_rows(path=None) -> pd.DataFrame:
     return df
 
 
+TONER_BLEED_MM = 0.0137  # per edge, horizontal specimens of the printed panel (research/WIDTH_AUTORESEARCH.md, METRICS 1a)
+
+
+def alt_truth(df: pd.DataFrame) -> dict:
+    """Secondary reference: the toner-corrected width (nominal + 2 x bleed) and 'wrong' against it (same tolerance rule)."""
+    t = df["true_mm"].values + 2.0 * TONER_BLEED_MM
+    err = df["width_mm"].values - t
+    return {"true_corr": t, "err_corr": err, "wrong_corr": np.abs(err) > G.tolerance_mm(t)}
+
+
 def raw_from_row(r) -> dict:
     bs = r["obs_blur_sigma_mm"]
     sig_mm = bs if bs and bs > 0 else 0.2
@@ -104,10 +114,12 @@ def fit_linear(X, y, ridge=3.0, clip_q=(0.5, 99.5)):
             "std": sd.tolist(), "coef": res.x.tolist(), "intercept": float(ym)}
 
 
-def fit_gbm(X, y, **kw):
-    """Monotone-constrained histogram gradient boosting, exported to arrays (see gate._gbm_predict)."""
+def fit_gbm(X, y, feats=None, **kw):
+    """Monotone-constrained histogram gradient boosting, exported to arrays (see gate._gbm_predict).  `feats`: the names
+    of the columns of X (default `gate.FEATURES`; the distance experiment appends candidate columns)."""
     from sklearn.ensemble import HistGradientBoostingRegressor
-    cst = [0 if f in FREE_SIGN else 1 for f in G.FEATURES]
+    feats = list(feats or G.FEATURES)
+    cst = [0 if f in FREE_SIGN else 1 for f in feats]
     m = HistGradientBoostingRegressor(random_state=0, monotonic_cst=cst, **{**GBM_KW, **kw}).fit(X, y)
     trees = []
     for it in m._predictors:
@@ -115,13 +127,13 @@ def fit_gbm(X, y, **kw):
         trees.append({"f": n["feature_idx"].astype(int).tolist(), "t": [float(v) for v in n["num_threshold"]],
                       "l": n["left"].astype(int).tolist(), "r": n["right"].astype(int).tolist(),
                       "v": [float(v) for v in n["value"]], "leaf": n["is_leaf"].astype(int).tolist()})
-    return {"type": "gbm", "features": list(G.FEATURES), "base": float(np.ravel(m._baseline_prediction)[0]),
+    return {"type": "gbm", "features": feats, "base": float(np.ravel(m._baseline_prediction)[0]),
             "trees": trees, "_sk": m}
 
 
-def fit_model(X, y, kind=None, **kw):
+def fit_model(X, y, kind=None, feats=None, **kw):
     kind = kind or MODEL_KIND
-    return fit_gbm(X, y, **kw) if kind == "gbm" else fit_linear(X, y, **kw)
+    return fit_gbm(X, y, feats=feats, **kw) if kind == "gbm" else fit_linear(X, y, **kw)
 
 
 def predict_many(model, X):
@@ -163,7 +175,7 @@ def oof_predict(D, groups, k=5, seed=0, kind=None, **kw):
     for f in folds:
         te = np.isin(D["group"], f)
         tr = ing & ~te
-        m = fit_model(D["X"][tr], D["y"][tr], kind, **kw)
+        m = fit_model(D["X"][tr], D["y"][tr], kind, feats=D.get("feats"), **kw)
         pred[te] = predict_many(m, D["X"][te])
     return pred
 
@@ -306,7 +318,7 @@ def fit_pipeline(D, groups, alphas=ALPHAS, k=5, seed=0, kind=None, interval_vari
     levels = {}
     for a, (th, ncap, emp) in crc_thetas(D["cap"][rows], pred_oof[rows], qa[rows], D["wrong"][rows], list(alphas)).items():
         levels[f"{a:g}"] = {"alpha": a, "theta": th, "n_calibration_captures": ncap, "empirical_risk": emp}
-    model = fit_model(D["X"][rows], D["y"][rows], kind)
+    model = fit_model(D["X"][rows], D["y"][rows], kind, feats=D.get("feats"))
     th_i = levels[f"{interval_alpha:g}"]["theta"]
     cert_oof = qa & (pred_oof <= th_i)
     p0 = np.where(rows, pred_oof, 0.0)

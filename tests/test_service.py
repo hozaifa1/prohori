@@ -339,3 +339,27 @@ def test_joint_follows_the_same_crack_id_as_last_visit(client, sample_bytes, fak
                                              "crack_id": 2})
     j = _post(client, sample_bytes, joint_id="svc-j6").json()
     assert j["joint"]["latest"]["crack_id"] == 2 and j["joint"]["latest"]["width_mm"] == 0.1
+
+
+# ---------------------------------------------------------------------------- two-tier certificate through the API
+def test_measure_response_carries_tier(client, sample_bytes):
+    j = client.post("/api/measure", files={"image": ("a.jpg", sample_bytes, "image/jpeg")}, data={"policy": "rules"}).json()
+    g = j["measurement"]["gate"]
+    assert g["tier"] in ("certified", "indicative", "refused")
+    assert g["certified"] == (g["tier"] != "refused")
+    assert set(g["tiers"]) == {"certified", "indicative"}
+    assert 0 < g["tiers"]["certified"]["heldout_mean_cond_risk"] < g["tiers"]["indicative"]["heldout_mean_cond_risk"] < 0.2
+    for c in j["measurement"]["cracks"]:
+        assert c["tier"] in ("certified", "indicative", "refused") and (c["tier"] != "refused") == c["certified"]
+    # stored with the trace as well
+    step = client.get(f"/api/trace/{j['session_id']}").json()[0]
+    assert step["gate"]["tier"] == g["tier"] and all("tier" in c for c in step["cracks"])
+
+
+def test_joint_record_stores_tier(client, sample_bytes):
+    """Real pipeline: a certified/indicative capture logged to a joint carries its tier."""
+    r = client.post("/api/measure", files={"image": ("a.jpg", sample_bytes, "image/jpeg")},
+                    data={"policy": "rules", "joint_id": "tier-joint"})
+    assert r.status_code == 200
+    if r.json()["measurement"]["gate"]["certified"]:
+        assert svc.store_mod.get_joint_history("tier-joint")[-1]["tier"] in ("certified", "indicative")

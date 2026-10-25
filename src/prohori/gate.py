@@ -145,6 +145,66 @@ def conformal_quantile(scores, alpha: float) -> float:
     return float(s[k - 1])
 
 
+# ----------------------------------------------------------------------------- distance from the board
+
+BOARD_W_MM = 140.0   # board width (7 squares x 20 mm); the unit of the distance feature
+BOARD_MARGIN_MM = 20.0  # the detected inner corners sit one square inside the board edge
+
+
+def _hull(P: np.ndarray) -> np.ndarray:
+    """Convex hull (Andrew's monotone chain) of Nx2 points, counter-clockwise."""
+    pts = sorted(map(tuple, np.round(np.asarray(P, float), 3)))
+    if len(pts) < 3:
+        return np.array(pts, float)
+
+    def half(seq):
+        h = []
+        for p in seq:
+            while len(h) >= 2 and (h[-1][0] - h[-2][0]) * (p[1] - h[-2][1]) - (h[-1][1] - h[-2][1]) * (p[0] - h[-2][0]) <= 0:
+                h.pop()
+            h.append(p)
+        return h
+    lo, up = half(pts), half(pts[::-1])
+    return np.array(lo[:-1] + up[:-1], float)
+
+
+def _dist_to_hull(pt: np.ndarray, H: np.ndarray) -> float:
+    """Distance (px) from a point to a convex polygon (0 inside)."""
+    n = len(H)
+    if n < 3:
+        return float(np.min(np.hypot(*(H - pt).T))) if n else 0.0
+    inside, best = True, math.inf
+    for i in range(n):
+        a, b = H[i], H[(i + 1) % n]
+        e = b - a
+        t = float(np.clip(np.dot(pt - a, e) / max(np.dot(e, e), 1e-12), 0.0, 1.0))
+        best = min(best, float(np.hypot(*(pt - (a + t * e)))))
+        if e[0] * (pt[1] - a[1]) - e[1] * (pt[0] - a[0]) < 0:
+            inside = False
+    return 0.0 if inside else best
+
+
+def board_distance_bw(obs: dict, crack: dict, farthest: bool = False) -> float:
+    """Distance of a crack from the board edge, in board widths (140 mm).
+
+    The scale extrapolation of the board homography grows with this distance (research/WIDTH_AUTORESEARCH.md 7.2).  Uses
+    only fields `measure` returns: the detected corner pixels (`observation.corners_px`) and the crack polyline.  The
+    pixel distance from the crack centroid (or its farthest vertex) to the convex hull of the corners is converted to mm
+    with the mean of the board and crack px/mm, the one-square margin between the inner corners and the board edge is
+    subtracted, and the result is divided by the board width.  0 if the corners or the polyline are missing."""
+    cp, pl = obs.get("corners_px"), crack.get("polyline_px")
+    if not cp or not pl or len(cp) < 3:
+        return 0.0
+    H = _hull(np.asarray(cp, float))
+    P = np.asarray(pl, float)
+    pts = P if farthest else P.mean(0, keepdims=True)
+    d_px = max(_dist_to_hull(p, H) for p in pts) if farthest else _dist_to_hull(pts[0], H)
+    ppm = 0.5 * (float(obs.get("ppm_board") or 0.0) + float(crack.get("px_per_mm") or 0.0))
+    if ppm <= 0:
+        return 0.0
+    return max(0.0, d_px / ppm - BOARD_MARGIN_MM) / BOARD_W_MM
+
+
 # ----------------------------------------------------------------------------- features
 
 def raw_features(obs: dict, crack: dict) -> dict:
@@ -348,6 +408,53 @@ def interval_for(width_mm: float, pred: float, u_model: float, state: str, P: di
     return lo, hi, 0.5 * (hi - lo)
 
 
+# ----------------------------------------------------------------------------- tiers
+
+TIER_ORDER = {"refused": 0, "indicative": 1, "certified": 2}
+
+
+def tier_info(P: dict | None) -> dict:
+    """Held-out numbers per tier, read from the fitted params (nothing hard-coded).
+
+    "certified" = the strict_level operating point, "indicative" = the default_level one.  For each: alpha_cal, theta,
+    heldout_mean_cond_risk (P(wrong | certified) on held-out photos), heldout_mean_risk (CRC risk) and, when the fit
+    stored it, the certified fraction (`cert_fraction`)."""
+    if not P:
+        return {}
+    out = {}
+    for tier, key in (("certified", "strict_level"), ("indicative", "default_level")):
+        lv = P["levels"].get(P.get(key) or P["default_level"])
+        if lv is None:
+            continue
+        d = {"level": P.get(key) or P["default_level"], "alpha_cal": float(lv["alpha"]),
+             "heldout_mean_risk": lv.get("heldout_mean_risk"), "heldout_mean_cond_risk": lv.get("heldout_mean_cond_risk")}
+        for k in ("heldout_cert_frac",):
+            if lv.get(k) is not None:
+                d["cert_fraction"] = lv[k]
+                break
+        out[tier] = d
+    return out
+
+
+def strict_theta(P: dict) -> float:
+    """Threshold of the strict level (never looser than the default one)."""
+    return min(P["levels"][P.get("strict_level") or P["default_level"]]["theta"], P["levels"][P["default_level"]]["theta"])
+
+
+def _tier_of(pred: float, qa_ok: bool, P: dict) -> str:
+    """certified: passes at strict_level; indicative: passes at default_level only; refused otherwise (mask QA and
+    out-of-range captures are always refused).  Pre-defined levels from the fit, no tuning."""
+    if not qa_ok:
+        return "refused"
+    th_def = P["levels"][P["default_level"]]["theta"]
+    th_strict = strict_theta(P)
+    if pred <= th_strict:
+        return "certified"
+    if pred <= th_def:
+        return "indicative"
+    return "refused"
+
+
 # ----------------------------------------------------------------------------- the gate
 
 def assess(obs: dict, cracks: list[dict], params: dict | None = None, level: str | None = None,
@@ -356,7 +463,13 @@ def assess(obs: dict, cracks: list[dict], params: dict | None = None, level: str
 
     Adds to every crack: certified (bool), status ("certified" | "flagged"), reasons (list), risk_ratio (predicted
     |error|/tolerance), interval_mm [lo, hi], interval_level, and replaces uncertainty_mm by the interval half-width.
-    Capture-level: certified iff at least one crack is certified; its reasons are those of the best-scoring crack."""
+    Capture-level: certified iff at least one crack is certified; its reasons are those of the best-scoring crack.
+
+    Two-tier certificate (additive; `certified` keeps its meaning = the requested level, default 5 %): every crack and
+    the capture also get `tier` = "certified" (passes the strict_level), "indicative" (passes the default level only) or
+    "refused" (anything else; mask-QA / out-of-range are always refused).  `tier_reasons` lists what would have to
+    improve to reach "certified" for an indicative crack; the capture dict carries `tiers` (held-out numbers per tier).
+    The levels are the pre-defined ones in gate_params.json (strict_level, default_level): no extra tuning."""
     P = params if params is not None else load_params()
     if P is None:
         return _assess_legacy(obs, cracks)
@@ -364,6 +477,7 @@ def assess(obs: dict, cracks: list[dict], params: dict | None = None, level: str
     lv = P["levels"][level]
     theta = lv["theta"]
     best = None
+    best_tier, best_pred, best_tier_crack = "refused", math.inf, None
     for c in cracks:
         raw = raw_features(obs, c)
         x = design_vector(raw)
@@ -376,6 +490,11 @@ def assess(obs: dict, cracks: list[dict], params: dict | None = None, level: str
         if not score_ok:
             reasons += [r for r in attribute(x, P, theta, textured) if r not in reasons]
         c["certified"] = bool(cert)
+        c["tier"] = _tier_of(pred, not qa and not ood, P)
+        # what would have to improve to reach "certified" (empty unless the crack is only "indicative")
+        c["tier_reasons"] = attribute(x, P, strict_theta(P), textured) if c["tier"] == "indicative" else []
+        if (TIER_ORDER[c["tier"]], -pred) > (TIER_ORDER[best_tier], -best_pred):
+            best_tier, best_pred, best_tier_crack = c["tier"], pred, c
         c["status"] = "certified" if cert else "flagged"
         c["reasons"] = reasons
         c["risk_ratio"] = round(math.exp(pred), 4)
@@ -390,7 +509,9 @@ def assess(obs: dict, cracks: list[dict], params: dict | None = None, level: str
     n_cert = sum(1 for c in cracks if c["certified"])
     g = {"certified": n_cert > 0, "reasons": [], "mode": "crc_textured" if textured else "crc", "alpha": float(lv["alpha"]),
          "level": level,
-         "cracks_certified": n_cert, "cracks_total": len(cracks)}
+         "cracks_certified": n_cert, "cracks_total": len(cracks), "tier": best_tier,
+         "tier_reasons": list(best_tier_crack["tier_reasons"]) if best_tier_crack is not None else [],
+         "tiers": tier_info(P)}
     if cracks and n_cert == 0:
         g["reasons"] = list(best[1]["reasons"])
     g["measurement"] = ("certified" if n_cert else "flagged") if cracks else "unavailable"
@@ -418,5 +539,7 @@ def _assess_legacy(obs: dict, cracks: list[dict]) -> dict:
         u = float(c.get("uncertainty_model_mm", c.get("uncertainty_mm", 0.0)))
         c["interval_mm"] = [round(c["width_mm"] - 1.645 * u, 4), round(c["width_mm"] + 1.645 * u, 4)]
         c["interval_level"] = 0.9
-    return {"certified": cert, "reasons": reasons, "mode": "legacy", "cracks_certified": len(cracks) if cert else 0,
+    for c in cracks:
+        c["tier"] = "certified" if cert else "refused"
+    return {"certified": cert, "reasons": reasons, "mode": "legacy", "tier": "certified" if cert else "refused", "cracks_certified": len(cracks) if cert else 0,
             "cracks_total": len(cracks), "measurement": ("certified" if cert else "flagged") if cracks else "unavailable"}

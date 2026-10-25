@@ -311,3 +311,67 @@ def test_glare_saturates_and_tilt_keeps_pivot():
     Ht = gd.tilt_homography(400, 300, 30.0, 45.0, (200, 150))
     p = Ht @ np.array([200.0, 150.0, 1.0])
     assert np.allclose(p[:2] / p[2], [200, 150], atol=1e-6)
+
+
+# ----------------------------------------------------------------------------- two-tier certificate
+def _sweep():
+    rng = np.random.default_rng(5)
+    out = []
+    for _ in range(300):
+        c = _crack(width=float(rng.uniform(0.4, 3.0)), sigma_px=float(rng.uniform(1, 5)), spread_rel=float(rng.uniform(0.02, 0.3)))
+        c["px_per_mm"] = float(rng.uniform(5, 25))
+        out.append(c)
+    return out
+
+
+def test_tier_strict_is_subset_of_default_and_certified_flag_unchanged():
+    P = _shipped()
+    cs = _sweep()
+    G.assess(OBS, cs, P)
+    tiers = {c["tier"] for c in cs}
+    assert tiers == {"certified", "indicative", "refused"}, tiers  # the sweep exercises every tier
+    for c in cs:
+        assert c["tier"] in ("certified", "indicative", "refused")
+        assert c["certified"] == (c["tier"] != "refused")  # `certified` keeps its default-level meaning
+        # strict level certifies a subset of what the default level certifies
+        c2 = dict(c, quality=dict(c["quality"]))
+        G.assess(OBS, [c2], P, level=P["strict_level"])
+        assert (c["tier"] == "certified") == c2["certified"]
+        assert not (c["tier"] == "certified" and not c["certified"])
+        if c["tier"] != "indicative":
+            assert c["tier_reasons"] == []
+
+
+def test_tier_capture_level_is_best_crack_and_carries_heldout_numbers():
+    P = _shipped()
+    cs = _sweep()
+    g = G.assess(OBS, cs, P)
+    order = {"refused": 0, "indicative": 1, "certified": 2}
+    assert g["tier"] == max((c["tier"] for c in cs), key=order.get)
+    assert g["certified"] == (g["tier"] != "refused")
+    t = g["tiers"]
+    assert t["certified"]["level"] == P["strict_level"] and t["indicative"]["level"] == P["default_level"]
+    assert t["certified"]["heldout_mean_cond_risk"] == P["levels"][P["strict_level"]]["heldout_mean_cond_risk"]
+    assert t["certified"]["heldout_mean_cond_risk"] < t["indicative"]["heldout_mean_cond_risk"]
+    assert 0 < t["certified"]["cert_fraction"] < t["indicative"]["cert_fraction"] < 1
+
+
+def test_tier_refused_when_mask_qa_fails_or_out_of_range():
+    P = _shipped()
+    ok = _crack(width=1.0)
+    G.assess(OBS, [ok], P)
+    assert ok["tier"] in ("certified", "indicative")
+    qa = _crack(width=1.0, edt_ratio=3.0)
+    g = G.assess(OBS, [qa], P)
+    assert qa["tier"] == "refused" and g["tier"] == "refused" and not g["certified"]
+    hi = _crack(width=1.0, sigma_px=1e6)  # far outside the calibrated envelope
+    G.assess(OBS, [hi], P)
+    assert hi["tier"] == "refused"
+
+
+def test_tier_legacy_gate_and_no_cracks():
+    g = G.assess(OBS, [], _shipped())
+    assert g["tier"] == "refused" and g["cracks_total"] == 0
+    c = [_crack()]
+    gl = G._assess_legacy(OBS, c)
+    assert gl["tier"] == "certified" and c[0]["tier"] == "certified"

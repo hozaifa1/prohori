@@ -71,3 +71,57 @@ The dataset in `data/gatecal/` and the fitted gate were produced **with** the me
 * **Interval.** Learned-scale signed conformal interval, Mondrian by measured-width bin x certified/flagged, nominal 0.94, claimed 0.90. Held-out coverage per true width 88.3 / 96.3 / 93.8 / 94.1 / 87.2 / 90.7 / 87.3 / 92.0 % at 0.3 / 0.4 / 0.5 / 0.75 / 1.0 / 1.5 / 2.0 / 3.0 mm, 91.4 % overall. Before (old `uncertainty_mm` as a +-1.645 sigma band): 99.7 / 99.5 / 99.6 / 98.9 / 94.8 / 90.8 / 62.7 / 72.7 %, i.e. far too wide on thin cracks and 20-30 points too narrow at 2-3 mm. The 0.3, 1.0 and 2.0 mm bins stay a little under 90 % under group shift.
 * **Estimator out-of-sample** (leave-one-photo-out re-tune of `ink_ratio`, `d0`, `q0`): MAE 0.101 -> 0.104 mm over all 168 cracks, 0.037 -> 0.037 mm on the sharp photos, 0.045 -> 0.048 mm on cracks the gate certifies. The in-sample grid optimum (ink_ratio 0.98, d0 4, q0 0.4) differs from the shipped 0.90 / 5 / 0.5 and was not adopted, since that would be another in-sample tune.
 * **Not claimed.** A CRC guarantee on real walls or on textured surfaces; a group-level guarantee (with 21 groups the group-level CRC slack is 1/22 = 4.5 %, infeasible at 5 %); mask-level morphological sets (only the width-domain reduction of A5 is implemented).
+
+## 8. Refit on the shipped width estimator (D18) and the distance-from-board feature — PRE-REGISTRATION
+
+*Written 2026-10-25, before any gate was fitted on the shipped-estimator dataset and before the distance feature was looked at in the gate data.*
+
+**Why.** The gate (section 7) and its conformal interval were fitted on LEGACY widths. D18 (`measure.CFG`, "V3") changed the widths (`research/WIDTH_AUTORESEARCH.md`), so the dataset was rebuilt with the shipped CFG and the same recipe: same 29 photos, same degradations and seeds (`gate_degrade.DIST`, `SEED`), 120 variants per photo, `analyze(..., apply_gate=False)`. The old dataset is kept (`data/gatecal/manifest.jsonl`, `eval/results/gate_calibration_features_legacy.parquet`) so old and new are like-for-like. The fit (`eval/gate_fit.py`) is unchanged: risk = certified-and-wrong with wrong = |err| > max(0.05 mm, 10 % w) against the **nominal printed width**, CRC loss per capture (A3), meta-calibrated alpha_cal on 100 grouped splits (6 held-out source photos each, rng seed 11), Mondrian conformal interval. Secondary table only: the same certified sets scored against the toner-corrected width (nominal + 2 x 0.0137 mm for these horizontal specimens; WIDTH_AUTORESEARCH). The fitted rule is not changed for the secondary truth.
+
+**Distance candidates (fixed here, before fitting).**
+
+| | definition |
+|---|---|
+| **F, feature `dist_bw`** | distance from the crack's centroid (mean of the polyline vertices) to the board edge, in board widths (140 mm). Computed in `gate.board_distance_bw` from fields `measure` already returns: `observation.corners_px` (convex hull of the detected inner corners, grown by one square, 20 mm) and the crack's `polyline_px`; the pixel distance is converted with the mean of the board and crack px/mm. Oriented larger = worse; monotone constraint +1 like the other badness features. The farthest polyline vertex is reported as a sensitivity variant (`dist_far_bw`), not as a selectable candidate. |
+| **R, hard rule** (D18 proposal) | a mask-QA-style pass condition, reason code `far_from_board`: a crack farther than 0.7 board widths is certifiable only if obliquity <= 25 deg and blur sigma <= 0.15 mm. CRC theta is re-fitted with this mask (the loss stays monotone in lambda). |
+
+**Protocol.** The same 100 grouped splits as the baseline refit (paired by split), alpha_cal = 0.05, the same pipeline, the same intervals only for the baseline (the distance experiment uses the learned/signed interval only to save time).
+
+**Acceptance (user rule, fixed now).** A candidate is **added** only if, over the 100 splits, either
+* **(A, no harm)** the mean held-out CRC risk at alpha_cal = 0.05 stays <= 5 % **and** the mean certified fraction does not fall by more than 2 points relative to the baseline refit; or
+* **(B, gain)** at equal coverage the held-out risk improves: the risk of the candidate's alpha ladder interpolated at the baseline's certified fraction (alpha_cal = 0.05) is lower by at least 0.3 percentage points on average **and** in at least 60 of the 100 splits.
+
+If only (A) holds without (B) I report it as "admissible, no measurable gain" and do not claim a benefit. **Confound caveat, stated in advance.** In the panel layout distance and width are collinear (0.3 / 0.4 mm at 0.23 board widths, 0.5 / 0.75 at 0.47, 1 / 1.5 at 0.71, 2 / 3 at 0.96 of the board width), so on the 29 photos a distance feature can stand in for "which specimen". A gain in held-out photos therefore does not prove a distance effect on other layouts. A control that separates the two (synthetic renders with the width held fixed and the distance varied) is in `research/ERROR_BUDGET.md`.
+
+### Section 8 results (raw) — staged, nothing deployed (2026-10-25)
+
+Staged in `data/gatecal/stage_shipped/` (`gate_report.md`, `gate_summary.json`, `gate_params.json`, `gate_distance.md/.json`). Dataset: 18,683 cracks, 21 groups, 2,584 captures (same as before; `dist_bw`, `dist_far_bw`, `dist_layout_bw` added by `gate_make_dataset.py --cfg shipped --table-only` from the stored manifest, which already held polylines and corner pixels).
+
+| | legacy | shipped baseline | F (dist_bw) | R (rule 0.7 bw) |
+|---|---|---|---|---|
+| default 0.05: held-out risk | 4.38 % | 4.30 % [1.30, 8.42] | 4.31 % | 4.43 % |
+| certified fraction | 38.5 % | 38.7 % | 38.1 % | 32.4 % |
+| P(wrong given certified) | 11.9 % | 11.5 % | 11.8 % | 12.5 % |
+| splits with risk <= 0.05 | 63 % | 69 % | - | - |
+| strict 0.01: risk / cert / P(wrong given cert) | 0.86 / 25.0 / 3.8 % | 0.74 / 25.8 / 3.2 % | - | - |
+| A (no harm) / B (gain) | - | - | yes / no (-0.21 pts, 26/100) | no / no (-3.01 pts, 16/100) |
+
+Verdict: F is admissible, no measurable gain (not added); R fails A (certified -6.3 pts) and B. Operating point P(wrong given certified) <= 5 % (linear interpolation on the alpha_cal ladder): legacy ~27.6 % certified (alpha_cal ~0.015), shipped ~30.2 % (alpha_cal ~0.0195).
+
+
+## 9. Shipped refit installed + two-tier certificate (2026-10-25)
+
+**Installed** (approved refit of section 8, "shipped baseline", no distance feature): `data/gatecal/stage_shipped/gate_params.json` -> `src/prohori/gate_params.json`; `gate_report.md`, `gate_summary.json`, `gate_risk_coverage.png`, `gate_interval_coverage.png`, `gate_distance.md/.json` -> `eval/results/`. `gate.py` needed no change for the new interval block (scale "heuristic", signed false, nominal 0.92, target 0.90): it already handles the symmetric `q` cells and the heuristic scale. One additive metadata field was written into the params, `levels[*].heldout_cert_frac` (held-out certified fraction, copied from the `repeated` table of `gate_summary.json`, not re-fitted), so the UI can show it. The agent's px/mm guidance table and its fallback risk ratio were re-synced to the new params (0.4 and 0.5 mm both need about 10 px/mm at the default level; exp(theta_default) = 0.872).
+
+**Two operating points** (held-out, repeated grouped splits; wrong = |error| > max(0.05 mm, 10 % of width)):
+
+| tier | level | alpha_cal | held-out CRC risk | certified (of cracks) | P(wrong given certified) |
+|---|---|---|---|---|---|
+| certified | strict_level | 0.01 | 0.74 % | 25.8 % | 3.2 % (~97 of 100 within tolerance) |
+| indicative | default_level | 0.05 | 4.30 % | 38.7 % | 11.5 % (~88 of 100 within tolerance) |
+
+**Strict level rule** (unchanged, `eval/gate_fit.py`): the largest alpha_cal whose mean held-out P(wrong given certified) is <= 5 %; that is 0.01 (3.2 %), the next one, 0.02, gives 5.1 %.
+
+**Tier per crack** (`gate.assess`, deterministic, no refitting): "certified" if mask QA passes, the design is in range and `pred <= theta(strict_level)`; "indicative" if it passes `theta(default_level)` only; "refused" otherwise (mask QA and out-of-range are always refused). Strict theta is never looser than default, so strict is a subset of default. Capture tier = best tier among its cracks. The existing `certified` boolean is unchanged (default level). New fields: per crack `tier`, `tier_reasons` (what would have to improve to reach certified, for indicative cracks); capture `tier`, `tier_reasons`, `tiers` (held-out numbers per tier read from the params). The tiers use the two pre-defined levels, so there is no new tuning and no new held-out claim; the numbers above are the section 8 numbers.
+
+**Agent:** sees `tier`, `tier_reasons`, `prior_indicative_captures`. An indicative capture gets at most one optional improving action (the fix for the first `tier_reasons` entry); the second indicative capture in a row is accepted. Certified and refused behaviour is unchanged. The agent ablation was not re-run.

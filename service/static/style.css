@@ -228,6 +228,10 @@ main { width: 100%; max-width: 1120px; margin: 0 auto; padding: 14px var(--gutte
 .badge .ic { width: 18px; height: 18px; }
 .badge.ok { background: var(--ok-bg); color: var(--ok-t); }
 .badge.warn { background: var(--warn-bg); color: var(--warn-t); }
+.badge.ind { background: var(--warn-bg); color: var(--warn-t); box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--warn-t) 55%, transparent); }
+.hero-tier { margin-top: 12px; font-size: .92rem; line-height: 1.35; font-weight: 500; color: var(--muted); }
+.hero-tier.certified { color: var(--ok-t); }
+.hero-tier.indicative { color: var(--warn-t); }
 .hero-num { display: flex; align-items: baseline; gap: .06em; margin-top: 2px; line-height: .92; }
 .hero-num .n { font-size: var(--t-hero); font-weight: 600; letter-spacing: -.045em; font-feature-settings: "tnum" 1; }
 .hero-num .n.none { font-size: 3rem; letter-spacing: -.03em; color: var(--muted); }
@@ -271,6 +275,7 @@ main { width: 100%; max-width: 1120px; margin: 0 auto; padding: 14px var(--gutte
 .tile.flagged { background: var(--warn-bg); border-style: dashed; border-color: color-mix(in srgb, var(--warn-t) 55%, transparent); }
 .tile.flagged .tile-st { color: var(--warn-t); }
 .tile.flagged[aria-pressed="true"] { border-style: solid; border-color: var(--ink); background: var(--warn-bg); }
+.tile.indic .tile-st { color: var(--warn-t); }
 .tile-id { font-family: var(--mono); font-size: .75rem; font-weight: 600; color: var(--muted); }
 .tile-w { font-size: 1.5rem; font-weight: 650; letter-spacing: -.035em; line-height: 1.1; }
 .tile-u { font-family: var(--mono); font-size: .72rem; color: var(--muted); }

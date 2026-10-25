@@ -328,9 +328,9 @@ def test_crc_unstable_width_and_low_confidence_split_by_cause():
 
 def test_crc_move_closer_quotes_px_per_mm_guidance():
     r = crc_decide(crc_obs(px_per_mm=3.0), crc_gate("low_resolution"), [crack(0.5, 3.0)])
-    assert "3 px/mm" in r["instruction"] and "0.5 mm" in r["instruction"] and "about 18" in r["instruction"]
+    assert "3 px/mm" in r["instruction"] and "0.5 mm" in r["instruction"] and "about 10" in r["instruction"]
     r = crc_decide(crc_obs(px_per_mm=3.0), crc_gate("low_resolution"), [crack(0.4, 3.0)])
-    assert "about 9" in r["instruction"]
+    assert "about 10" in r["instruction"]
     wide = crc_decide(crc_obs(px_per_mm=3.0), crc_gate("low_resolution"), [crack(1.5, 3.0)])
     assert "3 px/mm" in wide["instruction"] and "about" not in wide["instruction"]
 
@@ -397,7 +397,7 @@ def test_crc_payload_has_failing_checks_and_marginal_flags():
     o = crc_obs(px_per_mm=4.0)
     cc = agent.build_user_payload(o, crc_gate("low_resolution", "unstable_width"), [crack(0.5, 4.0, thr * 1.1)], [])["current_capture"]
     checks = {c["check"]: c for c in cc["failing_checks"]}
-    assert checks["low_resolution"]["px_per_mm_guidance"] == 18.0 and checks["low_resolution"]["value"] == 4.0
+    assert checks["low_resolution"]["px_per_mm_guidance"] == 10.0 and checks["low_resolution"]["value"] == 4.0
     assert "unstable_width" in checks and cc["all_failures_marginal"] is True and cc["percent_past_certify_level"] == 10
     assert cc["measured_cracks"][0]["interval_mm"] and cc["measured_cracks"][0]["risk_ratio"]
     assert cc["observation"]["blur_sigma_mm"] == 0.08
@@ -416,3 +416,39 @@ def test_legacy_gate_dicts_keep_legacy_behaviour():
 
 def test_reason_short_covers_every_code():
     assert set(agent.REASON_SHORT) == set(agent.GATE_REASON_CODES)
+
+
+# ------------------------------------------------------------------ two-tier certificate
+def tier_gate(tier, tier_reasons=()):
+    return {**crc_gate(certified=tier != "refused"), "tier": tier, "tier_reasons": list(tier_reasons)}
+
+
+def test_indicative_gets_one_optional_improving_action_then_accepts():
+    g = tier_gate("indicative", ["low_resolution"])
+    cr = [crack(0.5, 6.0, 0.8, True)]
+    r = crc_decide(crc_obs(px_per_mm=6.0), g, cr)
+    assert r["action"] == "move_closer" and "Usable" in r["instruction"]
+    # already offered once: the second indicative capture in a row is accepted
+    hist = [{"observation": crc_obs(px_per_mm=6.0), "gate": g, "decision": r}]
+    assert crc_decide(crc_obs(px_per_mm=6.0), g, cr, hist)["action"] == "accept"
+    # no named improvement: just accept
+    assert crc_decide(crc_obs(), tier_gate("indicative"), cr)["action"] == "accept"
+
+
+def test_certified_and_refused_tiers_behave_as_before():
+    cr = [crack(0.5, 14.0, 0.3, True)]
+    assert crc_decide(crc_obs(), tier_gate("certified"), cr)["action"] == "accept"
+    # a gate dict without a tier (older callers) is unchanged
+    assert crc_decide(crc_obs(), crc_gate(certified=True), cr)["action"] == "accept"
+    ref = crc_decide(crc_obs(px_per_mm=3.0), {**crc_gate("low_resolution"), "tier": "refused", "tier_reasons": []}, [crack(0.5, 3.0)])
+    assert ref["action"] == "move_closer"
+
+
+def test_tier_is_in_the_llm_observation():
+    g = tier_gate("indicative", ["blurry"])
+    cr = [{**crack(0.5, 6.0, 0.8, True), "tier": "indicative"}]
+    p = agent.build_user_payload(crc_obs(), g, cr, [])
+    gate = p["current_capture"]["gate"]
+    assert gate["tier"] == "indicative" and gate["tier_reasons"] == ["blurry"] and gate["prior_indicative_captures"] == 0
+    assert p["current_capture"]["measured_cracks"][0]["tier"] == "indicative"
+    assert "indicative" in agent.SYSTEM_PROMPT

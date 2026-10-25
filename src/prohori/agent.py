@@ -60,13 +60,12 @@ GATE_THRESHOLDS = LEGACY_GATE_THRESHOLDS  # name used by episodes.py, eval/agent
 # values) and mirrored in gate_params.json["required_px_per_mm"]; tests/test_agent.py checks the two agree.
 # (upper width bound in mm, px/mm needed). Widths >= the last bound pass at any px/mm in the calibrated 3-30 range
 # when the rest of the capture is good. The 0.3 mm row is the krkCMd/D15 recommendation (20 px/mm for a 0.05 mm
-# claim): the fitted gate lets 0.3 mm pass only in the best conditions. The table is not monotone (0.4 mm needs 9,
-# 0.5 mm needs 18) because the learned gate is not; it is quoted as fitted.
-GATE_GUIDANCE_PPM = ((0.35, 20.0), (0.45, 9.0), (0.60, 18.0))
+# claim): the fitted gate lets 0.3 mm pass only in the best conditions. 0.4 and 0.5 mm both need about 10 in the shipped refit (2026-10-25).
+GATE_GUIDANCE_PPM = ((0.35, 20.0), (0.60, 10.0))
 GUIDANCE_DEFAULT_PPM = 8.0     # practical target when the crack width is unknown or already wide
 GUIDANCE_SOFT_BLUR_VAR = 150.0  # Laplacian variance below this = soft picture (used to tell blur from distance)
 GUIDANCE_SOFT_BLUR_SIGMA_MM = 0.2  # edge-spread blur sigma above this (mm on the wall) = soft picture
-CERT_RISK_RATIO_FALLBACK = 0.893  # exp(theta) of the default level (theta = -0.113) if gate_params.json is unreadable
+CERT_RISK_RATIO_FALLBACK = 0.872  # exp(theta) of the default level (theta = -0.137) if gate_params.json is unreadable
 
 # Reason codes the deployed gate can emit (gate.py: REASON_GROUPS + qa_reasons + ood_reasons) plus the two the
 # pipeline adds before the gate runs.
@@ -126,7 +125,7 @@ measured_cracks lists per crack: certified, status, reasons, interval_mm, risk_r
 - low_confidence: nothing single to blame, the capture is just worse than the gate has seen certify.
 - invalid_image: the frame was unusable, ask for a retake (reposition_marker).
 certified=false with an empty reasons list means no crack was detected: use reposition_marker to frame the crack next to the board.
-GUIDANCE (rules of thumb from the gate's calibration, not thresholds): wide cracks (0.75 mm and up) can certify at low px/mm if the capture is otherwise good; a 0.4 mm crack needs about 9 px/mm, a 0.5 mm crack about 18, a 0.3 mm crack about 20 and the best conditions. When a thin crack is flagged and px_per_mm is below that, move_closer is the fix. When blur_var is below {GUIDANCE_SOFT_BLUR_VAR:.0f} the picture is soft: that is a steadiness problem even when the reason is unstable_width or low_confidence.
+GUIDANCE (rules of thumb from the gate's calibration, not thresholds): wide cracks (0.75 mm and up) can certify at low px/mm if the capture is otherwise good; a 0.4 or 0.5 mm crack needs about 10 px/mm, a 0.3 mm crack about 20 and the best conditions. When a thin crack is flagged and px_per_mm is below that, move_closer is the fix. When blur_var is below {GUIDANCE_SOFT_BLUR_VAR:.0f} the picture is soft: that is a steadiness problem even when the reason is unstable_width or low_confidence.
 
 ACTIONS
 - accept: the capture is certified; report the certified width(s) and, if some cracks are flagged, say how many and why. Use ONLY when gate.certified is true.
@@ -138,7 +137,7 @@ ACTIONS
 - abandon_and_log: give up on this crack and log the failure; use once consecutive_failed_attempts_before_this is {MAX_FAILED_ATTEMPTS - 1} or more (this capture is the {MAX_FAILED_ATTEMPTS}th failure).
 
 RULES
-1. Prefer the single action that fixes the dominant failure. Name the number that triggered it in the instruction, e.g. "Move closer: the board is only 3 px/mm, a 0.5 mm crack needs about 18."
+1. Prefer the single action that fixes the dominant failure. Name the number that triggered it in the instruction, e.g. "Move closer: the board is only 3 px/mm, a 0.5 mm crack needs about 10."
 2. Compound failures: decide which to fix first, in this order.
    a. Glare that is hiding the board (glare is a reason and corners is below 12): relight first.
    b. Obliquity together with ANY other reason: reposition_marker first. A steep angle lowers px/mm and corner detection, and re-aiming the phone changes the glare and the shake, so fixes made before it are often undone.
@@ -147,7 +146,8 @@ RULES
 3. Use history. Do not repeat an action that already failed twice in a row; try the next-most-important fix or escalate.
 3a. Marginal exit first: if widen_now_allowed is true, choose accept_with_widened_uncertainty. This beats a further retry and beats abandon_and_log.
 3b. Otherwise, never choose abandon_and_log unless abandon_now_allowed is true; when it is true, choose abandon_and_log.
-4. Never accept an uncertified capture. Never ask for another shot when gate.certified is true: choose accept (even if some cracks are flagged).
+4. Never accept an uncertified capture. Never ask for another shot when gate.certified is true: choose accept (even if some cracks are flagged). One exception, rule 4a.
+4a. Two tiers: gate.tier is "certified" (strict, about 3 in 100 certified readings wrong), "indicative" (default level: usable with the interval_mm range, more wrong readings) or "refused". gate.certified is true for both certified and indicative. If gate.tier is "indicative", prior_indicative_captures is 0 and gate.tier_reasons is not empty, you MAY choose the one improving action that fixes the first tier_reasons entry (same action mapping as above) to reach a certified reading; the instruction must say the current reading is usable. Otherwise (second indicative capture in a row, or no tier_reasons) choose accept. Never use abandon_and_log or accept_with_widened_uncertainty on a certified or indicative capture.
 5. instruction: at most {INSTRUCTION_MAX} characters, plain words, imperative, for someone holding a phone on a ladder. No jargon, no emojis. rationale: one or two sentences for the audit trace, citing the numbers.
 Always answer by calling the choose_action tool."""
 
@@ -216,6 +216,26 @@ def _gate_reasons(gate: dict | None) -> list[str]:
 
 def _certified(gate: dict | None) -> bool:
     return bool((gate or {}).get("certified"))
+
+
+def _tier(gate: dict | None) -> str | None:
+    """Capture-level tier of the two-tier certificate ("certified" | "indicative" | "refused"), None for older gates."""
+    return (gate or {}).get("tier")
+
+
+def _indicative(gate: dict | None) -> bool:
+    """Certified at the default level but not at the strict one: usable with the interval shown."""
+    return _certified(gate) and _tier(gate) == "indicative"
+
+
+def prior_indicative(history: list[dict] | None) -> int:
+    """Number of trailing history steps whose capture was only "indicative" (one improving retry is enough)."""
+    n = 0
+    for step in reversed(history or []):
+        if not _indicative(step.get("gate")):
+            break
+        n += 1
+    return n
 
 
 def failed_attempts(history: list[dict] | None) -> int:
@@ -523,7 +543,8 @@ def _crc_accept(cracks: list, gate: dict) -> str:
     best = min(cert, key=lambda c: _num(c.get("risk_ratio")) or 0) if cert else _best_crack(cracks)
     w, rng = _num((best or {}).get("width_mm")), _range_txt(best)
     tail = f" Best: {_mm(w)} mm" + (f" (90% range {rng})." if rng else ".") if w is not None else ""
-    return f"Certified {n} of {total} cracks.{tail} " + ("Flagged ones are marked." if total > n else "Move on.")
+    ind = " Indicative reading: use it with the range." if _indicative(gate) else ""
+    return f"Certified {n} of {total} cracks.{tail}{ind} " + ("Flagged ones are marked." if total > n else "Move on.")
 
 
 def rules_policy(observation: dict, gate: dict, cracks: list, history: list[dict]) -> dict:
@@ -545,6 +566,15 @@ def crc_rules_decide(observation: dict, gate: dict, cracks: list, history: list[
 
 def _crc_rules(observation, gate, cracks, history, t0) -> dict:
     o = observation or {}
+    if _indicative(gate) and prior_indicative(history) == 0 and gate.get("tier_reasons"):
+        # Two-tier certificate: the capture is usable (indicative) but one improving retake could reach "certified".
+        # Offered once; accepting is always fine (the second indicative capture in a row is accepted).
+        best = _best_crack(cracks)
+        present = _crc_pick(list(gate["tier_reasons"]), o)
+        action, text = _crc_fix(present[0], o, best)
+        return _result(action, f"Usable as is. For a certified reading: {text}",
+                       f"Indicative tier (passes the default level, not the strict one); fixing {present[0]} "
+                       f"would move it toward certified. One optional retake, accepting is fine.", "rules", None, t0)
     if _certified(gate):
         return _result("accept", _crc_accept(cracks, gate),
                        f"Gate certified {gate.get('cracks_certified')} of {gate.get('cracks_total')} cracks.", "rules", None, t0)
@@ -754,7 +784,7 @@ def build_user_payload(observation: dict, gate: dict, cracks: list, history: lis
     for c in cracks or []:
         keys = ("id", "width_mm", "uncertainty_mm", "length_mm")
         if crc:
-            keys += ("px_per_mm", "certified", "status", "reasons", "interval_mm", "risk_ratio")
+            keys += ("px_per_mm", "certified", "status", "reasons", "interval_mm", "risk_ratio", "tier")
         cr.append({k: c.get(k) for k in keys if k in c})
     hist = []
     for i, s in enumerate((history or [])[-6:]):
@@ -768,7 +798,9 @@ def build_user_payload(observation: dict, gate: dict, cracks: list, history: lis
         "current_capture": {
             "observation": _obs_for_llm(observation, crc),
             "gate": {"certified": _certified(gate), "reasons": _gate_reasons(gate),
-                     **({"cracks_certified": gate.get("cracks_certified"), "cracks_total": gate.get("cracks_total")} if crc else {})},
+                     **({"cracks_certified": gate.get("cracks_certified"), "cracks_total": gate.get("cracks_total")} if crc else {}),
+                     **({"tier": gate.get("tier"), "tier_reasons": list(gate.get("tier_reasons") or []),
+                         "prior_indicative_captures": prior_indicative(history)} if crc and gate.get("tier") else {})},
             "measured_cracks": cr,
             **_derived_for_llm(observation, gate, cracks),
         },
@@ -818,7 +850,10 @@ def _llm(observation, gate, cracks, history, t0) -> dict:
             raise ValueError("empty instruction from model")
         cert = _certified(gate)
         if cert and action != "accept":
-            raise ValueError(f"guard: certified gate but model chose {action}")
+            # only exception: an indicative capture, first time, may get ONE improving retake action
+            improving = ("move_closer", "reshoot_steadier", "relight", "reposition_marker")
+            if not (_indicative(gate) and prior_indicative(history) == 0 and action in improving):
+                raise ValueError(f"guard: certified gate but model chose {action}")
         if not cert and action == "accept":
             raise ValueError("guard: model chose accept on uncertified gate")
         return _result(action, instruction, args.get("rationale") or "", "llm", model, t0, None, it, ot)

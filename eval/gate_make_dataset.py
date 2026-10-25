@@ -11,7 +11,12 @@ Outputs
   data/gatecal/rows.parquet                    one row per crack measurement (git-ignored)
   eval/results/gate_calibration_features.parquet   the same table, the input of eval/gate_fit.py
 
-Usage: python eval/gate_make_dataset.py [--variants 140] [--workers 7] [--limit-photos N] [--table-only]
+The shipped estimator configuration (measure.CFG, D18) is the default; --cfg legacy reproduces the 2026-10-19 set with the
+files manifest.jsonl / rows.parquet (kept for the old-vs-new comparison); --cfg shipped writes manifest_shipped.jsonl,
+rows_shipped.parquet and eval/results/gate_calibration_features.parquet.  Crack polylines (image px) and the board corner
+pixels are stored too (needed by the distance-from-board feature).
+
+Usage: python eval/gate_make_dataset.py [--cfg shipped|legacy] [--variants 120] [--workers 6] [--limit-photos N] [--table-only]
 """
 from __future__ import annotations
 
@@ -33,6 +38,9 @@ sys.path.insert(0, str(ROOT / "eval"))
 SEED = 20261019
 OUT = ROOT / "data" / "gatecal"
 _state: dict = {}
+# panel layout: specimen centres 32 / 66 / 100 / 134 mm below the board edge (data/print/test_panel_ground_truth.json)
+LAYOUT_DIST_BW = {"C1": 32 / 140, "C2": 32 / 140, "C3": 66 / 140, "C4": 66 / 140, "C5": 100 / 140, "C6": 100 / 140,
+                  "C7": 134 / 140, "C8": 134 / 140}
 
 
 def group_of(path: Path) -> str:
@@ -62,6 +70,10 @@ def _load(path: str):
     return img, Hb, ctr
 
 
+def _init(cfg_name):
+    _state["cfg_name"] = cfg_name
+
+
 def work(task):
     """task = (path, photo_idx, v, save_example) -> record dict."""
     import gate_degrade as gd
@@ -84,11 +96,14 @@ def work(task):
         (OUT / "examples").mkdir(parents=True, exist_ok=True)
         cv2.imwrite(str(OUT / "examples" / f"{Path(path).stem}_v{v}.jpg"), deg, [cv2.IMWRITE_JPEG_QUALITY, 85])
     t1 = time.perf_counter()
-    r = measure.analyze(deg, panel_mode=True, apply_gate=False)
-    obs = {k: val for k, val in r["observation"].items() if k != "corners_px"}
+    cfg_name = _state.get("cfg_name", "shipped")
+    r = measure.analyze(deg, panel_mode=True, apply_gate=False,
+                        cfg=measure.LEGACY_CFG if cfg_name == "legacy" else None)
+    obs = dict(r["observation"])  # keeps corners_px: the distance-from-board feature is computed from it (gate.raw_features)
     cr = [{k: c[k] for k in ("id", "true_width_mm", "width_mm", "uncertainty_model_mm", "length_mm", "locator",
-                             "estimators", "px_per_mm", "quality")} for c in r["cracks"]]
+                             "estimators", "px_per_mm", "quality", "polyline_px")} for c in r["cracks"]]
     rec.update(recipe=recipe, error=r["error"], observation=obs, cracks=cr, shape=list(deg.shape[:2]),
+               cfg=cfg_name,
                gen_s=round(t1 - t0, 3), ana_s=round(time.perf_counter() - t1, 3), analyze_ms=r["timing_ms"]["total"])
     return rec
 
@@ -131,7 +146,11 @@ def flatten(records):
         for c in r["cracks"]:
             row = {**base, "crack": c["id"], "locator": c["locator"], "true_mm": c["true_width_mm"],
                    "width_mm": c["width_mm"], "err_mm": round(c["width_mm"] - c["true_width_mm"], 5),
-                   "u_model_mm": c["uncertainty_model_mm"], "ppm": c["px_per_mm"], "length_mm": c["length_mm"]}
+                   "u_model_mm": c["uncertainty_model_mm"], "ppm": c["px_per_mm"], "length_mm": c["length_mm"],
+                   # distance from the board edge in board widths: deployable estimate (centroid / farthest vertex, from the
+                   # corner pixels and the polyline) and the layout truth of the printed panel (diagnostic only)
+                   "dist_bw": gate.board_distance_bw(obs, c), "dist_far_bw": gate.board_distance_bw(obs, c, farthest=True),
+                   "dist_layout_bw": LAYOUT_DIST_BW.get(c["id"], float("nan"))}
             for k, val in c["estimators"].items():
                 row["est_" + k] = val
             for k, val in c["quality"].items():
@@ -147,13 +166,15 @@ def flatten(records):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--raw", default=str(ROOT / "data/raw"))
-    ap.add_argument("--variants", type=int, default=140)
-    ap.add_argument("--workers", type=int, default=7)
+    ap.add_argument("--cfg", choices=["shipped", "legacy"], default="shipped")
+    ap.add_argument("--variants", type=int, default=120)
+    ap.add_argument("--workers", type=int, default=6)
     ap.add_argument("--limit-photos", type=int, default=0)
     ap.add_argument("--table-only", action="store_true")
     a = ap.parse_args()
     OUT.mkdir(parents=True, exist_ok=True)
-    manifest = OUT / "manifest.jsonl"
+    sfx = "" if a.cfg == "legacy" else "_shipped"
+    manifest = OUT / f"manifest{sfx}.jsonl"
     files = sorted(Path(a.raw).glob("*.jpg"))
     if a.limit_photos:
         files = files[:a.limit_photos]
@@ -168,7 +189,7 @@ def main():
                  if (Path(t[0]).name, t[2]) not in done]
         print(f"{len(files)} photos x {a.variants} variants; {len(tasks)} to run, {len(done)} already done", flush=True)
         t0 = time.time()
-        with open(manifest, "a", encoding="utf-8") as fh, mp.Pool(a.workers) as pool:
+        with open(manifest, "a", encoding="utf-8") as fh, mp.Pool(a.workers, initializer=_init, initargs=(a.cfg,)) as pool:
             for i, rec in enumerate(pool.imap(work, tasks, chunksize=1)):
                 fh.write(json.dumps(rec) + "\n")
                 if i % 50 == 0:
@@ -179,9 +200,10 @@ def main():
     ok = [r for r in records if r.get("observation") is not None]
     print(f"{len(records)} records, {len(ok)} with a source board")
     df = flatten(records)
-    df.to_parquet(OUT / "rows.parquet", index=False)
+    df.to_parquet(OUT / f"rows{sfx}.parquet", index=False)
     (ROOT / "eval" / "results").mkdir(parents=True, exist_ok=True)
-    df.to_parquet(ROOT / "eval" / "results" / "gate_calibration_features.parquet", index=False)
+    if a.cfg == "shipped":
+        df.to_parquet(ROOT / "eval" / "results" / "gate_calibration_features.parquet", index=False)
     meas = df[df["crack"] != ""]
     print(f"rows {len(df)}  crack measurements {len(meas)}  groups {df['group'].nunique()}  "
           f"captures {df.groupby(['photo', 'v']).ngroups}")

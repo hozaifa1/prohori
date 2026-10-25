@@ -39,6 +39,15 @@ if str(SRC_DIR) not in sys.path:
 
 log = logging.getLogger("prohori.service")
 
+# One JSON line per request on stdout (CloudWatch picks it up from the journal). Never image data, never an IP.
+access_log = logging.getLogger("prohori.access")
+if not access_log.handlers:
+    _h = logging.StreamHandler(sys.stdout)
+    _h.setFormatter(logging.Formatter("%(message)s"))
+    access_log.addHandler(_h)
+    access_log.setLevel(logging.INFO)
+    access_log.propagate = False
+
 # --------------------------------------------------------------------------
 # Config
 # --------------------------------------------------------------------------
@@ -390,6 +399,7 @@ def _joint_block(joint_id: str, session_id: str, step_idx: int, result: dict, ob
                 "width_mm": crack.get("width_mm"), "uncertainty_mm": crack.get("uncertainty_mm"),
                 "px_per_mm": observation.get("px_per_mm"), "crack_id": crack.get("id"),
                 "n_cracks": len(cracks), "evidence": evidence,
+                "tier": crack.get("tier") or gate.get("tier"),
             })
             records = records + [logged]
             block["logged"] = True
@@ -515,6 +525,61 @@ def run_pipeline(data: bytes, session_id: str, policy: str, t0: float, joint_id:
 # --------------------------------------------------------------------------
 app = FastAPI(title="Prohori", version="0.1.0", docs_url="/docs", redoc_url=None)
 
+_ID_IN_PATH = re.compile(r"(?<=/)(?:[A-Za-z0-9_-]{20,}|[0-9a-f-]{8,})(?=/|$)")
+
+
+def _route_of(scope) -> str:
+    """Route template (low cardinality), falling back to the path with long ids masked."""
+    r = scope.get("route")
+    path = getattr(r, "path", None)
+    return path or _ID_IN_PATH.sub("{id}", scope.get("path", ""))
+
+
+class AccessLogMiddleware:
+    """Pure ASGI middleware: one JSON log line per HTTP request.
+
+    Fields: route, method, status, ms, plus whatever the handler put in request.state.log (session, gate, action...).
+    """
+
+    def __init__(self, inner):
+        self.inner = inner
+
+    async def __call__(self, scope, receive, send):
+        if scope["type"] != "http":
+            await self.inner(scope, receive, send)
+            return
+        t0 = time.perf_counter()
+        status = {"v": 500}
+
+        async def send_wrap(message):
+            if message["type"] == "http.response.start":
+                status["v"] = message["status"]
+            await send(message)
+
+        try:
+            await self.inner(scope, receive, send_wrap)
+        finally:
+            try:
+                extra = (scope.get("state") or {}).get("log") or {}
+                rec = {"ts": _dt.datetime.now(_dt.timezone.utc).isoformat(timespec="milliseconds"),
+                       "evt": "request", "route": _route_of(scope), "method": scope.get("method"),
+                       "status": status["v"], "ms": round((time.perf_counter() - t0) * 1000, 1), **extra}
+                access_log.info(json.dumps(rec, separators=(",", ":"), default=str))
+            except Exception:  # logging must never break a request
+                pass
+
+
+def _log_fields(request: Request, **kw) -> None:
+    """Attach structured-log fields to this request (no image data, no personal data)."""
+    d = getattr(request.state, "log", None)
+    if d is None:
+        d = {}
+        request.state.log = d
+    d.update({k: v for k, v in kw.items() if v is not None})
+
+
+app.add_middleware(AccessLogMiddleware)
+
 NO_CACHE = {"Cache-Control": "no-cache"}
 
 
@@ -544,6 +609,25 @@ def _err(status: int, msg: str) -> JSONResponse:
     return JSONResponse({"detail": msg}, status_code=status)
 
 
+def _measure_log_fields(payload: dict) -> dict:
+    """Small, non-identifying summary of a measurement for the access log."""
+    m = payload.get("measurement") or {}
+    g = m.get("gate") or {}
+    o = m.get("observation") or {}
+    d = payload.get("decision") or {}
+    total, ok = g.get("cracks_total"), g.get("cracks_certified")
+    if not o.get("board_found", (o.get("corners") or 0) > 0):
+        gate = "no_board"
+    elif g.get("certified"):
+        gate = "certified"
+    else:
+        gate = "refused"
+    return {"step": payload.get("step"), "gate": gate, "tier": g.get("tier"), "cracks": total, "cracks_certified": ok,
+            "action": d.get("action"), "agent_policy": d.get("policy"), "px_per_mm": o.get("px_per_mm"),
+            "server_ms": payload.get("server_ms"), "faces": (payload.get("redaction") or {}).get("faces"),
+            "escalated": bool((payload.get("escalation") or {}).get("escalated"))}
+
+
 @app.post("/api/measure")
 async def api_measure(
     request: Request,
@@ -564,6 +648,7 @@ async def api_measure(
     session_id = (session_id or "").strip() or str(uuid.uuid4())
     if not SESSION_RE.match(session_id):
         return _err(400, "invalid session_id.")
+    _log_fields(request, session=session_id, policy=policy)
 
     joint = None
     if joint_id is not None and joint_id.strip():
@@ -584,13 +669,15 @@ async def api_measure(
     except Exception as exc:
         log.exception("pipeline failed")
         return _err(500, f"Measurement failed: {type(exc).__name__}: {exc}")
+    _log_fields(request, **_measure_log_fields(payload))
     return JSONResponse(payload)
 
 
 @app.get("/api/trace/{session_id}")
-async def api_trace(session_id: str):
+async def api_trace(request: Request, session_id: str):
     if not SESSION_RE.match(session_id):
         return _err(400, "invalid session_id.")
+    _log_fields(request, session=session_id)
     steps = await run_in_threadpool(session_history, session_id)
     return JSONResponse(to_jsonable(steps))
 
@@ -683,6 +770,23 @@ async def api_samples():
 
 @app.get("/", include_in_schema=False)
 async def index():
+    return FileResponse(STATIC_DIR / "index.html", headers=NO_CACHE)
+
+
+# Client-side routes of the single-page app: the same HTML, so a link such as /trace/<session> opens the viewer.
+@app.get("/about", include_in_schema=False)
+@app.get("/capture", include_in_schema=False)
+@app.get("/story", include_in_schema=False)
+async def spa_page():
+    return FileResponse(STATIC_DIR / "index.html", headers=NO_CACHE)
+
+
+@app.get("/trace/{session_id}", include_in_schema=False)
+async def trace_page(request: Request, session_id: str):
+    """Readable timeline of one inspection (the page fetches /api/trace/{session_id} for the raw JSON)."""
+    if not SESSION_RE.match(session_id):
+        return _err(404, "not found")
+    _log_fields(request, session=session_id)
     return FileResponse(STATIC_DIR / "index.html", headers=NO_CACHE)
 
 
