@@ -1331,11 +1331,6 @@ def _prepare(img: np.ndarray, panel_mode: bool, res: dict, extract: bool = True)
     ppm_board = _local_scale(Hinv, np.array([BOARD_W_MM / 2, BOARD_H_MM / 2]))
     res["timing_ms"]["detect"] = round((time.perf_counter() - t) * 1000, 1)
 
-    # blur variance and noise on the board region (native res) and the optical blur from the board edges: independent of the
-    # locator below, so they run alongside it
-    q_fut = _submit(_board_quality, grey, Hinv, w, h)
-    e_fut = _submit(_edge_sigma, grey, H, ppm_board)
-
     # ---------------- rectify page / region at locator resolution
     t = time.perf_counter()
     gt = _gt() if panel_mode else None
@@ -1392,6 +1387,10 @@ def _prepare(img: np.ndarray, panel_mode: bool, res: dict, extract: bool = True)
     except Exception:
         ink_dark = None
 
+    # blur variance and noise on the board region (native res) and the optical blur from the board edges: independent of the
+    # locator, so they run alongside it (started after the locator's own big OpenCV calls so they do not compete with them)
+    q_fut = _submit(_board_quality, grey, Hinv, w, h)
+    e_fut = _submit(_edge_sigma, grey, H, ppm_board)
     comps, _ = _locate_cracks(canvas, valid, S_loc, origin, panel_mode, excl)
     res["timing_ms"]["rectify"] = round((time.perf_counter() - t) * 1000, 1)
 
