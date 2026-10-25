@@ -371,6 +371,68 @@ def _thin(img: np.ndarray) -> np.ndarray:
     return a * 255
 
 
+# ----------------------------------------------------------------------------- exact shortcuts
+
+_ONES: dict = {}
+
+
+def _ones255(shape) -> np.ndarray:
+    """Read-only all-255 uint8 image of `shape` (the source of every validity-mask warp), allocated once instead of per call
+    (12 MB for a 12 MP photo, 8 times per frame)."""
+    shape = tuple(shape)
+    cur = _ONES.get("cur")  # one (shape, image) tuple, replaced atomically: safe to call from several threads
+    if cur is None or cur[0] != shape:
+        cur = _ONES["cur"] = (shape, np.full(shape, 255, np.uint8))
+    return cur[1]
+
+
+def _warp_valid(src_shape, Hm: np.ndarray, dsize: tuple, erode: int = 0) -> np.ndarray:
+    """Boolean validity mask of a warp: destination pixels (dsize = (width, height)) whose INTER_NEAREST source sample lies
+    inside the source image, then (if erode > 0) eroded with an erode x erode box.  Exactly the old
+    `warpPerspective(255-image, Hm, dsize, INTER_NEAREST)` (+ erode) > 0, but when the four destination corners map to
+    well inside the source (2 px margin; a projective map takes the rectangle to the convex hull of its corners as long
+    as no corner is behind the camera) every destination pixel is valid, which is returned without warping."""
+    h, w = src_shape[:2]
+    Wd, Hd = dsize
+    try:
+        Hinv = np.linalg.inv(Hm)
+        c = np.array([[0.0, 0.0, 1.0], [Wd - 1.0, 0.0, 1.0], [Wd - 1.0, Hd - 1.0, 1.0], [0.0, Hd - 1.0, 1.0]]) @ Hinv.T
+        if (c[:, 2] > 1e-9).all() or (c[:, 2] < -1e-9).all():
+            xy = c[:, :2] / c[:, 2:3]
+            if (xy >= 2.0).all() and (xy[:, 0] <= w - 3.0).all() and (xy[:, 1] <= h - 3.0).all():
+                return np.ones((Hd, Wd), bool)
+    except np.linalg.LinAlgError:
+        pass
+    v = cv2.warpPerspective(_ones255(src_shape), Hm, dsize, flags=cv2.INTER_NEAREST)
+    if erode:
+        v = cv2.erode(v, np.ones((erode, erode), np.uint8))
+    return v > 0
+
+
+def _median_u8(img: np.ndarray, mask: np.ndarray | None = None, lut: np.ndarray | None = None) -> float | None:
+    """np.median of img[mask] (all pixels if mask is None), or of lut[img[mask]] for a monotone non-decreasing 256-entry float
+    lut, from a 256-bin histogram instead of a partial sort of millions of floats; bit-identical to np.median (same
+    float32 / float64 arithmetic for the mean of the two middle samples).  None if nothing is selected."""
+    if mask is None:
+        hist = np.bincount(img.reshape(-1), minlength=256)
+    else:
+        hist = cv2.calcHist([img], [0], mask.view(np.uint8) if mask.dtype == bool else mask, [256], [0, 256]).ravel()
+    n = int(round(float(hist.sum())))
+    if n == 0:
+        return None
+    cum = np.cumsum(hist)
+    k = n // 2
+    hi = int(np.searchsorted(cum, k, side="right"))  # level of the (k+1)-th smallest sample
+    if n % 2:
+        lo = hi
+    else:
+        lo = int(np.searchsorted(cum, k - 1, side="right"))
+    if lut is None:
+        return float((lo + hi) / 2.0) if lo != hi else float(hi)
+    a, b = np.float32(lut[lo]), np.float32(lut[hi])
+    return float((a + b) / np.float32(2)) if lo != hi else float(a)
+
+
 # ----------------------------------------------------------------------------- skeleton paths
 
 def _longest_path(sk: np.ndarray) -> np.ndarray:
@@ -450,7 +512,8 @@ def _locate_cracks(canvas: np.ndarray, valid: np.ndarray, S: float, origin: np.n
     Returns (list of dict(skel_b: Nx2 board-mm ordered path, locator)), dark-mask (for debugging).
     """
     g = cv2.GaussianBlur(canvas, (0, 0), 0.7)
-    fill = int(np.median(g[valid])) if valid.any() else 200
+    med = _median_u8(g, valid)
+    fill = int(med) if med is not None else 200
     g = np.where(valid, g, fill).astype(np.uint8)
     bg = _bg_map(g.astype(np.float32), int(8 * S))
     gf = g.astype(np.float32)
@@ -626,8 +689,7 @@ def _extract_roi(grey_full: np.ndarray, H_img2board: np.ndarray, seed_b: np.ndar
     Hm = np.array([[S, 0, -lo[0] * S], [0, S, -lo[1] * S], [0, 0, 1]]) @ H_img2board
     roi = cv2.warpPerspective(grey_full, Hm, (Wd, Hd), flags=cv2.INTER_CUBIC, borderMode=cv2.BORDER_CONSTANT,
                               borderValue=0)
-    val = cv2.warpPerspective(np.full(grey_full.shape, 255, np.uint8), Hm, (Wd, Hd), flags=cv2.INTER_NEAREST)
-    val = cv2.erode(val, np.ones((5, 5), np.uint8)) > 0
+    val = _warp_valid(grey_full.shape, Hm, (Wd, Hd), 5)
     return {"roi": roi, "val": val, "lo": lo, "S": S, "seed_b": seed_b, "corridor_mm": corridor_mm}
 
 
@@ -657,7 +719,8 @@ def _measure_roi(rp: dict, ink_dark: float | None, sigma_mm: float, blend: dict 
     cv2.polylines(corr, [np.round(seed_px).astype(np.int32).reshape(-1, 1, 2)], False, 255,
                   thickness=int(round(2 * corridor_mm * S)))
     corr_b = corr > 0
-    fillv = float(np.median(lin[val])) if val.any() else 0.8
+    med = _median_u8(roi, val, _lin_lut())
+    fillv = med if med is not None else 0.8
     linf = np.where(val, lin, fillv).astype(np.float32)
     bgm = _bg_map(linf, int(6.0 * S))
     D = bgm - linf  # darkness, linear light
@@ -1029,7 +1092,7 @@ def _edge_sigma(grey: np.ndarray, H_img2board: np.ndarray, ppm: float) -> float:
     W, Hh = int(round((BOARD_W_MM + 4) * S)), int(round((BOARD_H_MM + 4) * S))
     Hm = np.array([[S, 0, 2 * S], [0, S, 2 * S], [0, 0, 1]]) @ H_img2board
     img = cv2.warpPerspective(grey, Hm, (W, Hh), flags=cv2.INTER_LINEAR).astype(np.float32)
-    val = cv2.warpPerspective(np.full(grey.shape, 255, np.uint8), Hm, (W, Hh), flags=cv2.INTER_NEAREST) > 0
+    val = _warp_valid(grey.shape, Hm, (W, Hh))
     half = 1.2
     hw = int(half * S)
     sigs = []
@@ -1224,8 +1287,7 @@ def _prepare(img: np.ndarray, panel_mode: bool, res: dict, extract: bool = True)
     A = np.array([[S_loc, 0, -origin[0] * S_loc], [0, S_loc, -origin[1] * S_loc], [0, 0, 1]])
     Hloc = A @ H @ np.linalg.inv(D0)
     canvas = cv2.warpPerspective(small, Hloc, (Wc, Hc), flags=cv2.INTER_LINEAR)
-    valid = cv2.warpPerspective(np.full(small.shape, 255, np.uint8), Hloc, (Wc, Hc), flags=cv2.INTER_NEAREST)
-    valid = cv2.erode(valid, np.ones((7, 7), np.uint8)) > 0
+    valid = _warp_valid(small.shape, Hloc, (Wc, Hc), 7)
     # board exclusion rectangle (+4 mm)
     excl = np.zeros((Hc, Wc), np.uint8)
     bx0, by0 = (np.array([-4.0, -4.0]) - origin) * S_loc
