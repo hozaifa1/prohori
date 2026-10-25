@@ -381,35 +381,32 @@ def _longest_path(sk: np.ndarray) -> np.ndarray:
         return np.zeros((0, 2))
     if n == 1:
         return np.array([[xs[0], ys[0]]], float)
-    idx = -np.ones(sk.shape, np.int32)
-    idx[ys, xs] = np.arange(n)
-    nbrs = [[] for _ in range(n)]
     hh, ww = sk.shape
+    idx = -np.ones((hh + 2, ww + 2), np.int32)  # 1-pixel frame of -1: neighbours outside the mask need no bounds test
+    idx[ys + 1, xs + 1] = np.arange(n, dtype=np.int32)
+    # neighbour table in the (dy, dx) loop order of the original per-node lists: row i holds node i's 8 neighbours, -1 = none
+    nb = np.empty((n, 8), np.int32)
+    k = 0
     for dy in (-1, 0, 1):
         for dx in (-1, 0, 1):
             if dy == 0 and dx == 0:
                 continue
-            y2, x2 = ys + dy, xs + dx
-            m = (y2 >= 0) & (y2 < hh) & (x2 >= 0) & (x2 < ww)
-            j = np.full(n, -1, np.int32)
-            j[m] = idx[y2[m], x2[m]]
-            for i in np.nonzero(j >= 0)[0]:
-                nbrs[i].append(int(j[i]))
+            nb[:, k] = idx[ys + 1 + dy, xs + 1 + dx]
+            k += 1
+    ok = nb >= 0
+    start = np.concatenate([[0], np.cumsum(ok.sum(1))]).tolist()
+    flat = nb[ok].tolist()  # row-major: each node's neighbours stay in that order
 
     def bfs(src):
-        dist = {src: 0}
-        par = {src: -1}
-        dq = deque([src])
-        last = src
-        while dq:
-            u = dq.popleft()
-            last = u
-            for v in nbrs[u]:
-                if v not in dist:
-                    dist[v] = dist[u] + 1
+        par = [-2] * n  # -2 = not reached
+        par[src] = -1
+        order = [src]  # BFS queue; its last element is the last node dequeued
+        for u in order:
+            for v in flat[start[u]:start[u + 1]]:
+                if par[v] == -2:
                     par[v] = u
-                    dq.append(v)
-        return last, par
+                    order.append(v)
+        return order[-1], par
 
     a, _ = bfs(0)
     b, par = bfs(a)
@@ -490,15 +487,20 @@ def _locate_cracks(canvas: np.ndarray, valid: np.ndarray, S: float, origin: np.n
 
 def _match_once(comps, dense, tol_mm, min_frac):
     assigned: dict[int, list] = {}
+    # all specimens at once: the (every 8th) ground-truth points of the specimens side by side, per-specimen minima by reduceat
+    pts = [D[::8] for D in dense]
+    Dx = np.concatenate([p[:, 0] for p in pts])[None, :]
+    Dy = np.concatenate([p[:, 1] for p in pts])[None, :]
+    starts = np.cumsum([0] + [len(p) for p in pts[:-1]])
+    tol2 = tol_mm**2
     for c in comps:
         P = c["path_b"][::4]
-        best, bf = -1, 0.0
-        for j, D in enumerate(dense):
-            d2 = ((P[:, None, :] - D[None, ::8, :]) ** 2).sum(-1).min(1)
-            f = float((d2 < tol_mm**2).mean())
-            if f > bf:
-                best, bf = j, f
-        if best >= 0 and bf >= min_frac:
+        dx = P[:, 0:1] - Dx
+        dy = P[:, 1:2] - Dy
+        d2 = np.minimum.reduceat(dx * dx + dy * dy, starts, axis=1)  # (points, specimens): nearest ground-truth point
+        f = (d2 < tol2).mean(axis=0)
+        best = int(np.argmax(f))  # first maximum, as the strict `f > bf` scan
+        if f[best] >= min_frac:
             assigned.setdefault(best, []).append(c)
     return assigned
 
@@ -510,7 +512,8 @@ def _fit_affine(assigned, dense):
         D = dense[j]
         for c in cs:
             P = c["path_b"][::8]
-            idx = np.argmin(((P[:, None, :] - D[None, :, :]) ** 2).sum(-1), axis=1)
+            dx, dy = P[:, 0:1] - D[None, :, 0], P[:, 1:2] - D[None, :, 1]
+            idx = np.argmin(dx * dx + dy * dy, axis=1)
             src.append(D[idx])
             dst.append(P)
     src, dst = np.vstack(src), np.vstack(dst)
