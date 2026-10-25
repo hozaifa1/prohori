@@ -419,10 +419,12 @@ def _submit(fn, *args):
     return pool.submit(fn, *args)
 
 
-def _pmap(fn, items: list) -> list:
-    """[fn(x) for x in items], concurrently, in order."""
-    futs = [_submit(fn, x) for x in items]
-    return [f.result() for f in futs]
+def _pmap(fn, items: list, cost=None) -> list:
+    """[fn(x) for x in items], concurrently, results in order.  With `cost` (item -> number) the biggest items are started first,
+    so the last worker is not left with the one long task."""
+    order = sorted(range(len(items)), key=lambda i: -cost(items[i])) if cost is not None else range(len(items))
+    futs = {i: _submit(fn, items[i]) for i in order}
+    return [futs[i].result() for i in range(len(items))]
 
 
 # ----------------------------------------------------------------------------- exact shortcuts
@@ -1432,7 +1434,8 @@ def _prepare(img: np.ndarray, panel_mode: bool, res: dict, extract: bool = True)
         if ((ip[:, 0] < 0) | (ip[:, 0] >= w) | (ip[:, 1] < 0) | (ip[:, 1] >= h)).mean() > 0.2:
             continue
         items.append({"sd": sd, "pm": pm})
-    for it, rp in zip(items, _pmap(lambda it: _extract_roi(grey, H, it["sd"]["seed_b"], it["pm"], it["sd"]["corridor"]), items)):
+    for it, rp in zip(items, _pmap(lambda it: _extract_roi(grey, H, it["sd"]["seed_b"], it["pm"], it["sd"]["corridor"]), items,
+                                       cost=lambda it: float(np.ptp(it["sd"]["seed_b"][:, 0]) * it["pm"]))):
         it["rp"] = rp
     obs["board_found"] = True
     return {"items": items, "sigma_mm": sigma_mm, "ink_dark": ink_dark, "Hinv": Hinv, "ppm_board": ppm_board,
@@ -1449,7 +1452,8 @@ def _finish(ctx: dict, res: dict, apply_gate: bool = True, debug: bool = False, 
     t = time.perf_counter()
     cracks = []
     todo = [it for it in ctx["items"] if it["rp"] is not None]
-    for it, m in zip(todo, _pmap(lambda it: _measure_roi(it["rp"], ink_dark, sigma_mm, blend, cfg), todo)):
+    for it, m in zip(todo, _pmap(lambda it: _measure_roi(it["rp"], ink_dark, sigma_mm, blend, cfg), todo,
+                                    cost=lambda it: it["rp"]["roi"].size)):
         if m is None or not (0.1 < m["profile_mm"] < 8.0):
             continue
         cracks.append({"sd": it["sd"], "m": m, "ppm": it["pm"]})
