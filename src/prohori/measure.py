@@ -643,30 +643,35 @@ def _bg_map(lin: np.ndarray, win_px: int, mode: str | None = None) -> np.ndarray
 
 def _fwhm(Dp: np.ndarray, S: float, frac: float = 0.5) -> np.ndarray:
     """Sub-pixel full width at `frac` of the maximum (half maximum by default, mm) of each darkness profile (rows),
-    NaN if not found."""
+    NaN if not found.  Vectorised over the rows; every value is computed with the arithmetic (dtype, operation order) of the
+    per-row scan it replaces, so the result is bit-identical."""
     n, nt = Dp.shape
     out = np.full(n, np.nan)
+    if n == 0 or nt < 2:
+        return out
     c = nt // 2
     r = int(1.0 * S)
-    for i in range(n):
-        p = Dp[i]
-        lo_i, hi_i = max(0, c - r), min(nt, c + r + 1)
-        k = lo_i + int(np.argmax(p[lo_i:hi_i]))
-        pk = p[k]
-        if pk <= 0:
-            continue
-        half = frac * pk
-        a = k
-        while a > 0 and p[a] > half:
-            a -= 1
-        b = k
-        while b < nt - 1 and p[b] > half:
-            b += 1
-        if p[a] > half or p[b] > half:
-            continue  # profile never drops below half max: not a clean crack profile
-        xl = a + (half - p[a]) / (p[a + 1] - p[a]) if p[a + 1] != p[a] else a
-        xr = b - 1 + (p[b - 1] - half) / (p[b - 1] - p[b]) if p[b - 1] != p[b] else b
-        out[i] = (xr - xl) / S
+    lo_i, hi_i = max(0, c - r), min(nt, c + r + 1)
+    rows = np.arange(n)
+    k = lo_i + np.argmax(Dp[:, lo_i:hi_i], axis=1)
+    pk = Dp[rows, k]
+    half = frac * pk
+    below = ~(Dp > half[:, None])  # the scan walks outwards from the peak while the profile stays above half
+    cols = np.arange(nt)
+    a = np.where(below & (cols[None, :] <= k[:, None]), cols[None, :], -1).max(axis=1)  # nearest crossing left of the peak
+    b = np.where(below & (cols[None, :] >= k[:, None]), cols[None, :], nt).min(axis=1)  # ... and right of it
+    ok = ~(pk <= 0) & (a >= 0) & (b <= nt - 1)
+    if not ok.any():
+        return out
+    ia, ib, ik = a[ok], b[ok], rows[ok]
+    pa, pa1 = Dp[ik, ia], Dp[ik, np.minimum(ia + 1, nt - 1)]
+    pb, pb1 = Dp[ik, ib], Dp[ik, np.maximum(ib - 1, 0)]
+    h = half[ok]
+    dt = Dp.dtype.type
+    with np.errstate(divide="ignore", invalid="ignore"):
+        xl = np.where(pa1 != pa, ia.astype(Dp.dtype) + (h - pa) / (pa1 - pa), ia.astype(Dp.dtype))
+        xr = np.where(pb1 != pb, (ib - 1).astype(Dp.dtype) + (pb1 - h) / (pb1 - pb), ib.astype(Dp.dtype))
+    out[ok] = (xr - xl) / S
     return out
 
 
