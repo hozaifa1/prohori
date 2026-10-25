@@ -514,14 +514,15 @@ def _locate_cracks(canvas: np.ndarray, valid: np.ndarray, S: float, origin: np.n
     g = cv2.GaussianBlur(canvas, (0, 0), 0.7)
     med = _median_u8(g, valid)
     fill = int(med) if med is not None else 200
-    g = np.where(valid, g, fill).astype(np.uint8)
-    bg = _bg_map(g.astype(np.float32), int(8 * S))
+    if not valid.all():
+        g[~valid] = fill
     gf = g.astype(np.float32)
-    dark = (bg - gf) / np.maximum(bg, 1.0)
-    m = (dark > 0.12) & valid
+    bg = _bg_map(gf, int(8 * S))
+    dark = cv2.divide(cv2.subtract(bg, gf), cv2.max(bg, 1.0))  # (bg - gf) / max(bg, 1), float32 IEEE ops
+    m = cv2.compare(dark, 0.12, cv2.CMP_GT)  # 255 where dark > 0.12 (in float32, as numpy compares an f32 array with 0.12)
+    m = cv2.bitwise_and(m, m, mask=valid.view(np.uint8))
     if board_excl is not None:
-        m &= ~board_excl
-    m = m.astype(np.uint8) * 255
+        m = cv2.bitwise_and(m, m, mask=cv2.bitwise_not(board_excl.view(np.uint8) * 255))
     kc = _odd(0.5 * S)
     m = cv2.morphologyEx(m, cv2.MORPH_CLOSE, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (kc, kc)))
     n, lab, stats, _ = _cc_stats(m)
