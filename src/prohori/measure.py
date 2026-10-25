@@ -28,7 +28,10 @@ from __future__ import annotations
 
 import json
 import math
+import os
+import threading
 import time
+from concurrent.futures import ThreadPoolExecutor
 from collections import deque
 from pathlib import Path
 
@@ -369,6 +372,56 @@ def _thin(img: np.ndarray) -> np.ndarray:
         if not removed:
             break
     return a * 255
+
+
+# ----------------------------------------------------------------------------- threads
+
+_POOL: dict = {}
+_POOL_LOCK = threading.Lock()
+
+
+def _n_threads() -> int:
+    """Worker threads for the independent parts of one frame (board-quality statistics, edge sigma, the per-crack ROI
+    work).  OpenCV and numpy release the GIL in their big calls, so they overlap.  PROHORI_THREADS overrides (1 = fully
+    sequential, same code path); default min(4, CPUs)."""
+    try:
+        n = int(os.environ.get("PROHORI_THREADS", "0"))
+    except ValueError:
+        n = 0
+    return n if n > 0 else max(1, min(4, os.cpu_count() or 1))
+
+
+class _Done:
+    """Future-like result of a task that ran inline."""
+
+    def __init__(self, fn, args):
+        self._v, self._e = None, None
+        try:
+            self._v = fn(*args)
+        except BaseException as e:  # re-raised at result(), like a Future
+            self._e = e
+
+    def result(self):
+        if self._e is not None:
+            raise self._e
+        return self._v
+
+
+def _submit(fn, *args):
+    n = _n_threads()
+    if n <= 1:
+        return _Done(fn, args)
+    with _POOL_LOCK:
+        pool = _POOL.get(n)
+        if pool is None:
+            pool = _POOL[n] = ThreadPoolExecutor(n, thread_name_prefix="prohori")
+    return pool.submit(fn, *args)
+
+
+def _pmap(fn, items: list) -> list:
+    """[fn(x) for x in items], concurrently, in order."""
+    futs = [_submit(fn, x) for x in items]
+    return [f.result() for f in futs]
 
 
 # ----------------------------------------------------------------------------- exact shortcuts
@@ -1191,9 +1244,29 @@ def analyze(image_bgr: np.ndarray, *, panel_mode: bool = True, apply_gate: bool 
 
 def _analyze(img: np.ndarray, panel_mode: bool, res: dict, t0: float, apply_gate: bool = True, debug: bool = False,
              blend: dict | None = None, gate_level: str | None = None, cfg: dict | None = None):
+    _lin_lut()
+    _bar_tables()  # shared lazily-built tables are filled here, not racily inside the workers
     ctx = _prepare(img, panel_mode, res)
     if ctx is not None:
         _finish(ctx, res, apply_gate, debug, blend, gate_level, cfg)
+
+
+def _board_quality(grey: np.ndarray, Hinv: np.ndarray, w: int, h: int):
+    """(blur_var, noise_sigma) of the board region at native resolution; (0.0, None) if the board is too small / outside."""
+    quad = _apply_h(Hinv, np.array([[0, 0], [BOARD_W_MM, 0], [BOARD_W_MM, BOARD_H_MM], [0, BOARD_H_MM]], float))
+    x0, y0 = np.maximum(np.floor(quad.min(0)).astype(int), 0)
+    x1, y1 = np.minimum(np.ceil(quad.max(0)).astype(int), [w, h])
+    blur_var, noise = 0.0, None
+    if x1 - x0 > 16 and y1 - y0 > 16:
+        crop = grey[y0:y1, x0:x1]
+        lap = cv2.Laplacian(crop, cv2.CV_32F)
+        mk = np.zeros(crop.shape, np.uint8)
+        cv2.fillConvexPoly(mk, np.round(quad - [x0, y0]).astype(np.int32), 255)
+        mk = cv2.erode(mk, np.ones((5, 5), np.uint8)) > 0
+        if mk.sum() > 100:
+            blur_var = round(float(lap[mk].var()), 1)
+            noise = round(_noise_sigma(crop, mk), 3)
+    return blur_var, noise
 
 
 def _prepare(img: np.ndarray, panel_mode: bool, res: dict, extract: bool = True):
@@ -1257,20 +1330,10 @@ def _prepare(img: np.ndarray, panel_mode: bool, res: dict, extract: bool = True)
     ppm_board = _local_scale(Hinv, np.array([BOARD_W_MM / 2, BOARD_H_MM / 2]))
     res["timing_ms"]["detect"] = round((time.perf_counter() - t) * 1000, 1)
 
-    # blur variance on the board region (native res)
-    quad = _apply_h(Hinv, np.array([[0, 0], [BOARD_W_MM, 0], [BOARD_W_MM, BOARD_H_MM], [0, BOARD_H_MM]], float))
-    x0, y0 = np.maximum(np.floor(quad.min(0)).astype(int), 0)
-    x1, y1 = np.minimum(np.ceil(quad.max(0)).astype(int), [w, h])
-    obs["blur_var"] = 0.0
-    if x1 - x0 > 16 and y1 - y0 > 16:
-        crop = grey[y0:y1, x0:x1]
-        lap = cv2.Laplacian(crop, cv2.CV_32F)
-        mk = np.zeros(crop.shape, np.uint8)
-        cv2.fillConvexPoly(mk, np.round(quad - [x0, y0]).astype(np.int32), 255)
-        mk = cv2.erode(mk, np.ones((5, 5), np.uint8)) > 0
-        if mk.sum() > 100:
-            obs["blur_var"] = round(float(lap[mk].var()), 1)
-            obs["noise_sigma"] = round(_noise_sigma(crop, mk), 3)
+    # blur variance and noise on the board region (native res) and the optical blur from the board edges: independent of the
+    # locator below, so they run alongside it
+    q_fut = _submit(_board_quality, grey, Hinv, w, h)
+    e_fut = _submit(_edge_sigma, grey, H, ppm_board)
 
     # ---------------- rectify page / region at locator resolution
     t = time.perf_counter()
@@ -1353,7 +1416,10 @@ def _prepare(img: np.ndarray, panel_mode: bool, res: dict, extract: bool = True)
             seeds.append({"id": f"K{k + 1}", "true": None, "seed_b": c["path_b"][::2], "locator": "generic",
                           "spec": None, "corridor": 3.0})
 
-    sigma_mm = _edge_sigma(grey, H, ppm_board)
+    obs["blur_var"], noise = q_fut.result()
+    if noise is not None:
+        obs["noise_sigma"] = noise
+    sigma_mm = e_fut.result()
     obs["blur_sigma_mm"] = round(sigma_mm, 3)
     items = []  # dict(sd, pm, rp): seeds with a ROI pack, ready for the estimator
     for sd in seeds:
@@ -1364,7 +1430,9 @@ def _prepare(img: np.ndarray, panel_mode: bool, res: dict, extract: bool = True)
         ip = _apply_h(Hinv, sd["seed_b"])
         if ((ip[:, 0] < 0) | (ip[:, 0] >= w) | (ip[:, 1] < 0) | (ip[:, 1] >= h)).mean() > 0.2:
             continue
-        items.append({"sd": sd, "pm": pm, "rp": _extract_roi(grey, H, sd["seed_b"], pm, sd["corridor"])})
+        items.append({"sd": sd, "pm": pm})
+    for it, rp in zip(items, _pmap(lambda it: _extract_roi(grey, H, it["sd"]["seed_b"], it["pm"], it["sd"]["corridor"]), items)):
+        it["rp"] = rp
     obs["board_found"] = True
     return {"items": items, "sigma_mm": sigma_mm, "ink_dark": ink_dark, "Hinv": Hinv, "ppm_board": ppm_board,
             "panel_mode": panel_mode, "n_expected": len(gt["specs"]) if (panel_mode and gt is not None) else 1,
@@ -1379,10 +1447,8 @@ def _finish(ctx: dict, res: dict, apply_gate: bool = True, debug: bool = False, 
                                                        ctx["panel_mode"])
     t = time.perf_counter()
     cracks = []
-    for it in ctx["items"]:
-        if it["rp"] is None:
-            continue
-        m = _measure_roi(it["rp"], ink_dark, sigma_mm, blend, cfg)
+    todo = [it for it in ctx["items"] if it["rp"] is not None]
+    for it, m in zip(todo, _pmap(lambda it: _measure_roi(it["rp"], ink_dark, sigma_mm, blend, cfg), todo)):
         if m is None or not (0.1 < m["profile_mm"] < 8.0):
             continue
         cracks.append({"sd": it["sd"], "m": m, "ppm": it["pm"]})
