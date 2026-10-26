@@ -112,7 +112,7 @@ P2 minus P1 on compound episodes: +22.9 points, 95 % CI [+8.3, +37.5]. The LLM p
 |---|---|
 | `src/prohori/` | the library: `measure.py` (pipeline), `board.py`, `gate.py` + `gate_params.json` (certification), `agent.py` (policies, prompt, guardrails), `redact.py` (face blur), `store.py`, `history.py`, `escalate.py`, `episodes.py` (agent simulator), `synth.py` (render generator), `widthbench.py`, `segeval.py`, `datasets.py` |
 | `service/` | FastAPI app (`app.py`), the phone web app (`static/`), demo samples, [service/README.md](service/README.md) |
-| `tests/` | pytest suite (241 tests) |
+| `tests/` | pytest suite (267 tests) |
 | `eval/` | evaluation scripts; `eval/results/` the published tables, figures and raw COOL runs |
 | `infra/` | AWS scripts: `up.sh`, `cool_live.sh`, `push.sh`, `rollback_t4g.sh`, `observability.sh`, bootstrap scripts, `state.env` (ids of the live resources) |
 | `research/` | method notes, pre-registrations, literature, datasets, the competition fact sheet |
@@ -135,13 +135,15 @@ pip install -r requirements-test.txt       # service + test dependencies
 pip install -r requirements-eval.txt       # only if you re-run eval/ scripts or tools/
 ```
 
+On Windows, `moto` contains deeply nested files. Keep the virtual environment at a short path (for example `C:/pv/prohori`) or enable Windows long paths; otherwise `pip install` stops with an OSError about a missing file.
+
 ## Run the tests
 
 ```bash
 python -m pytest -q
 ```
 
-Expected on a fresh clone: `241 passed, 2 skipped` in about two minutes (the two skips need the optional PDF library or files that are not in the repository). AWS is mocked with moto; no credentials or network are needed.
+Expected on a fresh clone: `264 passed, 3 skipped` in about one to two minutes (the three skips need the third-party textures and crack masks of the render generator, see `research/DATASETS.md`). AWS is mocked with moto; no credentials or network are needed.
 
 ## Run the service locally
 

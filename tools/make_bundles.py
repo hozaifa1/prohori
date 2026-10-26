@@ -100,7 +100,7 @@ def main() -> None:
             if p.is_file():
                 add(z, "eval/runs/agent_ablation/" + p.relative_to(base).as_posix(), p.read_bytes())
 
-    with open(out / "SHA256SUMS.txt", "w") as f:
+    with open(out / "SHA256SUMS.txt", "w", newline="\n") as f:
         for p in (pa, pb):
             line = f"{sha256(p)}  {p.name}"
             f.write(line + "\n")
