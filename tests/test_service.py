@@ -51,6 +51,7 @@ def test_health(client):
     assert j["status"] == "ok"
     for k in ("opencv", "arch", "instance", "version"):
         assert j[k]
+    assert isinstance(j["cool"], bool) and j["opencv_build"]["version"] == j["opencv"]
 
 
 def test_index_and_pwa_files(client):

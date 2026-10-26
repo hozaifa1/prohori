@@ -337,6 +337,32 @@ def instance_type() -> str:
         return _INSTANCE
 
 
+_OPENCV_BUILD: dict | None = None
+
+
+def opencv_build() -> dict:
+    """Which OpenCV build is serving: COOL (Cloud Optimized OpenCV, /opt/cool) or a stock wheel.  Read from
+    cv2.getBuildInformation() once; `cool` is true when the cv2 module lives under a cool directory or the build info says so."""
+    global _OPENCV_BUILD
+    with _INFO_LOCK:
+        if _OPENCV_BUILD is None:
+            keys = ("Version control", "Build type", "HAL", "Parallel framework", "C++ flags (Release)")
+            info: dict = {}
+            try:
+                text = cv2.getBuildInformation()
+                for line in text.splitlines():
+                    k, _, v = line.strip().partition(":")
+                    if k in keys and k not in info:
+                        info[k] = v.strip()[:160]
+                info["cpu_baseline"] = next((ln.split(":", 1)[1].strip() for ln in text.splitlines()
+                                             if ln.strip().startswith("requested:")), "")[:80]
+                cool = "/cool/" in (cv2.__file__ or "").replace("\\", "/") or re.search(r"\bcool\b", text, re.I) is not None
+            except Exception:
+                cool = False
+            _OPENCV_BUILD = {"cool": bool(cool), "version": cv2.__version__, "summary": info}
+        return _OPENCV_BUILD
+
+
 def version() -> str:
     global _VERSION
     with _INFO_LOCK:
@@ -596,6 +622,8 @@ async def health() -> dict:
     return {
         "status": "ok",
         "opencv": cv2.__version__,
+        "cool": opencv_build()["cool"],
+        "opencv_build": opencv_build(),
         "arch": platform.machine(),
         "instance": inst,
         "version": ver,

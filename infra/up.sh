@@ -140,18 +140,28 @@ if [ "$IID" = None ]; then
     --query 'Instances[0].InstanceId' --output text)
 fi
 "$AWS" ec2 wait instance-running --instance-ids "$IID"
-"$AWS" ec2 associate-address --instance-id "$IID" --allocation-id "$ALLOC" >/dev/null
+# Do not steal the Elastic IP back if it already serves another instance (the COOL box after infra/cool_live.sh cutover).
+HOLDER=$("$AWS" ec2 describe-addresses --allocation-ids "$ALLOC" --query 'Addresses[0].InstanceId' --output text)
+if [ "$HOLDER" = None ] || [ "$HOLDER" = "$IID" ] || [ "${FORCE_EIP:-0}" = 1 ]; then
+  "$AWS" ec2 associate-address --instance-id "$IID" --allocation-id "$ALLOC" --allow-reassociation >/dev/null
+else
+  echo "   Elastic IP stays on $HOLDER (FORCE_EIP=1 to move it to $IID)"
+fi
 
+# keep the COOL / live-pointer keys infra/cool_live.sh wrote (IID_T4G, COOL_IID, COOL_IP); IID keeps pointing at whoever holds the EIP
+EXTRA=$(grep -E '^(IID_T4G|COOL_IID|COOL_IP)=' "$STATE" 2>/dev/null || true)
+[ "$HOLDER" = None ] || [ "$HOLDER" = "$IID" ] || [ "${FORCE_EIP:-0}" = 1 ] || IID_LIVE=$HOLDER
 cat > "$STATE" <<EOF
 REGION=$REGION
 ACCT=$ACCT
 BUCKET=$BUCKET
 TABLE=$TABLE
 SG=$SG
-IID=$IID
+IID=${IID_LIVE:-$IID}
 EIP=$EIP
 HOST=$HOST
 KEY=$KEY
 TOPIC=$TOPIC
 EOF
+[ -z "$EXTRA" ] || echo "$EXTRA" >> "$STATE"
 echo "== done: https://$HOST  (instance $IID)"
