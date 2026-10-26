@@ -1,7 +1,10 @@
-fastapi>=0.115,<1
-uvicorn[standard]>=0.30,<1
-python-multipart>=0.0.9
-numpy>=1.26
+# Runtime dependencies of the PROHORI service, exact versions (Python 3.12; tested on Windows 11 x86-64 and Ubuntu 24.04 arm64).
+# OpenCV: the stock pip wheel 5.0.0.93 (opencv-contrib-python-headless; cv2.ximgproc is NOT used by the service, but the
+# eval scripts use it). On the COOL box (Cloud Optimized OpenCV, OpenCV 5.1.0-dev) this line is skipped by infra/push.sh and
+# `import cv2` comes from /opt/cool instead; every other line is installed as written.
+fastapi==0.146.0
+uvicorn[standard]==0.54.0
+python-multipart==0.0.32
+numpy==2.5.2
 opencv-contrib-python-headless==5.0.0.93
-boto3>=1.34
-# tests only: pytest httpx moto[dynamodb,s3,sns,sqs]
+boto3==1.43.114

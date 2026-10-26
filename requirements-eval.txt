@@ -1,0 +1,10 @@
+# Everything needed to re-run the evaluation scripts in eval/ and the figure / PDF tools in tools/.  Exact versions.
+-r requirements-test.txt
+pandas==3.0.6
+scipy==1.18.1
+scikit-learn==1.9.1
+pyarrow==26.0.0
+matplotlib==3.11.1
+pillow==12.3.0
+reportlab==5.0.0
+pymupdf==1.28.2

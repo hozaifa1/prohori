@@ -11,7 +11,7 @@ AWS="${AWS:-aws}"
 command -v "$AWS" >/dev/null || AWS="/c/Program Files/Amazon/AWSCLIV2/aws.exe"
 REGION="${REGION:-us-east-1}"
 NAME=prohori
-ALERT_EMAIL="${ALERT_EMAIL:-20hozaifa02@gmail.com}"
+ALERT_EMAIL="${ALERT_EMAIL:?set ALERT_EMAIL to the address that receives budget and escalation emails}"
 INSTANCE_TYPE="${INSTANCE_TYPE:-t4g.small}"
 export AWS_REGION="$REGION"
 cd "$(dirname "$0")/.."

@@ -1,0 +1,5 @@
+# Everything needed to run the test suite: `python -m pytest -q`.  Exact versions.
+-r service/requirements.txt
+pytest==9.1.1
+httpx==0.28.1
+moto[dynamodb,s3,sns,sqs]==5.2.4

@@ -1,0 +1,39 @@
+{
+ "case": "blur-heavy",
+ "description": "Blur sigma 11 px added to good-straight (synthetic)",
+ "input_px": [
+  2048,
+  1536
+ ],
+ "llm": {
+  "action": "reposition_marker",
+  "instruction": "Reposition the board to cover all corners.",
+  "policy_used": "llm",
+  "model": "us.amazon.nova-lite-v1:0"
+ },
+ "gate": {
+  "tier": null,
+  "certified": false,
+  "reasons": [
+   "too_few_corners"
+  ],
+  "cracks_certified": 0,
+  "cracks_total": 0
+ },
+ "observation": {
+  "corners": 0,
+  "px_per_mm": 0.0,
+  "blur_var": 5.5545501708984375,
+  "blur_sigma_mm": 0.0,
+  "obliquity_deg": 0.0,
+  "glare_frac": 0.0,
+  "noise_sigma": 0.0,
+  "crack_coverage": 0.0
+ },
+ "rules": {
+  "action": "reshoot_steadier",
+  "instruction": "Hold steady and retake: the whole frame is soft (sharpness 6) and the board was not found.",
+  "policy_used": "rules",
+  "model": null
+ }
+}

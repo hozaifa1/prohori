@@ -1,0 +1,39 @@
+{
+ "case": "board-partial",
+ "description": "Board mostly out of frame (real photo)",
+ "input_px": [
+  2048,
+  1536
+ ],
+ "llm": {
+  "action": "reposition_marker",
+  "instruction": "Reposition the marker to ensure the board is fully visible.",
+  "policy_used": "llm",
+  "model": "us.amazon.nova-lite-v1:0"
+ },
+ "gate": {
+  "tier": null,
+  "certified": false,
+  "reasons": [
+   "too_few_corners"
+  ],
+  "cracks_certified": 0,
+  "cracks_total": 0
+ },
+ "observation": {
+  "corners": 0,
+  "px_per_mm": 0.0,
+  "blur_var": 525.6616821289062,
+  "blur_sigma_mm": 0.0,
+  "obliquity_deg": 0.0,
+  "glare_frac": 0.0,
+  "noise_sigma": 0.0,
+  "crack_coverage": 0.0
+ },
+ "rules": {
+  "action": "reposition_marker",
+  "instruction": "Board not found: put the whole board beside the crack and retake (0 of 24 corners).",
+  "policy_used": "rules",
+  "model": null
+ }
+}

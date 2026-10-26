@@ -3,13 +3,25 @@ name = "prohori"
 version = "0.1.0"
 description = "Agentic crack metrology with OpenCV 5 on AWS Graviton"
 requires-python = ">=3.12"
+license = { text = "Apache-2.0" }
+# Exact pins, same as service/requirements.txt (the deploy scripts read that file).
 dependencies = [
   "opencv-contrib-python-headless==5.0.0.93",
-  "numpy",
+  "numpy==2.5.2",
+  "fastapi==0.146.0",
+  "uvicorn[standard]==0.54.0",
+  "python-multipart==0.0.32",
+  "boto3==1.43.114",
 ]
 
 [project.optional-dependencies]
-dev = ["pytest", "reportlab", "matplotlib"]
+# same versions as requirements-test.txt / requirements-eval.txt
+test = ["pytest==9.1.1", "httpx==0.28.1", "moto[dynamodb,s3,sns,sqs]==5.2.4"]
+eval = [
+  "pytest==9.1.1", "httpx==0.28.1", "moto[dynamodb,s3,sns,sqs]==5.2.4",
+  "pandas==3.0.6", "scipy==1.18.1", "scikit-learn==1.9.1", "pyarrow==26.0.0",
+  "matplotlib==3.11.1", "pillow==12.3.0", "reportlab==5.0.0", "pymupdf==1.28.2",
+]
 
 [tool.pytest.ini_options]
 pythonpath = ["src"]

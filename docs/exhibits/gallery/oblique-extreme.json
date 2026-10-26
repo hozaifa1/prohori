@@ -1,0 +1,39 @@
+{
+ "case": "oblique-extreme",
+ "description": "Perspective squeeze k=0.7 on good-straight, about 67 degrees (synthetic)",
+ "input_px": [
+  2048,
+  1536
+ ],
+ "llm": {
+  "action": "reposition_marker",
+  "instruction": "Reposition the marker: the angle is too steep at 66.63 degrees.",
+  "policy_used": "llm",
+  "model": "us.amazon.nova-lite-v1:0"
+ },
+ "gate": {
+  "tier": "refused",
+  "certified": false,
+  "reasons": [
+   "oblique"
+  ],
+  "cracks_certified": 0,
+  "cracks_total": 7
+ },
+ "observation": {
+  "corners": 18,
+  "px_per_mm": 4.53,
+  "blur_var": 308.3,
+  "blur_sigma_mm": 0.081,
+  "obliquity_deg": 66.63,
+  "glare_frac": 0.0,
+  "noise_sigma": 0.516,
+  "crack_coverage": 1.0
+ },
+ "rules": {
+  "action": "reposition_marker",
+  "instruction": "Stand square to the wall: tilt is 67 degrees. Face the board straight on.",
+  "policy_used": "rules",
+  "model": null
+ }
+}

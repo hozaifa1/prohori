@@ -14,7 +14,7 @@ cd "$(dirname "$0")/.."
 source infra/state.env
 export AWS_REGION="$REGION"
 GROUP=/prohori/service; NS=Prohori/Service; ROLE=prohori-ec2
-ALERT_EMAIL="${ALERT_EMAIL:-20hozaifa02@gmail.com}"
+ALERT_EMAIL="${ALERT_EMAIL:?set ALERT_EMAIL to the address that receives budget and escalation emails}"
 TARGET="${TARGET:-$EIP}"
 mkdir -p infra/.gen
 

@@ -10,7 +10,7 @@
 | # | Field | What to enter |
 |---|---|---|
 | 1 | **Full Name** (First / Last) | Your legal name as you want it on a prize cheque. Must match the Devpost account. |
-| 2 | **Email Address** | `hozaifah626@gmail.com` — must be the same address as your Devpost registration, because grant recipient notices go to the team leader's email. |
+| 2 | **Email Address** | `<your Devpost email>` — must be the same address as your Devpost registration, because grant recipient notices go to the team leader's email. |
 | 3 | **Team Name** | `Prohori` |
 | 4 | **Country** | `Bangladesh` |
 | 5 | **Upload Proposal (PDF only)** | `F:\Projects\Prohori\grant\PROHORI_AWS_Compute_Grant_Proposal.pdf` (4 pages, 248 KB) |

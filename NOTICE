@@ -1,0 +1,12 @@
+PROHORI
+Copyright 2026 Hozaifa (PROHORI team)
+
+Source code in this repository is licensed under the Apache License, Version 2.0 (see LICENSE).
+
+The phone photographs of the printed test panel (data bundle `prohori-panel-data-v1.zip`, the files in
+data/raw/ when unpacked) and the derived data in the bundles are licensed under Creative Commons Attribution 4.0
+International (CC BY 4.0, https://creativecommons.org/licenses/by/4.0/). Attribution: "PROHORI panel photos, Hozaifa, 2026".
+
+Third-party datasets, textures and model files named in README.md (section "Acknowledgements and citations") are NOT
+redistributed here or in the bundles; each keeps its own licence. The face-detection model models/face_detection_yunet_2023mar.onnx
+is the unmodified OpenCV Model Zoo file (MIT licence, see models/README.md).

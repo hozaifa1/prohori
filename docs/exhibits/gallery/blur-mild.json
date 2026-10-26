@@ -1,0 +1,37 @@
+{
+ "case": "blur-mild",
+ "description": "Blur sigma 5 px added to good-straight (synthetic)",
+ "input_px": [
+  2048,
+  1536
+ ],
+ "llm": {
+  "action": "accept",
+  "instruction": "Accept the capture: one crack is certified.",
+  "policy_used": "llm",
+  "model": "us.amazon.nova-lite-v1:0"
+ },
+ "gate": {
+  "tier": "certified",
+  "certified": true,
+  "reasons": [],
+  "cracks_certified": 1,
+  "cracks_total": 8
+ },
+ "observation": {
+  "corners": 18,
+  "px_per_mm": 8.83,
+  "blur_var": 2.6,
+  "blur_sigma_mm": 0.464,
+  "obliquity_deg": 1.76,
+  "glare_frac": 0.0,
+  "noise_sigma": 0.191,
+  "crack_coverage": 1.0
+ },
+ "rules": {
+  "action": "accept",
+  "instruction": "Certified 1 of 8 cracks. Best: 1.50 mm (90% range 0.73 to 2.26). Flagged ones are marked.",
+  "policy_used": "rules",
+  "model": null
+ }
+}

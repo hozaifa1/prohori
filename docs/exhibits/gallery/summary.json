@@ -1,0 +1,343 @@
+[
+ {
+  "case": "too-far",
+  "description": "Much too far away (real photo, shrunk x0.25)",
+  "input_px": [
+   1024,
+   768
+  ],
+  "llm": {
+   "action": "move_closer",
+   "instruction": "Move closer: the board is 2.71 px/mm, a 0.5 mm crack needs about 20.",
+   "policy_used": "llm",
+   "model": "us.amazon.nova-lite-v1:0"
+  },
+  "gate": {
+   "tier": "refused",
+   "certified": false,
+   "reasons": [
+    "low_resolution"
+   ],
+   "cracks_certified": 0,
+   "cracks_total": 8
+  },
+  "observation": {
+   "corners": 24,
+   "px_per_mm": 2.71,
+   "blur_var": 2524.1,
+   "blur_sigma_mm": 0.135,
+   "obliquity_deg": 19.39,
+   "glare_frac": 0.0,
+   "noise_sigma": 1.5,
+   "crack_coverage": 1.0
+  },
+  "rules": {
+   "action": "move_closer",
+   "instruction": "Move closer: only 2.4 px/mm here, aim for 8 or more.",
+   "policy_used": "rules",
+   "model": null
+  }
+ },
+ {
+  "case": "board-partial",
+  "description": "Board mostly out of frame (real photo)",
+  "input_px": [
+   2048,
+   1536
+  ],
+  "llm": {
+   "action": "reposition_marker",
+   "instruction": "Reposition the marker to ensure the board is fully visible.",
+   "policy_used": "llm",
+   "model": "us.amazon.nova-lite-v1:0"
+  },
+  "gate": {
+   "tier": null,
+   "certified": false,
+   "reasons": [
+    "too_few_corners"
+   ],
+   "cracks_certified": 0,
+   "cracks_total": 0
+  },
+  "observation": {
+   "corners": 0,
+   "px_per_mm": 0.0,
+   "blur_var": 525.6616821289062,
+   "blur_sigma_mm": 0.0,
+   "obliquity_deg": 0.0,
+   "glare_frac": 0.0,
+   "noise_sigma": 0.0,
+   "crack_coverage": 0.0
+  },
+  "rules": {
+   "action": "reposition_marker",
+   "instruction": "Board not found: put the whole board beside the crack and retake (0 of 24 corners).",
+   "policy_used": "rules",
+   "model": null
+  }
+ },
+ {
+  "case": "blur-mild",
+  "description": "Blur sigma 5 px added to good-straight (synthetic)",
+  "input_px": [
+   2048,
+   1536
+  ],
+  "llm": {
+   "action": "accept",
+   "instruction": "Accept the capture: one crack is certified.",
+   "policy_used": "llm",
+   "model": "us.amazon.nova-lite-v1:0"
+  },
+  "gate": {
+   "tier": "certified",
+   "certified": true,
+   "reasons": [],
+   "cracks_certified": 1,
+   "cracks_total": 8
+  },
+  "observation": {
+   "corners": 18,
+   "px_per_mm": 8.83,
+   "blur_var": 2.6,
+   "blur_sigma_mm": 0.464,
+   "obliquity_deg": 1.76,
+   "glare_frac": 0.0,
+   "noise_sigma": 0.191,
+   "crack_coverage": 1.0
+  },
+  "rules": {
+   "action": "accept",
+   "instruction": "Certified 1 of 8 cracks. Best: 1.50 mm (90% range 0.73 to 2.26). Flagged ones are marked.",
+   "policy_used": "rules",
+   "model": null
+  }
+ },
+ {
+  "case": "blur-heavy",
+  "description": "Blur sigma 11 px added to good-straight (synthetic)",
+  "input_px": [
+   2048,
+   1536
+  ],
+  "llm": {
+   "action": "reposition_marker",
+   "instruction": "Reposition the board to cover all corners.",
+   "policy_used": "llm",
+   "model": "us.amazon.nova-lite-v1:0"
+  },
+  "gate": {
+   "tier": null,
+   "certified": false,
+   "reasons": [
+    "too_few_corners"
+   ],
+   "cracks_certified": 0,
+   "cracks_total": 0
+  },
+  "observation": {
+   "corners": 0,
+   "px_per_mm": 0.0,
+   "blur_var": 5.5545501708984375,
+   "blur_sigma_mm": 0.0,
+   "obliquity_deg": 0.0,
+   "glare_frac": 0.0,
+   "noise_sigma": 0.0,
+   "crack_coverage": 0.0
+  },
+  "rules": {
+   "action": "reshoot_steadier",
+   "instruction": "Hold steady and retake: the whole frame is soft (sharpness 6) and the board was not found.",
+   "policy_used": "rules",
+   "model": null
+  }
+ },
+ {
+  "case": "oblique-real",
+  "description": "Real shaky, steep photo (about 42 degrees)",
+  "input_px": [
+   1536,
+   2048
+  ],
+  "llm": {
+   "action": "accept",
+   "instruction": "Accept the capture; report the certified widths and flagged cracks with their wider ranges.",
+   "policy_used": "llm",
+   "model": "us.amazon.nova-lite-v1:0"
+  },
+  "gate": {
+   "tier": "indicative",
+   "certified": true,
+   "reasons": [],
+   "cracks_certified": 1,
+   "cracks_total": 4
+  },
+  "observation": {
+   "corners": 23,
+   "px_per_mm": 4.67,
+   "blur_var": 40.5,
+   "blur_sigma_mm": 0.3,
+   "obliquity_deg": 42.43,
+   "glare_frac": 0.002,
+   "noise_sigma": 0.612,
+   "crack_coverage": 1.0
+  },
+  "rules": {
+   "action": "reshoot_steadier",
+   "instruction": "Usable as is. For a certified reading: Hold steady and retake: the picture is soft (sharpness 40). Brace the phone, tap to focus.",
+   "policy_used": "rules",
+   "model": null
+  }
+ },
+ {
+  "case": "oblique-extreme",
+  "description": "Perspective squeeze k=0.7 on good-straight, about 67 degrees (synthetic)",
+  "input_px": [
+   2048,
+   1536
+  ],
+  "llm": {
+   "action": "reposition_marker",
+   "instruction": "Reposition the marker: the angle is too steep at 66.63 degrees.",
+   "policy_used": "llm",
+   "model": "us.amazon.nova-lite-v1:0"
+  },
+  "gate": {
+   "tier": "refused",
+   "certified": false,
+   "reasons": [
+    "oblique"
+   ],
+   "cracks_certified": 0,
+   "cracks_total": 7
+  },
+  "observation": {
+   "corners": 18,
+   "px_per_mm": 4.53,
+   "blur_var": 308.3,
+   "blur_sigma_mm": 0.081,
+   "obliquity_deg": 66.63,
+   "glare_frac": 0.0,
+   "noise_sigma": 0.516,
+   "crack_coverage": 1.0
+  },
+  "rules": {
+   "action": "reposition_marker",
+   "instruction": "Stand square to the wall: tilt is 67 degrees. Face the board straight on.",
+   "policy_used": "rules",
+   "model": null
+  }
+ },
+ {
+  "case": "glare-moderate",
+  "description": "Soft glare blob over the board, about 3 % saturated (synthetic)",
+  "input_px": [
+   2048,
+   1536
+  ],
+  "llm": {
+   "action": "accept",
+   "instruction": "Accept the capture: 5 cracks are certified, 3 are flagged with reasons.",
+   "policy_used": "llm",
+   "model": "us.amazon.nova-lite-v1:0"
+  },
+  "gate": {
+   "tier": "certified",
+   "certified": true,
+   "reasons": [],
+   "cracks_certified": 5,
+   "cracks_total": 8
+  },
+  "observation": {
+   "corners": 18,
+   "px_per_mm": 8.82,
+   "blur_var": 352.1,
+   "blur_sigma_mm": 0.076,
+   "obliquity_deg": 1.76,
+   "glare_frac": 0.0432,
+   "noise_sigma": 0.737,
+   "crack_coverage": 1.0
+  },
+  "rules": {
+   "action": "accept",
+   "instruction": "Certified 5 of 8 cracks. Best: 1.45 mm (90% range 1.29 to 1.61). Flagged ones are marked.",
+   "policy_used": "rules",
+   "model": null
+  }
+ },
+ {
+  "case": "glare-heavy",
+  "description": "Large glare blob over the board, about 12 % saturated (synthetic)",
+  "input_px": [
+   2048,
+   1536
+  ],
+  "llm": {
+   "action": "accept",
+   "instruction": "Accept the capture; all cracks are certified.",
+   "policy_used": "llm",
+   "model": "us.amazon.nova-lite-v1:0"
+  },
+  "gate": {
+   "tier": "certified",
+   "certified": true,
+   "reasons": [],
+   "cracks_certified": 4,
+   "cracks_total": 7
+  },
+  "observation": {
+   "corners": 15,
+   "px_per_mm": 8.81,
+   "blur_var": 299.3,
+   "blur_sigma_mm": 0.077,
+   "obliquity_deg": 1.6,
+   "glare_frac": 0.1172,
+   "noise_sigma": 0.646,
+   "crack_coverage": 1.0
+  },
+  "rules": {
+   "action": "accept",
+   "instruction": "Certified 4 of 7 cracks. Best: 1.44 mm (90% range 1.28 to 1.59). Flagged ones are marked.",
+   "policy_used": "rules",
+   "model": null
+  }
+ },
+ {
+  "case": "control-good",
+  "description": "Control: good-straight, no change (real photo)",
+  "input_px": [
+   2048,
+   1536
+  ],
+  "llm": {
+   "action": "accept",
+   "instruction": "Accept the capture; 4 cracks are certified, 4 are flagged with wider ranges.",
+   "policy_used": "llm",
+   "model": "us.amazon.nova-lite-v1:0"
+  },
+  "gate": {
+   "tier": "certified",
+   "certified": true,
+   "reasons": [],
+   "cracks_certified": 4,
+   "cracks_total": 8
+  },
+  "observation": {
+   "corners": 18,
+   "px_per_mm": 8.82,
+   "blur_var": 487.3,
+   "blur_sigma_mm": 0.075,
+   "obliquity_deg": 1.75,
+   "glare_frac": 0.0,
+   "noise_sigma": 0.883,
+   "crack_coverage": 1.0
+  },
+  "rules": {
+   "action": "accept",
+   "instruction": "Certified 4 of 8 cracks. Best: 1.00 mm (90% range 0.92 to 1.07). Flagged ones are marked.",
+   "policy_used": "rules",
+   "model": null
+  }
+ }
+]

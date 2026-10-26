@@ -1,0 +1,39 @@
+{
+ "case": "too-far",
+ "description": "Much too far away (real photo, shrunk x0.25)",
+ "input_px": [
+  1024,
+  768
+ ],
+ "llm": {
+  "action": "move_closer",
+  "instruction": "Move closer: the board is 2.71 px/mm, a 0.5 mm crack needs about 20.",
+  "policy_used": "llm",
+  "model": "us.amazon.nova-lite-v1:0"
+ },
+ "gate": {
+  "tier": "refused",
+  "certified": false,
+  "reasons": [
+   "low_resolution"
+  ],
+  "cracks_certified": 0,
+  "cracks_total": 8
+ },
+ "observation": {
+  "corners": 24,
+  "px_per_mm": 2.71,
+  "blur_var": 2524.1,
+  "blur_sigma_mm": 0.135,
+  "obliquity_deg": 19.39,
+  "glare_frac": 0.0,
+  "noise_sigma": 1.5,
+  "crack_coverage": 1.0
+ },
+ "rules": {
+  "action": "move_closer",
+  "instruction": "Move closer: only 2.4 px/mm here, aim for 8 or more.",
+  "policy_used": "rules",
+  "model": null
+ }
+}
