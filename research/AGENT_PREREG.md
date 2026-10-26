@@ -136,3 +136,64 @@ Fallback accounting: if P2 hits an error and `decide()` silently substitutes the
 ## Amendments
 
 * **A1, 2026-10-19, before any policy run on dev or test seeds.** The `blur` cause range was changed from `exp(U(ln 0.15, ln 0.92))` to `exp(U(ln 0.25, ln 0.92))`. Reason: the calibration check of simulated against real blur_var (KS test against the 22 board-found panel photos) gave p = 0.009 with the wider range, because the real failing photos start at 0.29 × T_b (and the lower, no-board frames are already covered by the board-not-found branch). Only the oracle policy and P0 had been run, on sim-check seeds.
+
+## Addendum B (2026-10-26): P3 and P2g, a deterministic guardrail, and an "instruction faithfulness" metric
+
+*Written before any P3 or P2g decision was made on the dev or test seeds. The original sections above, the simulator (`episodes.py`, sha256 `b332ec84...`), the gate thresholds and P1 are unchanged. The original P0/P1/P2/P\* test results (pre-registration sha256 `91d0dd26...`, run of 2026-10-19) stay in the results file as they were; nothing below re-runs them.*
+
+### B.1 Why
+
+A review of the live agent found that the LLM's instruction text contains factual errors that the action choice does not show: a stated px/mm requirement that disagrees with the guidance next to a different measured value, "all cracks certified" when some were flagged, a reposition instruction on a frame the rules call blurred. Only 57% of P2's instructions cited a number from the observation (P1: 91%) and the checklist in section 7 only tested that a digit appears, not that it is right. Addendum B adds (1) a guardrail in code, (2) a metric that tests the instruction against the observation, and (3) a model that is the current production default.
+
+### B.2 Policies
+
+| id | what | model | guardrail |
+|---|---|---|---|
+| P2 | as in sections 0-8, already run on 2026-10-19 (logs `eval/runs/agent_ablation/test_final.jsonl`) | `us.amazon.nova-lite-v1:0` | none |
+| **P2g** | P2 plus guardrail | `us.amazon.nova-lite-v1:0` | yes |
+| **P3** | P2 prompt plus guardrail on a Claude model | `us.anthropic.claude-haiku-4-5-20251001-v1:0` | yes |
+
+* **Prompt.** P2g and P3 use the selected prompt **v2 exactly as run for P2** (system prompt and tool schema, fingerprint `4398a6c6a8e08194`; text kept in `research/prompts/agent_prompt_v2_legacy_gate.txt`, sha256 `ec55aafa4d3c28bcc34b7eb3843bbba7b4d9faa16ff55d9557dd8b191f3f77b9`). The simulator emits the legacy gate dict, so the legacy-gate prompt is the right one. The live service's prompt (`agent.SYSTEM_PROMPT`) was rewritten for the CRC gate (same rules 1-5, different gate description and extra reason codes); **the live prompt is therefore not what this ablation measures**, and the guardrail's CRC-mode checks are covered by unit tests, not by this study.
+* **No prompt tuning on the held-out split.** No prompt edits at all. A dev-split run of at most 20 episodes per new policy is allowed to check that the output format parses; its results are not used to choose anything.
+* Temperature 0, one forced tool call per decision, no hidden second model, same seeds and common random numbers as P2 (test 50000-50099).
+
+### B.3 The guardrail (`agent.validate_decision`, frozen before the run)
+
+**Action check** (hard constraints only, each one stated as a hard rule in the prompt; no new policy). It is the same rule set the label policy P\* encodes, and it never flags P\* (0 of 525 dev decisions):
+1. `accept` only when `gate.certified`; a certified gate allows only `accept` (rule 4), except the one optional improving retake on a first indicative capture, which must fix the first `tier_reasons` entry (rule 4a).
+2. `accept_with_widened_uncertainty` only when `widen_now_allowed`, and it is required when `widen_now_allowed` (rule 3a).
+3. `abandon_and_log` only when `abandon_now_allowed`, and it is required then (rule 3b).
+4. Board not found: `reshoot_steadier` if blur_var < 100; else `relight` if the previous action was `reposition_marker`; else `reposition_marker` (rule 2a). An unreadable image or an empty reason list means `reposition_marker`.
+5. Glare failing with corners < 12: `relight` (rule 2a). Obliquity together with any other reason: `reposition_marker` (rule 2b).
+6. Otherwise the action must fix at least one failing reason (action definitions). The softer ordering inside rule 2c and the "do not repeat a failed action" rule 3 are **not** enforced.
+
+**Instruction check** (against the observation, the gate, the cracks and the history the model was shown):
+* every number is typed by its unit (px/mm, mm, percent, degrees, corners, sharpness, noise, pixels, risk ratio, attempts, crack counts) and must equal a measured or derived value of that unit rounded or truncated to the decimals written, or a constant that appears in the prompt; time and distance advice ("hold still for 2 seconds") is ignored;
+* "N of M cracks certified/flagged", "certified N of M", "all/both/no cracks certified" must match `cracks_certified` / `cracks_total`;
+* "certified", "indicative", "usable" must agree with `gate.tier` (or `gate.certified` for a legacy gate); "certified" used as a purpose or a negation is not a claim;
+* the text must cite at least one **measured** number (prompt rule 1: "Name the number that triggered it in the instruction"); a constant from the prompt alone does not count;
+* the text must contain wording for the chosen action (the section 7 checklist wording).
+
+**Flow.** First answer checked. On any violation, one re-ask in the same conversation with the violations listed. If the second answer still has an action violation, the decision is replaced by the rules policy (logged as fallback `guard`). If only the instruction still violates, the model's action is kept and the instruction is replaced by the rules-policy template for that action, filled with real numbers (`agent.template_instruction`). The result carries `guardrail = {violations, reask, final_violations, repaired, action_rejected, rationale_withheld}`. A rationale that cites a value not in the observation is withheld.
+
+**Development of the validator** used the dev-split logs (`dev_v0`, `dev_v1`, `dev_v2`, free-policy dev traces), synthetic fixtures and the review's examples. The rule-1 check (at least one measured number) was added after the test-split P2 log (`test_final`) and the P1 log were scored once with the validator, to confirm that the harness computes the baseline columns (P2: 54% faithful, 2.7% of instructions with a wrong number or claim, 19% of decisions breaking a prompt rule; P1: 91%, 0%, 24%). That look showed that most unfaithful P2 text is text with no measured number, which is why the check was added. It happened before any P2g or P3 decision was made. After this addendum is committed the validator, the guardrail and the templates are frozen; any later change is listed under Amendments.
+
+### B.4 Metrics added
+
+* **Instruction faithfulness** (new, automatic): share of decisions whose instruction cites at least one **measured** number (not only a constant) **and** has zero instruction-check violations. Computed for P1, the existing P2 logs, P2g and P3, over all decisions on the test split, bootstrapped over episodes. For P2g and P3 it is computed on the instruction the operator would see (after repair), and the pre-repair rate is reported next to it.
+* **Prompt-rule violation rate** (new): share of decisions that fail the action check, computed for every policy including P1 and P2, and for P2g/P3 both before and after the guardrail.
+* **Guardrail repair rate**: share of LLM decisions with `repaired = true`; also the share with any first-pass violation, the share fixed by the re-ask, and the share rejected to the rules policy.
+* Carried over: recovery@3 and @6, action-label agreement (acceptable and strict), false abandon, escalation recall and precision, fallbacks, calls, tokens, dollars, latency (p50/p95 per call).
+
+### B.5 Hypotheses and decision rules, stated in advance
+
+* **Primary (unchanged bar).** Recovery within 3 actions on the compound subset, paired difference vs P1 (n = 48): P3 - P1 and P2g - P1 each need point estimate >= +10 points; the interval is reported and, as before, a lower bound below +10 means "not demonstrated".
+* **Expectation.** Enforcing rules 2 and 3 changes behaviour: on the dev traces P2 ignored `widen_now_allowed`, rule 2a or rule 2b in 9 of 50 decisions. Where P2 kept retrying, the guardrail will widen or reposition instead, which can cost recovery@3 on recoverable episodes (a widened episode is not "certified") and gain correct outcomes elsewhere. My prior is that P2g is within +-8 points of P2 on the compound subset and that faithfulness rises sharply (to above 90%) because a numberless or wrong instruction is re-asked and then replaced by the template. For P3 I have no prior on recovery; a larger model may follow the written order better, and may also disagree with the label rule on cases the rules leave open.
+* **Live default.** If P3 meets or beats P2 (original, 85%) on compound recovery@3 (point estimate) **and** has higher instruction faithfulness than P2, the live primary model becomes Claude Haiku 4.5 (fallback Nova Lite, then rules). If it does not, Nova Lite stays primary. Either way the live default policy becomes `llm` with the guardrail on, because the guardrail is justified by the faithfulness and rule-violation results independent of the model choice. Daily cap 200 stays.
+* If the guardrail lowers the primary metric of P2g or P3 against P2, that is reported and the live decision above still follows the rule.
+
+### B.6 Budget and runs
+
+* New model calls (separate from the 600-call budget of section 8, which is closed): at most **1,500 calls and US$5.00** in total, counting dev format checks, re-asks and fallbacks, logged in the same ledger (`eval/runs/agent_ablation/llm_ledger.jsonl`) with the model on every row. Prices: Nova Lite $0.06 / $0.24 and Claude Haiku 4.5 $1.00 / $5.00 per million input / output tokens.
+* Runs: dev format check (n = 20, one per new policy), then test split, P2g and P3, **once each**, then the secondary 1,000-episode free-policy table re-run unchanged (P0, P1, P\*). If a run is interrupted by an infrastructure error (credentials, throttling), it is repeated from the start with the same seeds and the interrupted attempt stays in the ledger.
+* Known limits added: one more cheap model; the legacy-gate prompt is measured, the CRC-gate prompt is not; the validator and the P\* label rule share the same source (the prompt's rules), so zero P\* violations is by construction; faithfulness checks the numbers and claims, not whether the advice is good.

@@ -14,6 +14,16 @@ Policies
   "rules"  P1 baseline: fixed-threshold if/else (also the safety net for "llm").
   "random" P0 baseline: seeded random action (for the ablation).
 
+Guardrail (``validate_decision`` / ``_llm``): every LLM answer is checked by deterministic code before the operator
+sees it. The ACTION must obey the hard constraints already written in the prompt and the rules (no accept on an
+uncertified capture, widen/abandon only when the flags allow it, glare-hiding-board and obliquity ordering, board lost,
+the action must address a failing reason). The INSTRUCTION must not contain a number that disagrees with the
+measurements (value and unit), a wrong "N of M cracks certified" count, an "all cracks certified" claim that is false, or a
+tier word ("certified"/"indicative") that disagrees with the gate. On a violation the model is asked once more with the
+violations listed; if it still violates, the model's action is kept only when the action check passes and the
+instruction is replaced by the rules-policy template for that action, filled with the real numbers. The outcome is
+returned as ``decision["guardrail"]``.
+
 ``decide()`` never raises.
 """
 from __future__ import annotations
@@ -811,6 +821,542 @@ def build_user_payload(observation: dict, gate: dict, cracks: list, history: lis
     }
 
 
+# --------------------------------------------------------------------------- guardrail (deterministic checks on LLM output)
+# Everything below is derived from the rule set that already exists in SYSTEM_PROMPT and in the rules policy. It adds no
+# new policy: a check is only a hard constraint when the prompt states it as one ("ONLY", "never", "first", "choose").
+IMPROVING_ACTIONS = ("move_closer", "reshoot_steadier", "relight", "reposition_marker")
+HIDING_CORNERS = 12            # prompt rule 2a: glare is hiding the board below this many corners
+BOARD_BLURRED_VAR = 100.0      # prompt rule 2a': whole-frame blur_var below this = the frame itself is blurred
+
+# Which actions fix which gate reason (prompt "ACTIONS" section). unstable_width / low_confidence depend on the picture
+# (see _fix_actions).
+_REASON_FIXES = {
+    "too_few_corners": {"reposition_marker"}, "low_resolution": {"move_closer"}, "blurry": {"reshoot_steadier"},
+    "oblique": {"reposition_marker"}, "glare": {"relight"}, "noisy": {"relight"}, "low_coverage": {"reposition_marker"},
+    "mask_blowup": {"reshoot_steadier"}, "mask_holes": {"reshoot_steadier"}, "mask_fragmented": {"reposition_marker"},
+    "invalid_image": {"reposition_marker"},
+}
+
+# Wording an instruction must show for the action it announces (same lists as the ablation's checklist).
+ACTION_WORDS = {
+    "move_closer": re.compile(r"closer|nearer|approach|forward|step in", re.I),
+    "reshoot_steadier": re.compile(r"steady|still|brace|blur|sharp|focus|hold|shake", re.I),
+    "relight": re.compile(r"glare|light|shade|tilt|reflect|flash|angle|shadow", re.I),
+    "reposition_marker": re.compile(r"board|square|angle|frame|position|centre|center|whole|marker|crack|wall|retake", re.I),
+    "accept": re.compile(r"certif|accept|next|good|done|indicative|usable", re.I),
+    "accept_with_widened_uncertainty": re.compile(r"widen|error bar|close enough|accept|keep|uncertain|range|not certified", re.I),
+    "abandon_and_log": re.compile(r"log|stop|give up|abandon|not measurable|cannot|can't|skip|unable", re.I),
+}
+
+
+def _board_lost(o: dict) -> bool:
+    return o.get("board_found") is False or _board_missing(o)
+
+
+def _fix_actions(reason: str, o: dict, crack: dict | None) -> set[str]:
+    """Actions that fix one reason code (prompt ACTIONS section; same split as the rules for the two ambiguous codes)."""
+    if reason in _REASON_FIXES:
+        return set(_REASON_FIXES[reason])
+    if reason in ("unstable_width", "low_confidence"):
+        if _is_soft(o):
+            return {"reshoot_steadier"}
+        if _below_guidance(o, crack) or (reason == "unstable_width" and (_crc_ppm(o, crack) or 0) < GUIDANCE_DEFAULT_PPM):
+            return {"move_closer"}
+        return {"reshoot_steadier", "move_closer", "reposition_marker"}
+    return {"reposition_marker"}  # unknown code: same default as the rules
+
+
+def check_action(action: str, observation: dict, gate: dict, cracks: list, history: list[dict]) -> list[str]:
+    """Violations of the hard constraints in the prompt/rules by `action`. Empty list = acceptable."""
+    o, gate, cracks, history = observation or {}, gate or {}, cracks or [], history or []
+    v: list[str] = []
+    if action not in ACTIONS:
+        return [f"action {action!r} is not one of the allowed actions"]
+    flags = _attempt_flags(o, gate, cracks, history)
+    best = _best_crack(cracks)
+    if _certified(gate):  # rule 4 / 4a
+        if action == "accept":
+            return v
+        tr = list(gate.get("tier_reasons") or [])
+        if _indicative(gate) and prior_indicative(history) == 0 and tr and action in IMPROVING_ACTIONS:
+            first = _crc_pick(tr, o)[0]
+            want = _fix_actions(first, o, best)
+            if action not in want:
+                v.append(f"gate.tier is indicative: the one optional retake must fix the first tier_reasons entry "
+                         f"({first}), which means {' or '.join(sorted(want))}, not {action} (rule 4a)")
+            return v
+        tier = gate.get("tier") or "certified"
+        v.append(f"gate.certified is true (tier {tier}): choose accept, not {action} (rule 4 / 4a)")
+        return v
+    # not certified (tier refused, or a legacy uncertified gate)
+    if action == "accept":
+        return [f"gate.certified is false (tier {gate.get('tier') or 'refused'}): never choose accept on an uncertified capture (rule 4)"]
+    if flags["widen_now_allowed"]:
+        if action != "accept_with_widened_uncertainty":
+            v.append("widen_now_allowed is true: choose accept_with_widened_uncertainty (rule 3a)")
+        return v
+    if action == "accept_with_widened_uncertainty":
+        return ["widen_now_allowed is false: accept_with_widened_uncertainty needs a marginal failure, at least 2 failed "
+                "attempts before this one and a measured crack (rule 3a)"]
+    if flags["abandon_now_allowed"]:
+        if action != "abandon_and_log":
+            v.append(f"abandon_now_allowed is true ({failed_attempts(history)} failed attempts before this one): choose abandon_and_log (rule 3b)")
+        return v
+    if action == "abandon_and_log":
+        return ["abandon_now_allowed is false: never choose abandon_and_log before the 4th failed capture (rule 3b)"]
+    reasons = _gate_reasons(gate)
+    acts = _last_actions(history)
+    if reasons == ["invalid_image"]:
+        return [] if action == "reposition_marker" else ["reason invalid_image: ask for a retake with reposition_marker"]
+    if _board_lost(o):  # rule 2a' (zeros are "not measured")
+        bv = _num(o.get("blur_var"))
+        if bv is not None and bv < BOARD_BLURRED_VAR:
+            want = "reshoot_steadier"
+            why = f"board not found and blur_var {_fmt(bv, 0)} is below {BOARD_BLURRED_VAR:.0f}: the whole frame is blurred"
+        elif acts and acts[-1] == "reposition_marker":
+            want, why = "relight", "board still not found after reposition_marker: glare may be hiding it"
+        else:
+            want, why = "reposition_marker", "board not found"
+        if action != want:
+            v.append(f"{why}: choose {want}, not {action} (rule 2a)")
+        return v
+    if not reasons:
+        return [] if action == "reposition_marker" else ["certified is false with no reasons means no crack was detected: choose reposition_marker"]
+    corners = _num(o.get("corners"))
+    if "glare" in reasons and corners is not None and corners < HIDING_CORNERS:
+        if action != "relight":
+            v.append(f"glare is a failing reason and only {_fmt(corners, 0)} corners are found (below {HIDING_CORNERS}): glare is hiding the board, "
+                     f"choose relight first, not {action} (rule 2a)")
+        return v
+    if "oblique" in reasons and len(reasons) > 1:
+        if action != "reposition_marker":
+            v.append(f"oblique together with another reason ({', '.join(r for r in reasons if r != 'oblique')}): "
+                     f"choose reposition_marker first, not {action} (rule 2b)")
+        return v
+    fixes: set[str] = set()
+    for r in reasons:
+        fixes |= _fix_actions(r, o, best)
+    if action not in fixes:
+        v.append(f"{action} fixes none of the failing reasons ({', '.join(reasons)}); allowed: {', '.join(sorted(fixes))}")
+    return v
+
+
+# ---- instruction checks
+_WORDNUM = {"zero": 0, "no": 0, "none": 0, "one": 1, "two": 2, "both": 2, "three": 3, "four": 4, "five": 5, "six": 6,
+            "seven": 7, "eight": 8, "nine": 9, "ten": 10}
+_NUMW = r"(\d+|zero|one|two|three|four|five|six|seven|eight|nine|ten)"
+_NUM_RE = re.compile(r"(?<![\w.])(\d{1,3}(?:,\d{3})+|\d+(?:\.\d+)?)")
+_UNIT_AFTER = [
+    ("ppm", re.compile(r"^\s*(px\s*/\s*mm|px\s+per\s+mm|pixels?\s+per\s+(?:mm|millimet\w+)|px\s*/\s*millimet\w+)", re.I)),
+    ("advice", re.compile(r"^\s*(seconds?|secs?|s\b|ms\b|minutes?|mins?|cm\b|centimet\w+|metres?|meters?|m\b|feet|ft\b|foot|inch\w*|steps?|paces?)", re.I)),
+    ("px", re.compile(r"^\s*(px|pixels?)\b", re.I)),
+    ("mm", re.compile(r"^\s*(mm|millimet\w+)", re.I)),
+    ("pct", re.compile(r"^\s*(%|percent|per\s*cent)", re.I)),
+    ("deg", re.compile(r"^\s*(°|degrees?|deg\b)", re.I)),
+    ("corners", re.compile(r"^\s*(?:of\s+\d+\s+)?corners?", re.I)),
+    ("attempts", re.compile(r"^\s*(?:more\s+)?(tries|try|attempts?|captures?|shots?|retakes?|retries|photos?|times|failures?|failed)\b", re.I)),
+    ("cracks", re.compile(r"^\s*(?:measured\s+)?cracks?\b", re.I)),
+    ("ordinal", re.compile(r"^(st|nd|rd|th)\b", re.I)),
+]
+_UNIT_BEFORE = [
+    ("blur", re.compile(r"(sharpness|blur\w*|focus)\W+(?:\w+\W+){0,2}$", re.I)),
+    ("deg", re.compile(r"(tilt|angle|obliquity)\W+(?:\w+\W+){0,2}$", re.I)),
+    ("noise", re.compile(r"(noise|grain\w*)\W+(?:\w+\W+){0,2}$", re.I)),
+    ("ratio", re.compile(r"(ratio)\W+(?:\w+\W+){0,2}$", re.I)),
+]
+_LIMIT_BEFORE = re.compile(r"\b(need\w*|max\w*|min\w*|limit|at least|above|below|under|over|threshold|aim for|target|up to)\W+(?:about\W+|around\W+)?$", re.I)
+# "certified" used as a purpose, a negation or a condition is not a claim that the capture IS certified
+_CERT_NEG = re.compile(r"(\bnot|n't|\bnever|\bcannot|\bwithout|\buntil|\bbefore|\bto reach|\bto get|\bto be|\bto become|\bto make|\bfor a|\bfor the|"
+                       r"\breach(?:ing)?|\bget(?:ting)? a|\btoward|\bso (?:it|the|this)|\bwould be|\bif\b|\bcould be|\bcan be|\bmay be|\bmight be|\bwill be|"
+                       r"\bbecome|\bbecomes|\bwhen)\W+(?:\w+\W+){0,3}$", re.I)
+
+
+def _wn(tok: str) -> int | None:
+    tok = tok.lower()
+    return int(tok) if tok.isdigit() else _WORDNUM.get(tok)
+
+
+def _decimals(tok: str) -> int:
+    t = tok.replace(",", "")
+    return len(t.split(".")[1]) if "." in t else 0
+
+
+def _matches(tok: str, values) -> bool:
+    """True when the cited number equals a value rounded (or truncated) to the number of decimals it was written with."""
+    d = _decimals(tok)
+    q = 10 ** d
+    xi = round(float(tok.replace(",", "")) * q)
+    for val in values:
+        a = val * q
+        if xi in (math.floor(a + 0.5 + 1e-9), math.floor(a + 1e-9)):
+            return True
+    return False
+
+
+def _counts(gate: dict, cracks: list) -> tuple[int, int]:
+    """(certified cracks, total cracks) as the gate/cracks report them."""
+    g = gate or {}
+    tot = _num(g.get("cracks_total"))
+    cer = _num(g.get("cracks_certified"))
+    if tot is None:
+        tot = len(cracks or [])
+    if cer is None:
+        if any("certified" in c for c in cracks or [] if isinstance(c, dict)):
+            cer = sum(1 for c in cracks if isinstance(c, dict) and c.get("certified"))
+        else:
+            cer = tot if _certified(g) else 0
+    return int(cer), int(tot)
+
+
+_UNIT_OF_CHECK = {"too_few_corners": "corners", "low_resolution": "ppm", "blurry": "blur", "oblique": "deg", "glare": "pct",
+                  "noisy": "noise", "low_coverage": "pct"}
+_UNITS = ("ppm", "mm", "pct", "deg", "corners", "blur", "noise", "px", "ratio", "attempts", "cracks")
+_UNIT_LABEL = {"ppm": "px/mm", "mm": "mm", "pct": "percent", "deg": "degrees", "corners": "corners", "blur": "sharpness",
+               "noise": "noise", "px": "pixels", "ratio": "risk ratio", "attempts": "attempts", "cracks": "cracks"}
+
+
+def value_pool(observation: dict, gate: dict, cracks: list, history: list[dict]) -> dict[str, dict[str, list[float]]]:
+    """Every number the model could legitimately cite, by unit: {"unit": {"m": measured, "c": constants}}.
+
+    "m" = measured, or derived from this capture/history (what counts as "cites a measured number"); "c" = constants that
+    appear in the prompt (thresholds, guidance table, caps)."""
+    o, gate, cracks, history = observation or {}, gate or {}, cracks or [], history or []
+    crc = _is_crc(gate, cracks)
+    P = {u: {"m": [], "c": []} for u in _UNITS}
+
+    def add(u, x, kind="m", scale=1.0):
+        n = _num(x)
+        if n is not None:
+            P[u][kind].append(n * scale)
+
+    obs_all = [o] + [(s or {}).get("observation") or {} for s in history]
+    for ob in obs_all:
+        add("ppm", ob.get("px_per_mm"))
+        add("deg", ob.get("obliquity_deg"))
+        add("pct", ob.get("glare_frac"), scale=100.0)
+        add("pct", ob.get("crack_coverage"), scale=100.0)
+        add("corners", ob.get("corners"))
+        add("corners", ob.get("corners_total"))
+        add("blur", ob.get("blur_var"))
+        add("noise", ob.get("noise_sigma"))
+        add("mm", ob.get("blur_sigma_mm"))
+        add("px", ob.get("crack_px_extent"))
+        add("px", ob.get("image_w"))
+        add("px", ob.get("image_h"))
+    for cl in [cracks] + [(s or {}).get("cracks") or [] for s in history]:
+        for c in cl:
+            if not isinstance(c, dict):
+                continue
+            for k in ("width_mm", "uncertainty_mm", "length_mm"):
+                add("mm", c.get(k))
+            iv = c.get("interval_mm")
+            if isinstance(iv, (list, tuple)):
+                for x in iv:
+                    add("mm", x)
+            add("ppm", c.get("px_per_mm"))
+            add("ratio", c.get("risk_ratio"))
+    cer, tot = _counts(gate, cracks)
+    for x in (cer, tot, tot - cer):
+        add("cracks", x)
+    n_prior = failed_attempts(history)
+    for x in (n_prior, n_prior + 1):
+        add("attempts", x)
+    # derived helper numbers the model was shown (failing_checks, percent past the certify level, ...)
+    try:
+        d = _derived_for_llm(o, gate, cracks)
+    except Exception:  # pragma: no cover - defensive
+        d = {}
+    for c in d.get("failing_checks") or []:
+        u = _UNIT_OF_CHECK.get(c.get("check"))
+        if u and c.get("value") is not None:
+            add(u, c["value"], scale=100.0 if u == "pct" else 1.0)
+        add("pct", c.get("percent_past_threshold"))
+        add("ppm", c.get("crack_px_per_mm"))
+        add("ppm", c.get("px_per_mm_guidance"), "c")
+    add("pct", d.get("percent_past_certify_level"))
+    add("ratio", d.get("best_crack_risk_ratio"))
+    add("ratio", d.get("certify_at_risk_ratio"))
+    g = d.get("px_per_mm_guidance_for_best_crack") or {}
+    add("ppm", g.get("crack_px_per_mm"))
+    add("mm", g.get("width_mm"))
+    # constants that appear in the prompt
+    for c in cracks:
+        if isinstance(c, dict):
+            need = guidance_ppm(c.get("width_mm"))
+            if need is not None:
+                add("ppm", need, "c")
+    add("ppm", GUIDANCE_DEFAULT_PPM, "c")
+    add("pct", 90, "c")                       # "90 percent range"
+    add("mm", 0.05, "c")                      # gate tolerance, quoted in the prompt
+    add("corners", 24, "c")
+    add("corners", 7, "c")
+    add("corners", HIDING_CORNERS, "c")
+    add("blur", BOARD_BLURRED_VAR, "c")
+    add("blur", GUIDANCE_SOFT_BLUR_VAR, "c")
+    add("attempts", MAX_FAILED_ATTEMPTS, "c")
+    add("ratio", cert_risk_ratio(gate), "c")
+    if not crc:
+        T = GATE_THRESHOLDS
+        add("ppm", T["min_px_per_mm"], "c")
+        add("deg", T["max_obliquity_deg"], "c")
+        add("pct", T["max_glare_frac"], "c", scale=100.0)
+        add("corners", T["min_corners"], "c")
+        add("blur", T["min_blur_var"], "c")
+    return P
+
+
+def _unit_for(text: str, m: re.Match) -> str | None:
+    after = text[m.end(): m.end() + 24]
+    for u, rx in _UNIT_AFTER:
+        if rx.match(after):
+            return u
+    before = text[max(0, m.start() - 28): m.start()]
+    for u, rx in _UNIT_BEFORE:
+        if rx.search(before):
+            return u
+    return None
+
+
+def _count_claim_violations(text: str, gate: dict, cracks: list) -> tuple[list[str], list[tuple[int, int]]]:
+    """Checks "N of M cracks ...", "Certified N of M", "all cracks certified", "no cracks certified". Returns the
+    violations and the character spans they cover (so the number scan does not look at them again)."""
+    cer, tot = _counts(gate, cracks)
+    flg = tot - cer
+    v: list[str] = []
+    spans: list[tuple[int, int]] = []
+
+    def covered(pos: int) -> bool:
+        return any(a <= pos < b for a, b in spans)
+
+    def neg_before(pos: int) -> bool:
+        return bool(re.search(r"(\bnot|n't)\s+$", text[max(0, pos - 12): pos], re.I))
+
+    for m in re.finditer(rf"\b(certified|flagged)\s+{_NUMW}\s+of\s+{_NUMW}\b(?:\s+(?:measured\s+)?cracks?)?", text, re.I):
+        kind, n, mm_ = m.group(1).lower(), _wn(m.group(2)), _wn(m.group(3))
+        spans.append(m.span())
+        if mm_ is not None and mm_ != tot:
+            v.append(f"says {m.group(0)!r} but the gate reports {tot} cracks")
+        want = cer if kind == "certified" else flg
+        if n is not None and n != want:
+            v.append(f"says {m.group(0)!r} but {want} of {tot} cracks are {kind}")
+    for m in re.finditer(rf"\b{_NUMW}\s+of\s+(?:the\s+)?{_NUMW}\s+(?:measured\s+)?cracks?\b(?:\s+(?:are|were|is|was|got|have|have been)?\s*(not certified|uncertified|certified|flagged|passed|pass))?", text, re.I):
+        if covered(m.start()):
+            continue
+        spans.append(m.span())
+        n, mm_, kind = _wn(m.group(1)), _wn(m.group(2)), (m.group(3) or "").lower()
+        if mm_ is not None and mm_ != tot:
+            v.append(f"says {m.group(0)!r} but the gate reports {tot} cracks")
+        if n is None:
+            continue
+        if kind in ("certified", "passed", "pass"):
+            want, nm = cer, "certified"
+        elif kind in ("flagged", "not certified", "uncertified"):
+            want, nm = flg, "flagged"
+        else:
+            want, nm = None, ""
+        if want is not None and n != want:
+            v.append(f"says {m.group(0)!r} but {want} of {tot} cracks are {nm}")
+        elif want is None and n not in (cer, flg, tot):
+            v.append(f"says {m.group(0)!r} but {cer} of {tot} cracks are certified")
+    for m in re.finditer(r"\b(all|every|both|each)\b(?:\s+(?:of\s+)?the)?(?:\s+" + _NUMW + r")?\s+cracks?\b[^.;:]{0,30}?\b(certified|flagged|passed|pass|uncertified)\b", text, re.I):
+        if covered(m.start()):
+            continue
+        spans.append(m.span())
+        quant, kind = m.group(1).lower(), m.group(3).lower()
+        holds = (cer == 0 and tot > 0) if kind in ("flagged", "uncertified") else (cer == tot and tot > 0)
+        if neg_before(m.start()):
+            holds = not holds
+        if quant == "both" and tot != 2:
+            holds = False
+        if not holds:
+            v.append(f"says {m.group(0)!r} but {cer} of {tot} cracks are certified")
+    for m in re.finditer(r"\b(no|none of the|zero)\s+cracks?\s+(?:are |were |was |is |got |have been )?(certified|passed)\b", text, re.I):
+        if covered(m.start()):
+            continue
+        spans.append(m.span())
+        if cer != 0:
+            v.append(f"says {m.group(0)!r} but {cer} of {tot} cracks are certified")
+    return v, spans
+
+
+def _tier_claim_violations(text: str, gate: dict, skip: list[tuple[int, int]] | None = None) -> list[str]:
+    """The words 'certified' / 'indicative' / 'usable' must agree with gate.tier (or gate.certified for a legacy gate)."""
+    certified = _certified(gate)
+    tier = _tier(gate) or ("certified" if certified else "refused")
+    v: list[str] = []
+    positive = 0
+    for m in re.finditer(r"\bcertified\b", text, re.I):
+        before = text[max(0, m.start() - 40): m.start()]
+        if _CERT_NEG.search(before):
+            continue
+        positive += 1
+    if positive and not certified:
+        v.append(f"calls the capture certified but gate.certified is false (tier {tier})")
+    elif positive and tier == "indicative" and not re.search(r"indicative|usable|strict|range|interval", text, re.I):
+        v.append("calls an indicative capture certified without saying it is indicative (gate.tier is indicative, not certified)")
+    if re.search(r"\bindicative\b", text, re.I) and tier != "indicative":
+        v.append(f"says indicative but gate.tier is {tier}")
+    if re.search(r"\b(usable as is|usable as-is|already usable)\b", text, re.I) and not certified:
+        v.append(f"says the reading is usable but gate.certified is false (tier {tier})")
+    if tier == "certified" and re.search(r"\b(not certified|uncertified|refused)\b", text, re.I):
+        v.append("says the capture is not certified but gate.tier is certified")
+    return v
+
+
+def check_instruction(action: str, instruction: str, observation: dict, gate: dict, cracks: list,
+                      history: list[dict]) -> tuple[list[str], dict]:
+    """(violations, stats) for the operator-facing text. stats: numbers cited, how many matched a measured value."""
+    text = str(instruction or "")
+    o, gate, cracks, history = observation or {}, gate or {}, cracks or [], history or []
+    v: list[str] = []
+    cv, spans = _count_claim_violations(text, gate, cracks)
+    v += cv
+    v += _tier_claim_violations(text, gate, spans)
+    P = value_pool(o, gate, cracks, history)
+    union_m = [x for u in P.values() for x in u["m"]]
+    union_c = [x for u in P.values() for x in u["c"]]
+    cited = measured = 0
+    prev_unit, prev_end = None, 0
+    for m in _NUM_RE.finditer(text):
+        if any(a <= m.start() < b for a, b in spans):
+            cited += 1
+            measured += 1  # a "N of M cracks" count that passed the count check is a measured number
+            continue
+        tok = m.group(1)
+        unit = _unit_for(text, m)
+        if (unit is None and prev_unit and not re.search(r"[.;:!?]\s", text[prev_end:m.start()])
+                and _LIMIT_BEFORE.search(text[max(0, m.start() - 24): m.start()])):
+            # "only 6 px/mm, need 8 or more": the limit is in the unit of the value before it;
+            # "a 0.5 mm crack needs about 10": what a crack width needs is a scale
+            unit = "ppm" if prev_unit == "mm" else prev_unit
+        prev_unit, prev_end = unit, m.end()
+        if unit == "advice":
+            continue  # "hold still for 2 seconds": advice, not a measurement
+        cited += 1
+        if unit == "ordinal":
+            unit = "attempts"
+        strict = unit == "corners" and re.match(r"\s+of\s+\d+\s+corners?", text[m.end(): m.end() + 24], re.I)
+        if unit in P:
+            ms, cs, label = P[unit]["m"], ([] if strict else P[unit]["c"]), _UNIT_LABEL[unit]
+        else:
+            ms, cs, label = union_m, union_c, ""
+        if _matches(tok, ms):
+            measured += 1
+        elif not _matches(tok, cs):
+            known = ", ".join(f"{x:g}" for x in sorted({round(x, 2) for x in ms})[:6]) or "none"
+            v.append(f"cites {tok}{' ' + label if label else ''} but no such value was measured or defined "
+                     f"(known {label or 'measured'} values: {known})")
+    if measured == 0:  # prompt rule 1: "Name the number that triggered it in the instruction"
+        v.append("cites no measured number: rule 1 says to name the measured number that triggered the action")
+    w = ACTION_WORDS.get(action)
+    if w is not None and not w.search(text):
+        v.append(f"the instruction does not describe the chosen action {action}")
+    seen, out = set(), []
+    for x in v:
+        if x not in seen:
+            seen.add(x)
+            out.append(x)
+    return out, {"numbers": cited, "measured": measured}
+
+
+def validate_decision(action: str, instruction: str, observation: dict, gate: dict, cracks: list, history: list[dict]) -> dict:
+    """{"action": [...], "instruction": [...], "numbers": n, "measured": k}; both lists empty = the decision is faithful."""
+    av = check_action(action, observation, gate, cracks, history)
+    iv, st = check_instruction(action, instruction, observation, gate, cracks, history)
+    return {"action": av, "instruction": iv, **st}
+
+
+def is_faithful(action: str, instruction: str, observation: dict, gate: dict, cracks: list, history: list[dict]) -> bool:
+    """The ablation's "instruction faithfulness": cites at least one measured number AND has zero instruction violations."""
+    iv, st = check_instruction(action, instruction, observation, gate, cracks, history)
+    return not iv and st["measured"] >= 1
+
+
+# ---- rules-policy template text for a given action (used when the model's instruction cannot be repaired)
+def _legacy_accept(cracks: list) -> str:
+    w = (cracks or [{}])[0] if cracks else {}
+    wtxt = f" Width {_fmt(w.get('width_mm'), 2)} mm." if _num(w.get("width_mm")) is not None else ""
+    return f"Capture certified.{wtxt} Move to the next crack."
+
+
+def _board_lost_text(action: str, o: dict) -> str:
+    c, tot = _fmt(o.get("corners"), 0), _fmt(o.get("corners_total") or 24, 0)
+    if action == "reshoot_steadier":
+        return f"Hold steady and retake: the whole frame is soft (sharpness {_fmt(o.get('blur_var'), 0)}) and the board was not found."
+    if action == "relight":
+        return "Still no board: cut glare, tilt or shade the wall, turn off flash. Glare can hide the board."
+    return f"Board not found: put the whole board beside the crack and retake ({c} of {tot} corners)."
+
+
+def template_instruction(action: str, observation: dict, gate: dict, cracks: list, history: list[dict]) -> str:
+    """The rules policy's wording for `action`, filled with this capture's real numbers (always at least one)."""
+    text = _template_text(action, observation, gate, cracks, history)
+    if not re.search(r"\d", text):
+        o = observation or {}
+        text += f" ({_fmt(o.get('corners'), 0)} of {_fmt(o.get('corners_total') or 24, 0)} corners seen.)"
+    return text
+
+
+def _template_text(action: str, observation: dict, gate: dict, cracks: list, history: list[dict]) -> str:
+    o, gate, cracks, history = observation or {}, gate or {}, cracks or [], history or []
+    crc = _is_crc(gate, cracks)
+    best = _best_crack(cracks)
+    if action == "accept":
+        return _crc_accept(cracks, gate) if crc else _legacy_accept(cracks)
+    if action == "accept_with_widened_uncertainty":
+        if crc and best is not None:
+            rng = _range_txt(best)
+            return f"Close enough: keep this shot. Best crack {_mm(best.get('width_mm'))} mm" + (f", range {rng}" if rng else "") + ", not certified."
+        w = _num(best.get("width_mm")) if best else _num((cracks[0] if cracks else {}).get("width_mm"))
+        return ("Close enough: keep this shot, the error bar will be widened." if w is None
+                else f"Close enough: keep this shot. Best crack {_mm(w)} mm, the error bar will be widened.")
+    if action == "abandon_and_log":
+        return f"Stop here and log this crack as not measurable after {failed_attempts(history) + 1} tries."
+    reasons = _gate_reasons(gate)
+    if _certified(gate):  # the optional improving retake on an indicative capture
+        tr = list(gate.get("tier_reasons") or [])
+        if tr:
+            return "Usable as is. For a certified reading: " + _crc_fix(_crc_pick(tr, o)[0], o, best)[1]
+    if _board_lost(o) and reasons != ["invalid_image"]:
+        return _board_lost_text(action, o)
+    if not reasons:
+        return "Frame the crack next to the board and retake: no crack was found."
+    if crc:
+        pool = _crc_pick(reasons, o)
+    else:
+        pool = [r for r in ("glare", "blurry", "oblique", "low_resolution", "too_few_corners") if r in reasons] or ["too_few_corners"]
+    for r in pool:
+        a, t = _crc_fix(r, o, best) if crc else _rule_text(r, o)
+        if a == action:
+            return t
+    # no failing reason maps to this action: neutral wording with the relevant real number
+    if action == "move_closer":
+        return _closer_text(o, best)
+    if action == "reshoot_steadier":
+        return f"Hold steady and retake: sharpness is {_fmt(o.get('blur_var'), 0)}. Brace the phone, tap to focus."
+    if action == "relight":
+        return "Cut the glare: tilt or shade the wall, turn off flash."
+    return f"Show the whole board: only {_fmt(o.get('corners'), 0)} of {_fmt(o.get('corners_total') or 24, 0)} corners found."
+
+
+def guardrail_enabled() -> bool:
+    return os.environ.get("PROHORI_GUARDRAIL", "1").strip().lower() not in ("0", "false", "off", "no")
+
+
+def _reask_text(violations: list[str]) -> str:
+    return ("Your previous answer broke these checks, which code runs on every answer:\n- " + "\n- ".join(violations[:8])
+            + "\nAnswer again with the choose_action tool. Keep the rules in the system prompt. Every number in the instruction "
+              "must be copied from the data above, and any statement about how many cracks are certified must match the data.")
+
+
+class GuardrailReject(ValueError):
+    """The model's action failed the action check and could not be fixed: the caller falls back to the rules policy."""
+
+    def __init__(self, msg: str, guardrail: dict):
+        super().__init__(msg)
+        self.guardrail = guardrail
+
+
 def _extract_tool_use(resp: dict) -> tuple[dict, int | None, int | None]:
     for block in (resp.get("output", {}).get("message", {}).get("content") or []):
         tu = block.get("toolUse")
@@ -820,20 +1366,41 @@ def _extract_tool_use(resp: dict) -> tuple[dict, int | None, int | None]:
     raise ValueError("no choose_action toolUse block in response")
 
 
-def _llm(observation, gate, cracks, history, t0) -> dict:
+def _converse(client, model: str, system: str, messages: list) -> dict:
+    return client.converse(
+        modelId=model,
+        system=[{"text": system}],
+        messages=messages,
+        inferenceConfig={"maxTokens": 400, "temperature": 0.0},
+        toolConfig=TOOL_CONFIG,
+    )
+
+
+def _parse_answer(resp: dict) -> tuple[str, str, str, int | None, int | None]:
+    args, it, ot = _extract_tool_use(resp)
+    action = args.get("action")
+    if action not in ACTIONS:
+        raise ValueError(f"invalid action from model: {action!r}")
+    instruction = _clean_instruction(args.get("instruction"))
+    if not instruction:
+        raise ValueError("empty instruction from model")
+    return action, instruction, str(args.get("rationale") or ""), it, ot
+
+
+def _add(a, b):
+    return b if a is None else (a if b is None else a + b)
+
+
+def _llm(observation, gate, cracks, history, t0, guardrail: bool | None = None) -> dict:
     client = _get_client()
     payload = build_user_payload(observation, gate, cracks, history)
-    messages = [{"role": "user", "content": [{"text": json.dumps(payload, separators=(",", ":"))}]}]
+    user_text = json.dumps(payload, separators=(",", ":"))
+    messages = [{"role": "user", "content": [{"text": user_text}]}]
+    use_guard = guardrail_enabled() if guardrail is None else bool(guardrail)
     last_err: Exception | None = None
     for model in _models():
         try:
-            resp = client.converse(
-                modelId=model,
-                system=[{"text": SYSTEM_PROMPT}],
-                messages=messages,
-                inferenceConfig={"maxTokens": 400, "temperature": 0.0},
-                toolConfig=TOOL_CONFIG,
-            )
+            resp = _converse(client, model, SYSTEM_PROMPT, messages)
         except Exception as e:
             code = getattr(e, "response", {}).get("Error", {}).get("Code") if hasattr(e, "response") else None
             last_err = e
@@ -841,22 +1408,49 @@ def _llm(observation, gate, cracks, history, t0) -> dict:
                 log.warning("model %s unavailable (%s); trying next", model, code)
                 continue
             raise
-        args, it, ot = _extract_tool_use(resp)
-        action = args.get("action")
-        if action not in ACTIONS:
-            raise ValueError(f"invalid action from model: {action!r}")
-        instruction = _clean_instruction(args.get("instruction"))
-        if not instruction:
-            raise ValueError("empty instruction from model")
-        cert = _certified(gate)
-        if cert and action != "accept":
-            # only exception: an indicative capture, first time, may get ONE improving retake action
-            improving = ("move_closer", "reshoot_steadier", "relight", "reposition_marker")
-            if not (_indicative(gate) and prior_indicative(history) == 0 and action in improving):
-                raise ValueError(f"guard: certified gate but model chose {action}")
-        if not cert and action == "accept":
-            raise ValueError("guard: model chose accept on uncertified gate")
-        return _result(action, instruction, args.get("rationale") or "", "llm", model, t0, None, it, ot)
+        action, instruction, rationale, it, ot = _parse_answer(resp)
+        calls = 1
+        gr = None
+        if use_guard:
+            val = validate_decision(action, instruction, observation, gate, cracks, history)
+            viol = val["action"] + val["instruction"]
+            gr = {"violations": viol, "reask": False, "final_violations": viol, "repaired": False,
+                  "action_rejected": False, "rationale_withheld": False}
+            if viol:
+                gr["reask"] = True
+                prev = json.dumps({"action": action, "instruction": instruction, "rationale": rationale}, separators=(",", ":"))
+                messages2 = messages + [{"role": "assistant", "content": [{"text": prev}]},
+                                        {"role": "user", "content": [{"text": _reask_text(viol)}]}]
+                try:
+                    resp2 = _converse(client, model, SYSTEM_PROMPT, messages2)
+                    a2, i2, r2, it2, ot2 = _parse_answer(resp2)
+                    calls += 1
+                    it, ot = _add(it, it2), _add(ot, ot2)
+                    action, instruction, rationale = a2, i2, r2
+                    val = validate_decision(action, instruction, observation, gate, cracks, history)
+                except Exception as e:  # the re-ask failed: judge the first answer as it stands
+                    gr["reask_error"] = f"{type(e).__name__}: {e}"[:120]
+                gr["final_violations"] = val["action"] + val["instruction"]
+                if val["action"]:
+                    gr["action_rejected"] = True
+                    raise GuardrailReject("guard: " + "; ".join(val["action"])[:250], gr)
+                if val["instruction"]:
+                    instruction = template_instruction(action, observation, gate, cracks, history)
+                    gr["repaired"] = True
+            riv, _ = check_instruction(None, rationale, observation, gate, cracks, history)  # type: ignore[arg-type]
+            if riv:
+                rationale = "Model rationale withheld: it cited values that do not match the measurements."
+                gr["rationale_withheld"] = True
+        else:
+            bad = check_action(action, observation, gate, cracks, history)
+            cert = _certified(gate)
+            if (cert and action != "accept" and bad) or (not cert and action == "accept"):
+                raise ValueError("guard: " + "; ".join(bad)[:250])
+        r = _result(action, instruction, rationale, "llm", model, t0, None, it, ot)
+        r["llm_calls"] = calls
+        if gr is not None:
+            r["guardrail"] = gr
+        return r
     raise last_err or RuntimeError("no Bedrock model configured")
 
 
@@ -881,7 +1475,8 @@ def _llm_budget_ok() -> bool:
         return True
 
 
-def decide(observation: dict, gate: dict, cracks: list, history: list[dict], *, policy: str = "llm") -> dict:
+def decide(observation: dict, gate: dict, cracks: list, history: list[dict], *, policy: str = "llm",
+           guardrail: bool | None = None) -> dict:
     """Pick the next operator action. Never raises.
 
     policy "llm" -> Bedrock tool-use agent (falls back to rules on any failure);
@@ -907,12 +1502,14 @@ def decide(observation: dict, gate: dict, cracks: list, history: list[dict], *, 
             r["fallback_reason"] = "daily LLM call cap reached"
             return r
         try:
-            return _llm(observation, gate, cracks, history, t0)
+            return _llm(observation, gate, cracks, history, t0, guardrail)
         except Exception as e:
             reason = f"{type(e).__name__}: {e}"[:300]
             log.warning("LLM policy failed, using rules: %s", reason)
             r = rules_policy(observation, gate, cracks, history)
             r["fallback_reason"] = reason
+            if getattr(e, "guardrail", None):
+                r["guardrail"] = e.guardrail
             r["latency_ms"] = round((time.perf_counter() - t0) * 1000.0, 2)
             return r
     except Exception as e:  # absolute last resort

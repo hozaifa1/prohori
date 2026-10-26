@@ -11,6 +11,10 @@ Pre-registration: research/AGENT_PREREG.md.  Simulator: src/prohori/episodes.py.
     python eval/agent_ablation.py run --split dev  --policies p2 --n 20 --tag dev_v0
     python eval/agent_ablation.py run --split test --policies p2 --tag test_final
 
+    # Addendum B (research/AGENT_PREREG.md): guardrail variants, prompt v2 of the legacy gate, one run each
+    python eval/agent_ablation.py run --split dev  --policies p2g --n 20 --tag p2g_devfmt     # format check only
+    python eval/agent_ablation.py run --split test --policies p2g,p3 --workers 3
+
     python eval/agent_ablation.py probe-claude         # ONE call to the Claude model, for availability
     python eval/agent_ablation.py report               # md + csv + figure from the run files
 
@@ -44,6 +48,7 @@ PREREG = ROOT / "research" / "AGENT_PREREG.md"
 os.environ["PROHORI_LLM_DAILY_CAP"] = "1000"
 os.environ["PROHORI_DATA_DIR"] = str(RUNS / "cap_counter")
 NOVA = "us.amazon.nova-lite-v1:0"
+HAIKU45 = "us.anthropic.claude-haiku-4-5-20251001-v1:0"
 CLAUDE_PROBE = "us.anthropic.claude-haiku-5-5"
 os.environ["PROHORI_BEDROCK_MODEL"] = NOVA
 os.environ["PROHORI_BEDROCK_FALLBACK_MODELS"] = ""   # no hidden second model
@@ -54,8 +59,14 @@ import numpy as np  # noqa: E402
 
 from prohori import agent, episodes as E  # noqa: E402
 
-TOTAL_CALL_CAP = 600
-PRICE_IN, PRICE_OUT = 0.06 / 1e6, 0.24 / 1e6
+TOTAL_CALL_CAP = 600                 # section 8 budget (P2, closed)
+ADD_B_CALL_CAP, ADD_B_USD_CAP = 1500, 5.0   # Addendum B.6 budget (tags starting p2g / p3)
+ADD_B_TAGS = ("p2g", "p3")
+PRICE_IN, PRICE_OUT = 0.06 / 1e6, 0.24 / 1e6   # Nova Lite
+PRICES = {NOVA: (0.06 / 1e6, 0.24 / 1e6), HAIKU45: (1.0 / 1e6, 5.0 / 1e6)}   # USD per token (in, out)
+V2_PROMPT = ROOT / "research" / "prompts" / "agent_prompt_v2_legacy_gate.txt"
+POLICY_MODEL = {"p2": NOVA, "p2g": NOVA, "p3": HAIKU45}
+LLM_POLICIES = tuple(POLICY_MODEL)
 BOOT_B, BOOT_SEED = 10000, 20261019
 
 
@@ -73,18 +84,36 @@ def ledger_rows() -> list[dict]:
     return [json.loads(x) for x in LEDGER.read_text(encoding="utf-8").splitlines() if x.strip()]
 
 
-def calls_used() -> int:
-    return sum(1 for r in ledger_rows() if r.get("kind") == "start")
+def _is_add_b(tag: str) -> bool:
+    return str(tag).startswith(ADD_B_TAGS)
+
+
+def calls_used(add_b: bool = False) -> int:
+    """Model calls started. add_b=False: the section 8 budget (everything that is not an Addendum B tag)."""
+    return sum(1 for r in ledger_rows() if r.get("kind") == "start" and _is_add_b(r.get("tag")) == add_b)
+
+
+def usd_of(rows) -> float:
+    t = 0.0
+    for r in rows:
+        if r.get("kind") == "done" and r.get("ok"):
+            pi, po = PRICES.get(r.get("model"), PRICES[NOVA])
+            t += (r.get("in") or 0) * pi + (r.get("out") or 0) * po
+    return t
 
 
 class CountingClient:
-    def __init__(self, inner, tag: str, cap: int = TOTAL_CALL_CAP):
-        self.inner, self.tag, self.cap = inner, tag, cap
+    def __init__(self, inner, tag: str, cap: int | None = None):
+        self.inner, self.tag = inner, tag
+        self.add_b = _is_add_b(tag)
+        self.cap = cap if cap is not None else (ADD_B_CALL_CAP if self.add_b else TOTAL_CALL_CAP)
 
     def converse(self, **kw):
         with _ledger_lock:
-            if calls_used() >= self.cap:
+            if calls_used(self.add_b) >= self.cap:
                 raise BudgetExhausted(f"model-call budget of {self.cap} reached")
+            if self.add_b and usd_of([r for r in ledger_rows() if _is_add_b(r.get("tag"))]) >= ADD_B_USD_CAP:
+                raise BudgetExhausted(f"dollar budget of {ADD_B_USD_CAP} reached")
             RUNS.mkdir(parents=True, exist_ok=True)
             with open(LEDGER, "a", encoding="utf-8") as f:
                 f.write(json.dumps({"kind": "start", "ts": time.time(), "tag": self.tag, "model": kw.get("modelId")}) + "\n")
@@ -104,8 +133,11 @@ class CountingClient:
         return resp
 
 
+_REAL_GET_CLIENT = agent._get_client
+
+
 def install_counting_client(tag: str) -> None:
-    real = agent._get_client()
+    real = _REAL_GET_CLIENT()
     agent._get_client = lambda: CountingClient(real, tag)  # type: ignore[assignment]
 
 
@@ -126,10 +158,17 @@ def ledger_summary() -> dict:
             d["out"] += r.get("out") or 0
         else:
             d["errors"] += 1
+    for r in done:
+        if r.get("ok"):
+            pi, po = PRICES.get(r.get("model"), PRICES[NOVA])
+            by_tag[r["tag"]]["usd"] = by_tag[r["tag"]].get("usd", 0.0) + (r.get("in") or 0) * pi + (r.get("out") or 0) * po
+            by_tag[r["tag"]].setdefault("ms", []).append(r.get("ms") or 0)
+        by_tag[r["tag"]]["model"] = r.get("model")
     for d in by_tag.values():
-        d["usd"] = d["in"] * PRICE_IN + d["out"] * PRICE_OUT
+        d.setdefault("usd", 0.0)
     return {"calls": len(started), "errors": len(done) - len(ok), "in": tin, "out": tout,
-            "usd": tin * PRICE_IN + tout * PRICE_OUT, "by_tag": by_tag}
+            "usd": usd_of(rows), "by_tag": by_tag,
+            "calls_b": sum(1 for r in started if _is_add_b(r["tag"])), "usd_b": usd_of([r for r in rows if _is_add_b(r.get("tag"))])}
 
 
 # --------------------------------------------------------------------------- policies
@@ -156,9 +195,18 @@ def make_policy(name: str, seed: int):
         return lambda o, g, c, h: agent.rules_decide(o, g, c, h)
     if name == "pstar":
         return lambda o, g, c, h: E.oracle_decide(o, g, c, h)
-    if name == "p2":
-        return lambda o, g, c, h: agent.decide(o, g, c, h, policy="llm")
+    if name == "p2":      # as run on 2026-10-19: Nova Lite, prompt v2, no guardrail
+        return lambda o, g, c, h: agent.decide(o, g, c, h, policy="llm", guardrail=False)
+    if name in ("p2g", "p3"):
+        return lambda o, g, c, h: agent.decide(o, g, c, h, policy="llm", guardrail=True)
     raise ValueError(name)
+
+
+def use_llm_config(policy: str) -> None:
+    """Pin the model and the legacy-gate prompt v2 (the prompt the P2 test run used) for an LLM policy."""
+    os.environ["PROHORI_BEDROCK_MODEL"] = POLICY_MODEL[policy]
+    os.environ["PROHORI_BEDROCK_FALLBACK_MODELS"] = ""
+    agent.SYSTEM_PROMPT = V2_PROMPT.read_text(encoding="utf-8")
 
 
 def run_split(split: str, policy: str, n: int | None, tag: str, workers: int) -> Path:
@@ -174,7 +222,8 @@ def run_split(split: str, policy: str, n: int | None, tag: str, workers: int) ->
 
     RUNS.mkdir(parents=True, exist_ok=True)
     t0 = time.time()
-    if policy == "p2":
+    if policy in LLM_POLICIES:
+        use_llm_config(policy)
         install_counting_client(tag)
         with ThreadPoolExecutor(workers) as ex:
             traces = list(ex.map(one, eps))
@@ -183,13 +232,22 @@ def run_split(split: str, policy: str, n: int | None, tag: str, workers: int) ->
     meta = {"kind": "meta", "split": split, "policy": policy, "tag": tag, "n": len(eps), "thresholds": T,
             "prereg_sha256": sha256_file(PREREG), "episodes_py_sha256": sha256_file(ROOT / "src" / "prohori" / "episodes.py"),
             "p1_fingerprint": fingerprint_p1(), "prompt_fingerprint": prompt_fingerprint(),
-            "model": os.environ["PROHORI_BEDROCK_MODEL"] if policy == "p2" else None, "seconds": round(time.time() - t0, 1),
+            "model": os.environ["PROHORI_BEDROCK_MODEL"] if policy in LLM_POLICIES else None, "seconds": round(time.time() - t0, 1),
+            "git_head": _git_head(), "guardrail": policy in ("p2g", "p3"),
             "ts": time.strftime("%Y-%m-%dT%H:%M:%S")}
     with open(out, "w", encoding="utf-8") as f:
         f.write(json.dumps(meta) + "\n")
         for tr in traces:
             f.write(json.dumps(tr) + "\n")
     return out
+
+
+def _git_head() -> str:
+    import subprocess
+    try:
+        return subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip()
+    except Exception:
+        return "unknown"
 
 
 def load_run(path: Path) -> tuple[dict, list[dict]]:
@@ -218,10 +276,15 @@ def episode_stats(tr: dict) -> dict:
          "correct_outcome": float(tr["outcome"] == E.CORRECT_TERMINAL[k]),
          "abandoned": float(tr["outcome"] == "abandoned"), "widened": float(tr["outcome"] == "widened"),
          "dec": 0, "strict": 0, "accept_ok": 0, "addr": 0, "fallbacks": 0, "llm_steps": 0,
-         "esc_pred": 0, "esc_pos": 0, "esc_tp": 0, "instr_n": 0, "instr_len": 0, "instr_num": 0, "instr_cons": 0}
+         "esc_pred": 0, "esc_pos": 0, "esc_tp": 0, "instr_n": 0, "instr_len": 0, "instr_num": 0, "instr_cons": 0,
+         "faithful": 0, "instr_viol": 0, "instr_nonum": 0, "rule_viol": 0, "g_n": 0, "g_first": 0, "g_reask": 0, "g_fixed": 0, "g_repaired": 0,
+         "g_rejected": 0, "g_rationale": 0, "calls": 0, "lat_ms": []}
+    hist: list[dict] = []
     for s in tr["steps"]:
         if "action" not in s:
             continue
+        h_before = list(hist)
+        hist.append({"observation": s["observation"], "gate": s["gate"], "cracks": s["cracks"], "decision": s["decision"]})
         a, A, prim = s["action"], set(s["label_A"]), s["label_primary"]
         d["dec"] += 1
         d["strict"] += int(a == prim)
@@ -238,6 +301,27 @@ def episode_stats(tr: dict) -> dict:
         if dec.get("fallback_reason"):
             d["fallbacks"] += 1
         ins = dec.get("instruction") or ""
+        # Addendum B: validator-based metrics, applied identically to every policy's final output
+        av = agent.check_action(a, s["observation"], s["gate"], s["cracks"], h_before)
+        iv, st_ = agent.check_instruction(a, ins, s["observation"], s["gate"], s["cracks"], h_before)
+        d["rule_viol"] += int(bool(av))
+        wrong = [x for x in iv if not x.startswith("cites no measured number")]
+        d["instr_viol"] += int(bool(wrong))
+        d["instr_nonum"] += int(st_["measured"] == 0)
+        d["faithful"] += int((not iv) and st_["measured"] >= 1)
+        gr = dec.get("guardrail")
+        if gr is not None:
+            d["g_n"] += 1
+            d["g_first"] += int(bool(gr.get("violations")))
+            d["g_reask"] += int(bool(gr.get("reask")))
+            d["g_fixed"] += int(bool(gr.get("reask")) and not gr.get("final_violations") and not gr.get("action_rejected"))
+            d["g_repaired"] += int(bool(gr.get("repaired")))
+            d["g_rejected"] += int(bool(gr.get("action_rejected")))
+            d["g_rationale"] += int(bool(gr.get("rationale_withheld")))
+        if dec.get("policy") == "llm" or gr is not None:
+            d["calls"] += int(dec.get("llm_calls") or 1)
+            if dec.get("latency_ms") is not None:
+                d["lat_ms"].append(float(dec["latency_ms"]))
         d["instr_n"] += 1
         d["instr_len"] += int(0 < len(ins) <= 140)
         d["instr_num"] += int(bool(re.search(r"\d", ins)))
@@ -349,6 +433,17 @@ def summarize(stats_by_policy: dict[str, list[dict]]) -> list[dict]:
             for metric, key in (("instr_within_140", "instr_len"), ("instr_cites_number", "instr_num"), ("instr_matches_action", "instr_cons")):
                 est, lo, hi = boot_ratio(np.array([s[key] for s in stats], float), den, rng)
                 rows.append(dict(policy=pol, subset="all", metric=metric, estimate=est, lo=lo, hi=hi, n=ins_n))
+        dn = np.array([s["dec"] for s in stats], float)
+        if dn.sum() > 0:
+            for metric, key in (("instr_faithful", "faithful"), ("instr_violation_rate", "instr_viol"), ("instr_no_measured_number", "instr_nonum"), ("rule_violation_rate", "rule_viol")):
+                est, lo, hi = boot_ratio(np.array([s[key] for s in stats], float), dn, rng)
+                rows.append(dict(policy=pol, subset="all", metric=metric, estimate=est, lo=lo, hi=hi, n=int(dn.sum())))
+        gn = np.array([s["g_n"] for s in stats], float)
+        if gn.sum() > 0:
+            for metric, key in (("guard_first_pass_violation", "g_first"), ("guard_reask", "g_reask"), ("guard_fixed_by_reask", "g_fixed"),
+                                ("guard_repaired", "g_repaired"), ("guard_action_rejected", "g_rejected"), ("guard_rationale_withheld", "g_rationale")):
+                est, lo, hi = boot_ratio(np.array([s[key] for s in stats], float), gn, rng)
+                rows.append(dict(policy=pol, subset="all", metric=metric, estimate=est, lo=lo, hi=hi, n=int(gn.sum())))
         rows.append(dict(policy=pol, subset="all", metric="fallback_steps", estimate=float(sum(s["fallbacks"] for s in stats)),
                          lo=nan, hi=nan, n=int(sum(s["dec"] for s in stats))))
     return rows
@@ -371,9 +466,9 @@ def cmd_run(a):
         tag = a.tag or pol
         if pol == "p2" and not a.tag:
             sys.exit("--tag is required for p2 (it labels the ledger rows)")
-        if pol == "p2":
-            used = calls_used()
-            print(f"[budget] {used}/{TOTAL_CALL_CAP} model calls used before this run", flush=True)
+        if pol in LLM_POLICIES:
+            ls0 = ledger_summary()
+            print(f"[budget] section 8: {calls_used()}/{TOTAL_CALL_CAP} calls; addendum B: {ls0['calls_b']}/{ADD_B_CALL_CAP} calls, ${ls0['usd_b']:.4f}/${ADD_B_USD_CAP}", flush=True)
         path = run_split(a.split, pol, a.n, tag if pol == "p2" else (a.tag or pol), a.workers)
         meta, trs = load_run(path)
         st = [episode_stats(t) for t in trs]
@@ -381,9 +476,17 @@ def cmd_run(a):
         print(f"{path.name}: n={len(trs)} recovery@3 all-recoverable="
               f"{np.mean([s['rec3'] for s in st if s['class'] in E.RECOVERABLE]):.3f} compound={np.mean([s['rec3'] for s in comp]):.3f} "
               f"decisions={sum(s['dec'] for s in st)} fallbacks={sum(s['fallbacks'] for s in st)} ({meta['seconds']}s)", flush=True)
-        if pol == "p2":
+        if pol in LLM_POLICIES:
             ls = ledger_summary()
-            print(f"[budget] {ls['calls']}/{TOTAL_CALL_CAP} calls, {ls['in']} in / {ls['out']} out tokens, ${ls['usd']:.4f}", flush=True)
+            print(f"[budget] addendum B: {ls['calls_b']}/{ADD_B_CALL_CAP} calls, ${ls['usd_b']:.4f}/${ADD_B_USD_CAP}", flush=True)
+            reasons = {}
+            for t in trs:
+                for s_ in t["steps"]:
+                    fr = (s_.get("decision") or {}).get("fallback_reason")
+                    if fr:
+                        reasons[fr[:80]] = reasons.get(fr[:80], 0) + 1
+            if reasons:
+                print("[fallbacks]", json.dumps(reasons), flush=True)
 
 
 def cmd_probe(a):
@@ -433,6 +536,9 @@ v2 was selected and run once on the held-out split. Dev results are noisy at n =
 """
 
 
+INTERPRETATION_B = "(pending: written after the Addendum B runs)"
+
+
 def fmt(r: dict, pct: bool = True) -> str:
     e, lo, hi = r["estimate"], r["lo"], r["hi"]
     if e is None or (isinstance(e, float) and math.isnan(e)):
@@ -451,7 +557,9 @@ def find_row(rows, pol, subset, metric):
 
 def cmd_report(a):
     test_tag = a.test_tag
-    names = {"P0 random": "p0", "P1 rules": "p1", "P2 LLM (Nova Lite)": test_tag, "P* label rule (ceiling)": "pstar"}
+    agent.SYSTEM_PROMPT = V2_PROMPT.read_text(encoding="utf-8")   # the P2 / P2g / P3 prompt, for the fingerprint line
+    names = {"P0 random": "p0", "P1 rules": "p1", "P2 LLM (Nova Lite)": test_tag, "P2g Nova Lite + guardrail": "p2g",
+             "P3 Haiku 4.5 + guardrail": "p3", "P* label rule (ceiling)": "pstar"}
     runs, meta = {}, {}
     for label_, tag in names.items():
         p = RUNS / f"test_{tag}.jsonl"
@@ -490,7 +598,7 @@ def cmd_report(a):
     pols = list(runs)
     L = []
     P = L.append
-    P("# Triage-agent ablation: P0 random vs P1 rules vs P2 LLM\n")
+    P("# Triage-agent ablation: P0 random vs P1 rules vs P2 LLM, and (Addendum B) P2g / P3 with a guardrail\n")
     P(f"*Generated {time.strftime('%Y-%m-%d %H:%M')}. Simulator study on {len(next(iter(runs.values())))} held-out episodes; see the pre-registration for the design and the limits.*\n")
     P("## Provenance\n")
     P(f"* Pre-registration `research/AGENT_PREREG.md`, sha256 `{sha256_file(PREREG)}`")
@@ -498,6 +606,11 @@ def cmd_report(a):
     P(f"* P1 source fingerprint (rules code, frozen) `{fingerprint_p1()[:16]}`; P2 final prompt+tool fingerprint `{prompt_fingerprint()[:16]}`")
     P(f"* Gate thresholds used: corners >= {T['min_corners']}, px/mm >= {T['min_px_per_mm']}, blur_var >= {T['min_blur_var']}, obliquity <= {T['max_obliquity_deg']} deg, glare <= {T['max_glare_frac']}")
     P(f"* P2 model `{NOVA}` (us-east-1, temperature 0), forced tool call, no fallback model. Seeds: test 50000-50099, dev 1000-1199, paired common random numbers.")
+    P("* **Addendum B** (research/AGENT_PREREG.md, written 2026-10-26 before any P2g/P3 decision; the sha256 of the pre-registration file above includes the addendum, the file before it was `91d0dd26575acb64f8dd826cd7e92635e6ed51ba468912f0b3f6a9dc67d3cac5`): "
+      f"P2g = `{NOVA}` + guardrail, P3 = `{HAIKU45}` + guardrail, both with prompt v2 of the legacy gate (the prompt P2 used; text in `research/prompts/agent_prompt_v2_legacy_gate.txt`, sha256 `{sha256_file(V2_PROMPT)[:16]}`), temperature 0, no fallback model, one run each on the same seeds.")
+    for lab_, m_ in meta.items():
+        if m_.get("git_head"):
+            P(f"* {lab_}: run at git `{m_['git_head'][:10]}`, prompt+tool fingerprint `{m_['prompt_fingerprint'][:16]}`, model `{m_.get('model')}`, {m_['seconds']} s")
     P(f"* Confidence intervals: 95% percentile bootstrap over episodes, {BOOT_B} resamples, seed {BOOT_SEED}.\n")
 
     P("## Headline: recovery within 3 actions (share of episodes certified by the 4th capture)\n")
@@ -522,6 +635,23 @@ def cmd_report(a):
         P("")
         e, lo, hi, n = paired_diff(runs["P2 LLM (Nova Lite)"], runs["P1 rules"], "compound (X+C2+C3)", key="rec6")
         P(f"Recovery within all 6 actions, compound, P2 - P1: {100 * e:+.1f} points [{100 * lo:+.1f}, {100 * hi:+.1f}], n={n}.\n")
+        new_ = [k for k in ("P2g Nova Lite + guardrail", "P3 Haiku 4.5 + guardrail") if k in runs]
+        if new_:
+            P("### Addendum B: guardrail variants, recovery@3, paired by episode (primary bar: point estimate >= +10 vs P1 on the compound subset)\n")
+            P("| comparison | subset | n | difference (points) | 95% CI | bar vs P1 |")
+            P("|---|---|---|---|---|---|")
+            pairs = [(k, "P1 rules") for k in new_] + [(k, "P2 LLM (Nova Lite)") for k in new_]
+            if len(new_) == 2:
+                pairs.append(("P3 Haiku 4.5 + guardrail", "P2g Nova Lite + guardrail"))
+            for a_, b_ in pairs:
+                for s in ("single (S)", "compound (X+C2+C3)", "recoverable (S+X+C2+C3)"):
+                    e, lo, hi, n = paired_diff(runs[a_], runs[b_], s)
+                    bar = ""
+                    if b_ == "P1 rules" and s.startswith("compound"):
+                        bar = ("point estimate >= +10, lower bound >= +10: MET" if lo * 100 >= 10 else
+                               ("point estimate >= +10, lower bound < +10: not demonstrated" if e * 100 >= 10 else "NOT MET"))
+                    P(f"| {a_.split(' ')[0]} - {b_.split(' ')[0]} | {s} | {n} | {100 * e:+.1f} | [{100 * lo:+.1f}, {100 * hi:+.1f}] | {bar} |")
+            P("")
 
     P("## All outcome metrics, held-out test split\n")
     for metric, title, pct in (("recovery@6", "Recovery within 6 actions", True), ("turns_to_certified_median", "Median actions to certified (episodes that were certified)", False),
@@ -550,11 +680,30 @@ def cmd_report(a):
         P(f"| {nm} | " + " | ".join(fmt(find_row(rows, p, "all", m)) for p in pols) + " |")
     P("")
     P("### Instruction text: automated checklist (NOT the human 1-5 rating, which is pending)\n")
-    P("| check | P1 rules | P2 LLM |")
-    P("|---|---|---|")
-    for m, nm in (("instr_within_140", "within 140 characters"), ("instr_cites_number", "cites a number"), ("instr_matches_action", "wording matches the chosen action")):
-        P(f"| {nm} | {fmt(find_row(rows, 'P1 rules', 'all', m))} | {fmt(find_row(rows, 'P2 LLM (Nova Lite)', 'all', m))} |")
+    ip = [k for k in ("P1 rules", "P2 LLM (Nova Lite)", "P2g Nova Lite + guardrail", "P3 Haiku 4.5 + guardrail") if k in runs]
+    P("| check | " + " | ".join(ip) + " |")
+    P("|---|" + "---|" * len(ip))
+    for m, nm in (("instr_within_140", "within 140 characters"), ("instr_cites_number", "contains a digit (original checklist)"),
+                  ("instr_matches_action", "wording matches the chosen action"),
+                  ("instr_faithful", "**instruction faithfulness**: cites a measured number AND zero validator violations (Addendum B)"),
+                  ("instr_violation_rate", "instructions with a wrong number or a wrong certification claim (validator)"),
+                  ("instr_no_measured_number", "instructions that cite no measured number"),
+                  ("rule_violation_rate", "decisions breaking a hard prompt rule (action check, on the output the operator sees)")):
+        P(f"| {nm} | " + " | ".join(fmt(find_row(rows, p, "all", m)) for p in ip) + " |")
     P("")
+    gp = [k for k in ("P2g Nova Lite + guardrail", "P3 Haiku 4.5 + guardrail") if k in runs]
+    if gp:
+        P("### Guardrail activity (share of LLM decisions)\n")
+        P("| measure | " + " | ".join(gp) + " |")
+        P("|---|" + "---|" * len(gp))
+        for m, nm in (("guard_first_pass_violation", "first answer had any violation (action or instruction)"),
+                      ("guard_reask", "re-asked"), ("guard_fixed_by_reask", "fixed by the re-ask"),
+                      ("guard_repaired", "**instruction replaced by the rules template (repaired)**"),
+                      ("guard_action_rejected", "action rejected, rules policy used"),
+                      ("guard_rationale_withheld", "rationale withheld")):
+            P(f"| {nm} | " + " | ".join(fmt(find_row(rows, p, "all", m)) for p in gp) + " |")
+        P("")
+        P("Pre-repair faithfulness was not stored per decision; \"first answer had any violation\" is the nearest quantity (it includes action violations).\n")
 
     if big_rows:
         bp = list(big_runs)
@@ -571,15 +720,32 @@ def cmd_report(a):
         P("")
 
     P("## Model calls, tokens and cost (all work, including prompt iteration and probes)\n")
-    P(f"Total calls **{ledger['calls']} of {TOTAL_CALL_CAP}** allowed ({ledger['errors']} returned an error), input tokens {ledger['in']:,}, output tokens {ledger['out']:,}, cost **${ledger['usd']:.4f}** at $0.06 / $0.24 per million tokens (Nova Lite; the Claude probe, if it succeeded, is priced at the same rate here and is one call).\n")
+    s8 = {tg: d for tg, d in ledger["by_tag"].items() if not _is_add_b(tg)}
+    P(f"Section 8 total: calls **{sum(d['calls'] for d in s8.values())} of {TOTAL_CALL_CAP}** allowed ({sum(d['errors'] for d in s8.values())} returned an error), input tokens {sum(d['in'] for d in s8.values()):,}, output tokens {sum(d['out'] for d in s8.values()):,}, cost **${sum(d['usd'] for d in s8.values()):.4f}** at $0.06 / $0.24 per million tokens (Nova Lite; the Claude probe, if it succeeded, is priced at the same rate here and is one call).\n")
     P("| tag | calls | input tokens | output tokens | errors | USD |")
     P("|---|---|---|---|---|---|")
-    for tg, d in ledger["by_tag"].items():
+    for tg, d in s8.items():
         P(f"| {tg} | {d['calls']} | {d['in']:,} | {d['out']:,} | {d['errors']} | {d['usd']:.4f} |")
     P("")
     fb = find_row(rows, "P2 LLM (Nova Lite)", "all", "fallback_steps")
     if fb["n"]:
         P(f"P2 fallbacks to the rules policy on the test split: **{int(fb['estimate'])} of {fb['n']} decisions**.\n")
+    if ledger["calls_b"]:
+        P("### Addendum B: calls, tokens, cost and latency\n")
+        P(f"Addendum B total: **{ledger['calls_b']} of {ADD_B_CALL_CAP}** calls allowed, **${ledger['usd_b']:.4f} of ${ADD_B_USD_CAP:.2f}** allowed (Nova Lite $0.06 / $0.24, Claude Haiku 4.5 $1.00 / $5.00 per million input / output tokens). The section 8 total above is unchanged.\n")
+        P("| run | model | calls | input tokens | output tokens | errors | USD | call latency p50 / p95 (ms) |")
+        P("|---|---|---|---|---|---|---|---|")
+        for tg, d in ledger["by_tag"].items():
+            if _is_add_b(tg):
+                ms = sorted(d.get("ms") or [0])
+                p50, p95 = ms[len(ms) // 2], ms[min(len(ms) - 1, int(0.95 * len(ms)))]
+                P(f"| {tg} | `{d.get('model')}` | {d['calls']} | {d['in']:,} | {d['out']:,} | {d['errors']} | {d['usd']:.4f} | {p50} / {p95} |")
+        P("")
+        for lab_ in gp:
+            st_ = runs[lab_]
+            P(f"{lab_}: {sum(x['calls'] for x in st_)} model calls for {sum(x['dec'] for x in st_)} decisions, "
+              f"{int(find_row(rows, lab_, 'all', 'fallback_steps')['estimate'])} fallbacks to the rules policy "
+              f"(guardrail rejections among them: {int(sum(x['g_rejected'] for x in st_))}).\n")
     if dev_runs:
         P("## Dev split (free policies, 200 episodes)\n")
         P("| subset | " + " | ".join(dev_runs) + " |")
@@ -588,8 +754,11 @@ def cmd_report(a):
         for s in ("single (S)", "compound (X+C2+C3)", "recoverable (S+X+C2+C3)"):
             P(f"| recovery@3, {s} | " + " | ".join(fmt(find_row(dev_rows, p, s, "recovery@3")) for p in dev_runs) + " |")
         P("")
-    P("## Reading these results (written after the results were seen; not part of the pre-registration)\n")
+    P("## Reading these results: original run, P0/P1/P2 (written after those results were seen on 2026-10-19; not part of the pre-registration)\n")
     P(INTERPRETATION)
+    if gp:
+        P("\n## Reading the Addendum B results, P2g and P3 (written after seeing them, " + time.strftime("%Y-%m-%d") + "; not part of the pre-registration)\n")
+        P(INTERPRETATION_B)
     (RESULTS / "agent_ablation.md").write_text("\n".join(L) + "\n", encoding="utf-8")
     make_figure(rows, pols, runs)
     print(f"wrote {RESULTS / 'agent_ablation.md'}, .csv, .png")
@@ -600,7 +769,8 @@ def make_figure(rows, pols, runs):
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
 
-    colors = {"P0 random": "#9aa0a6", "P1 rules": "#2b6cb0", "P2 LLM (Nova Lite)": "#dd6b20", "P* label rule (ceiling)": "#2f855a"}
+    colors = {"P0 random": "#9aa0a6", "P1 rules": "#2b6cb0", "P2 LLM (Nova Lite)": "#dd6b20", "P2g Nova Lite + guardrail": "#d69e2e",
+              "P3 Haiku 4.5 + guardrail": "#805ad5", "P* label rule (ceiling)": "#2f855a"}
     subsets = ["single (S)", "compound (X+C2+C3)", "recoverable (S+X+C2+C3)"]
     fig, axes = plt.subplots(1, 3, figsize=(15, 4.6), constrained_layout=True)
     w = 0.8 / len(pols)
