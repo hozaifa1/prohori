@@ -45,12 +45,14 @@ License: CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Attribution: 
 Unpack at the repository root:
   unzip prohori-agent-ablation-v1.zip
 
-Contents: eval/runs/agent_ablation/ (episode logs of policies P0 random, P1 rules, P* label rule and P2 LLM per split, llm_ledger.jsonl with
-every Bedrock call and its token counts, freeze.json with the pre-registration hashes, prompts/v0-v2.txt).
+Contents: eval/runs/agent_ablation/ (episode logs of policies P0 random, P1 rules, P* label rule, P2 LLM and, from Addendum B, P2g LLM +
+guardrail per split, llm_ledger.jsonl with every Bedrock call and its token counts, freeze.json with the pre-registration hashes,
+prompts/v0-v2.txt). The P3 files (dev_p3_devfmt.jsonl, ledger tag p3_devfmt) record only fallbacks to the rules policy: Claude Haiku 4.5 was not
+evaluated (Bedrock refused every call, the account has not submitted Anthropic's use case form).
 Regenerate the report from these files:    python eval/agent_ablation.py report
 Re-run the free policies (no model calls): python eval/agent_ablation.py run --split test --policies p0,p1,pstar
-The LLM runs (P2) need Amazon Bedrock access to us.amazon.nova-lite-v1:0 and cost about $0.06 in total; the stored logs are the record of
-what the model answered.
+The LLM runs (P2, P2g) need Amazon Bedrock access to us.amazon.nova-lite-v1:0 and cost about $0.13 in total (US$0.061 for P2 with prompt
+iteration, US$0.072 for the Addendum B runs); the stored logs are the record of what the model answered.
 """
 
 

@@ -11,8 +11,7 @@ PROHORI measures the width of a concrete crack from one phone photo that also sh
 Headline results, all on data held out from tuning:
 (1) width error on 8 held-out photos of a printed test panel: MAE 0.070 mm over 63 cracks, 0.056 mm over the 41 that pass the gate (`eval/results/width_eval.md`);
 (2) on held-out photos, 3.2 % of certified (green) readings and 11.5 % of readings passing at the amber level are wrong, with 25.8 % and 38.7 % of cracks passing; the 90 % interval covers 91.5 % of readings (`eval/results/gate_report.md`);
-<!-- AGENT_RESULTS_PENDING -->
-(3) in a pre-registered simulator, an LLM agent recovers 85 % of compound-failure captures within three actions against 62 % for fixed rules; a re-run with a guardrail is pending (section 6; `eval/results/agent_ablation.md`);
+(3) in a pre-registered simulator (100 held-out episodes), an AI agent (Amazon Nova Lite) behind a code-side fact-check recovers 88 % of compound-failure captures within three actions against 62 % for fixed rules (+25.0 points, 95 % CI +12.5 to +37.5); that equals the 88 % of a label rule written as plain code, so the gain comes from enforcing written rules and checking the wording, not from better reasoning. 99 % of its instructions cite a measured number with no wrong number or claim (rules 91 %, the same model without the fact-check 54 %). Claude Haiku 4.5 was not evaluated (section 6; `eval/results/agent_ablation.md`);
 (4) the COOL AMI runs the full workload on Graviton4 and ties the stock pip wheel (0.994x end to end at 4 threads after optimisation), and a developer agent cut per-frame latency by 23.2 % and cost per 1,000 frames by 13.0 % with bit-identical output (`eval/results/cool_agentloop/README.md`).
 There is no field validation: all real photos are of one printed panel taken with one phone.
 
@@ -98,42 +97,41 @@ Source: `eval/results/gate_report.md` section 4, means over 100 random splits th
 
 ![Agent workflow: perception, decision, action](../figures/agent_workflow.png)
 
-**Design.** The agent never sees pixels. Its input is a JSON of numbers OpenCV produced: corners found, px/mm, tilt, blur, glare, noise, per-crack widths, intervals and reasons, the gate tier, the last six steps, and flags derived by code (`failing_checks`, `widen_now_allowed`, `abandon_now_allowed`). It answers with one forced tool call, `choose_action`, naming one of **seven actions**: `accept`, `accept_with_widened_uncertainty`, `move_closer`, `reshoot_steadier`, `relight`, `reposition_marker`, `abandon_and_log`. It also writes a one-sentence instruction for the operator, shown beside the overlay. Policy P1 is a fixed rule cascade; policy P2 is an LLM on Amazon Bedrock. The rules policy is always available as the fallback.
+**Design.** The agent never sees pixels. Its input is a JSON of numbers OpenCV produced: corners found, px/mm, tilt, blur, glare, noise, per-crack widths, intervals and reasons, the gate tier, the last six steps, and flags derived by code (`failing_checks`, `widen_now_allowed`, `abandon_now_allowed`). It answers with one forced tool call, `choose_action`, naming one of **seven actions**: `accept`, `accept_with_widened_uncertainty`, `move_closer`, `reshoot_steadier`, `relight`, `reposition_marker`, `abandon_and_log`. It also writes a one-sentence instruction for the operator, shown beside the overlay. Policy P1 is a fixed rule cascade; policy P2 is an LLM on Amazon Bedrock; policy P2g is the same LLM behind the guardrail below. The live default is `llm` (P2g): Nova Lite, then Nova Micro if that call fails, then the rules policy. The rules policy is always available as the fallback.
 
-**Guardrails in code, deployed** (`src/prohori/agent.py`): an uncertified capture can never be accepted; a certified capture is only accepted (one optional retake if it is only amber); an invalid action, an empty text or an API error falls back to the rules policy; at most 200 LLM decisions run per day.
+**Guardrails in code, deployed** (`src/prohori/agent.py`, live build `b3e9907`): an uncertified capture can never be accepted; a certified capture is only accepted (one optional retake if it is only amber); an invalid action, an empty text or an API error falls back to the rules policy; at most 200 LLM decisions run per day. Each answer is then checked against the observation: every number must match a measured value, "all cracks certified" must match the counts, the text must cite one measured number, and the action must not break a hard rule of the prompt. On any violation the model is asked once more with the findings. A still-wrong action is replaced by the rules policy's action; a still-wrong sentence is replaced by a template filled with the real numbers. The check is code, not a second model, and the stored trace records what the model first said and why it was sent back.
 
 **Human control.** The agent can ask for an escalation (the fourth failed capture, or a joint that widens by more than the combined measurement uncertainty). It only sends a message through SNS. A named engineer opens `/api/approve/<token>`, reads the case, and presses a button that records "I have reviewed this". Opening the link approves nothing (mail scanners fetch links), and the token never appears in an API response or trace, so the person taking the photo cannot approve their own escalation.
 
-**A trace where OpenCV output changes the next action** (`docs/TRACE_EXHIBIT.md`; live endpoint, 2026-10-26, session `exhibit-20261026T030809`, Nova Lite):
+**A trace where OpenCV output changes the next action** (`docs/TRACE_EXHIBIT.md`; live endpoint, 2026-10-26 15:08 UTC, build `b3e9907`, session `exhibit-20261026T150829`, Nova Lite behind the guardrail):
 
 | | Step 0 | Step 1 (after the instruction) |
 |---|---|---|
 | OpenCV: corners, px/mm at cracks | 24 of 24, **2.71** | 24 of 24, **7.98** |
 | Gate | refused, 0 of 8 cracks pass, `low_resolution` | certified (green) capture, 5 of 8 cracks pass (green or amber), no reasons |
 | Agent action | **`move_closer`** | **`accept`** |
-| Instruction | "Move closer: the board is 2.71 px/mm, a 1.58 mm crack needs about 2.5 px/mm." | "Accept the capture: all cracks are certified." |
+| Instruction | "Move closer: the board is 2.71 px/mm, a 0.5 mm crack needs about 10." | "Accept the capture: 5 out of 8 cracks are certified." |
+| Guardrail | clean, no re-ask | first answer rejected (said "all cracks are certified", cited no number), re-ask fixed it |
 
-The only thing wrong in step 0 is a number OpenCV computed. If it had shown a lost board, a steep angle or a soft picture, the same code path would have produced `reposition_marker`, `reshoot_steadier` or `relight` (`docs/FAILURE_GALLERY.md`). The trace also shows weaknesses: the step-0 sentence contradicts itself (2.5 px/mm needed, 2.71 measured) and the step-1 sentence says "all cracks" when 3 of 8 are flagged. This is why the instruction check below was added.
+The only thing wrong in step 0 is a number OpenCV computed. If it had shown a lost board, a steep angle or a soft picture, the same code path would have produced `reposition_marker`, `reshoot_steadier` or `relight` (`docs/FAILURE_GALLERY.md`). An earlier recording of the same two photos, made before the guardrail existed (03:08 UTC, session `exhibit-20261026T030809`), showed two wrong sentences from the same model: "a 1.58 mm crack needs about 2.5 px/mm" at 2.71 measured, and "all cracks are certified" when 3 of 8 were flagged. The guardrail catches both kinds. It does not judge whether the advice is good, and the gate in step 1 is per crack: 3 of 8 cracks are still flagged.
 
 **Ablation.** A pre-registered simulator study (`research/AGENT_PREREG.md`, written before any policy run): 100 held-out episodes of capture failures (single causes, compound causes, hopeless, constrained), operators who ignore an instruction 10 % of the time, paired common random numbers, 95 % bootstrap intervals. The label rule P* (plain code written from the same reasoning as the simulator) is the ceiling.
 
-<!-- AGENT_RESULTS_PENDING -->
-*Status of this block. The table is the 2026-10-19 study (Nova Lite, no guardrail, pre-registration sha256 91d0dd26...). The guardrail and Claude Haiku 4.5 (policies P2g and P3, `research/AGENT_PREREG.md` Addendum B) are being run on the same test seeds. The live default model is still Nova Lite until that run is in; the code default after commit 7c93780 is Claude Haiku 4.5 with Nova Lite as fallback, and which one goes live follows the decision rule in Addendum B.5. To update: fill the two pending columns from `eval/results/agent_ablation.md`, replace the paragraph after the table, the abstract item (3), the model sentence in section 7, and rows E12 to E14 in section 9.*
+| Recovery within 3 actions | n | Random P0 | Rules P1 | AI agent (Nova Lite) P2 | AI agent + guardrail P2g | Ceiling P* |
+|---|---|---|---|---|---|---|
+| single-cause failure | 20 | 30 % | 95 % | 100 % | 100 % | 100 % |
+| compound failure | 48 | 2 % [0, 6] | 62 % [48, 75] | 85 % [75, 94] | 88 % [77, 96] | 88 % [77, 96] |
+| all recoverable | 68 | 10 % | 72 % [62, 82] | 90 % [82, 96] | 91 % [84, 97] | 91 % [84, 97] |
+| Instruction cites a measured number and has no wrong number or claim | all decisions | | 91 % [88, 94] | 54 % [47, 61] | 99 % [98, 100] | |
+| Decision breaks a hard rule of the prompt | all decisions | | 24 % [18, 30] | 19 % [15, 24] | 0 % | |
 
-*Added in commit 7c93780, not yet deployed (the live box runs commit dade6d5): an instruction check against the observation (every number must match a measured value; "all cracks certified" must match the counts; the text must cite one measured number), one re-ask on any violation, replacement of a still-wrong action by the rules policy, and replacement of a still-wrong sentence by a template filled with real numbers.*
+Source for every cell: `eval/results/agent_ablation.md` (headline table and Addendum B). Paired differences on compound episodes: P2g minus P1 is +25.0 points, 95 % CI [+12.5, +37.5], so for the first time the lower end clears the pre-registered +10 bar; P2 minus P1 was +22.9 [+8.3, +37.5]; P2g minus P2 is +2.1 [-10.4, +14.6], no detectable change in recovery.
 
-| Recovery within 3 actions | n | Random P0 | Rules P1 | LLM Nova Lite P2 | P2 + guardrail (P2g) | Claude Haiku 4.5 + guardrail (P3) | Ceiling P* |
-|---|---|---|---|---|---|---|---|
-| single-cause failure | 20 | 30 % | 95 % | 100 % | pending | pending | 100 % |
-| compound failure | 48 | 2 % | 62 % [48, 75] | 85 % [75, 94] | pending | pending | 88 % |
-| all recoverable | 68 | 10 % | 72 % [62, 82] | 90 % [82, 96] | pending | pending | 91 % |
-| Instruction cites a number | all | | 91 % | 57 % | pending | pending | |
-| Instruction faithful (baseline check, Addendum B.3) | all | | 91 % | 54 % | pending | pending | |
+**How to read it.** P2's prompt was tuned on a separate dev set, and the label rule written as plain code (P*) reaches 88 %. With the prompt's own rules enforced by code, P2g's action matches the label set in 100 % of decisions on uncertified captures (P2 81 %), so its recovery equals P*. That shows guardrail plus LLM wording, not better reasoning than a good rule set; and 0 % rule violations is by construction, because the checker and P* share their source. What the guardrail changed clearly is the text and the rule-keeping. The first answer had a violation in 58 % of decisions; the re-ask fixed 21 % of all decisions; 36 % got the rules wording instead (the model's action was kept); 1 % had an action that stayed invalid and went to the rules policy. The model's own sentence is therefore the one the operator reads in about two thirds of decisions. The faithfulness check is automated; the human 1 to 5 rating was not done. Cost of the P2g test run: 392 model calls for 250 decisions, US$0.06, median call latency about 1.0 s (US$0.0719 for all Addendum B work; P2 with prompt iteration US$0.061, 419 calls).
 
-On compound episodes P2 minus P1 is +22.9 points, 95 % CI [+8.3, +37.5]; the point estimate clears the pre-registered +10 bar and the lower end does not, so at this sample size the bar is not demonstrated. P2's prompt was tuned on a separate dev set, and the label rule written as plain code reaches 88 %, so the result shows that an LLM following written rules matches those rules in code, not that it reasons better. P2 made 261 test decisions with 0 fallbacks.
-<!-- /AGENT_RESULTS_PENDING -->
+**Claude Haiku 4.5 (P3) was not evaluated.** Bedrock refused every call because the AWS account has not submitted Anthropic's model use-case form, so P3 produced no results, and the live model is Nova Lite. Nothing in this section says anything about Claude models.
 
-Limits of the study, all in `agent_ablation.md`: the simulator's failure distributions are assumptions (the real panel has no glare or severe tilt), the operator is cooperative, one cheap model, about 100 episodes, one annotator, no human rating of instruction text, and the study predates the two-tier gate and used the legacy-gate prompt, not the live prompt.
+Limits of the study, all in `agent_ablation.md`: the simulator's failure distributions are assumptions (the real panel has no glare or severe tilt), the operator is cooperative, one cheap model, about 100 episodes, one annotator, no human rating of instruction text, and the study predates the two-tier gate and used the legacy-gate prompt, not the live CRC-gate prompt, whose guardrail checks are covered by unit tests only (`tests/test_guardrail.py`).
 
 ## 7 AWS delivery
 
@@ -144,7 +142,7 @@ Limits of the study, all in `agent_ablation.md`: the simulator's failure distrib
 | S3 | evidence images (faces blurred), deploy bundles | public access blocked, SSE-AES256 |
 | DynamoDB `prohori-traces` | every step, joint history, approvals | on-demand, SSE, 90-day TTL |
 | SNS `prohori-escalations` | engineer e-mail with review link | KMS-encrypted topic |
-| Bedrock (Converse API) | LLM policy | numbers only in, one forced tool call; model per section 6 |
+| Bedrock (Converse API) | LLM policy | numbers only in, one forced tool call; Nova Lite (`us.amazon.nova-lite-v1:0`), then Nova Micro, then rules; guardrail on; cap 200 decisions per day; Claude Haiku 4.5 not evaluated |
 | CloudWatch | logs (14-day retention), metric filters (latency p50 and p95, tier counts, 5xx), dashboard `Prohori-Service`, alarm `prohori-5xx` to SNS | `infra/observability.sh` |
 | Budgets | USD 25 per month, alerts at 50, 80, 100 % | `infra/up.sh` |
 
@@ -152,9 +150,9 @@ Limits of the study, all in `agent_ablation.md`: the simulator's failure distrib
 
 **Observability.** Every agent step (observation, gate, decision, rationale, model, tokens, latency) is stored in DynamoDB and shown in the app's Agent trace panel; the service writes structured JSON access lines that a journald forwarder sends to CloudWatch.
 
-**Repeatability.** All scripts are idempotent bash with the AWS CLI: `up.sh` (budget, S3, DynamoDB, SNS, role, security group, Elastic IP, t4g.small), `observability.sh`, `cool_live.sh up | verify | cutover` (launch the COOL instance, POST every demo sample to the old and the new box and compare tiers and widths to 0.005 mm, then move the Elastic IP, rolling back by itself on failure), `push.sh` (ship the committed HEAD and restart), `rollback_t4g.sh`. `infra/state.env` holds the ids of the live resources. The live `/health` (fetched 2026-10-26) reports `"opencv":"5.1.0-dev","cool":true`, `aarch64`, `c8g.large`, version `dade6d5`.
+**Repeatability.** All scripts are idempotent bash with the AWS CLI: `up.sh` (budget, S3, DynamoDB, SNS, role, security group, Elastic IP, t4g.small), `observability.sh`, `cool_live.sh up | verify | cutover` (launch the COOL instance, POST every demo sample to the old and the new box and compare tiers and widths to 0.005 mm, then move the Elastic IP, rolling back by itself on failure), `push.sh` (ship the committed HEAD and restart), `rollback_t4g.sh`. `infra/state.env` holds the ids of the live resources; `up.sh` and `cool_live.sh` generate it, and it is not in the repository. The live `/health` (fetched 2026-10-26) reports `"opencv":"5.1.0-dev","cool":true`, `aarch64`, `c8g.large`, version `b3e9907`.
 
-**Cost.** Two studies, counted separately. The COOL benchmark study used 2.198 instance-hours, about USD 0.37 (`eval/results/cool/ledger.tsv`). The developer-agent loop used 2.66 c8g.xlarge instance-hours (`eval/results/cool_agentloop/README.md`). The live box costs USD 0.0898 per hour (c8g.large plus the USD 0.01 COOL fee), about USD 2.15 per day at list price (`cool/20261025T002750Z/REPORT.md` section 4). The Nova Lite ablation, including prompt iteration, cost USD 0.061 for 419 calls. At the list prices in the pre-registration (Haiku 4.5: USD 1 and 5 per million input and output tokens) and the 3,807 input and 70 output tokens of the exhibit trace, one decision would cost about USD 0.004 (our arithmetic), so the 200-decision daily cap bounds the LLM cost near USD 0.8 per day.
+**Cost.** Two studies, counted separately. The COOL benchmark study used 2.198 instance-hours, about USD 0.37 (`eval/results/cool/ledger.tsv`). The developer-agent loop used 2.66 c8g.xlarge instance-hours (`eval/results/cool_agentloop/README.md`). The live box costs USD 0.0898 per hour (c8g.large plus the USD 0.01 COOL fee), about USD 2.15 per day at list price (`cool/20261025T002750Z/REPORT.md` section 4). The Nova Lite ablation, including prompt iteration, cost USD 0.061 for 419 calls; the guardrail runs (Addendum B) cost USD 0.0719 for 519 calls (`eval/results/agent_ablation.md`). At the Nova Lite list prices in the pre-registration (USD 0.06 and 0.24 per million input and output tokens) and the 7,840 input and 91 output tokens of the exhibit's re-asked step, one decision costs about USD 0.0005 (our arithmetic), so the 200-decision daily cap bounds the LLM cost near USD 0.1 per day.
 
 ## 8 COOL on Graviton4
 
@@ -209,9 +207,9 @@ The gains of the loop apply to the pip build as well (188.9 to 142.2 ms, -24.7 %
 | E9 | Splits with risk within alpha | 69 of 100 (0.05), 76 of 100 (0.01) | | `gate_report.md` |
 | E10 | 90 % interval coverage | 91.5 % (passing 91.8 %), half-width 0.179 mm; 0.3 mm bin 86.3 %, others at least 89.5 % | held-out groups | `gate_report.md` |
 | E11 | Leave-one-photo-out, original photos | 53.6 % pass, 10.0 % of those wrong | 168 cracks | `gate_report.md` |
-| E12 | Recovery in 3 actions, compound, P1 / P2 / P* | 62 / 85 / 88 % | 48 simulated episodes | `eval/results/agent_ablation.md` (update with P2g, P3) |
-| E13 | P2 minus P1, compound | +22.9 points [+8.3, +37.5] | paired | `agent_ablation.md` |
-| E14 | Instructions citing a number, P1 / P2 | 91 / 57 % | automated check | `agent_ablation.md` |
+| E12 | Recovery in 3 actions, compound, P1 / P2 / P2g / P* | 62 / 85 / 88 / 88 % | 48 simulated episodes | `eval/results/agent_ablation.md` |
+| E13 | Compound recovery, paired differences | P2g - P1 +25.0 points [+12.5, +37.5]; P2g - P2 +2.1 [-10.4, +14.6]; P2 - P1 +22.9 [+8.3, +37.5] | paired by episode | `agent_ablation.md` |
+| E14 | Instruction faithfulness, P1 / P2 / P2g; hard-rule violations | 91 / 54 / 99 %; 24 / 19 / 0 % | automated check, all decisions; Claude Haiku 4.5 not evaluated | `agent_ablation.md` |
 | E15 | Trace: px/mm and decision | 2.71 to 7.98; `move_closer` to `accept` | live endpoint | `docs/TRACE_EXHIBIT.md` |
 | E16 | COOL against pip, p50, 4 threads, after loop | 0.994x (tie) | 85 frames, c8g.xlarge | `eval/results/cool_agentloop/README.md` |
 | E17 | COOL against pip, end to end, 1 thread, before loop | 1.014x [1.010, 1.017] | 85 frames, c8g.xlarge | `eval/results/cool/20261025T002750Z/REPORT.md` |
@@ -220,17 +218,17 @@ The gains of the loop apply to the pip build as well (188.9 to 142.2 ms, -24.7 %
 | E20 | Developer loop, p50 / cost per 1,000 frames | -23.2 % / -13.0 % | bit-identical on 85 frames | `cool_agentloop/README.md` |
 | E21 | COOL fee premium per 1,000 frames | +7.2 % (after loop; +6.8 % before) | list prices | `cool_agentloop/README.md`, `cool/.../REPORT.md` |
 | E22 | Instance-hours | 2.198 h (benchmark), 2.66 h (loop) | separate studies | `eval/results/cool/ledger.tsv`, `cool_agentloop/README.md` |
-| E23 | Test suite | 309 passed | `python -m pytest -q`, Windows, 80 s, 2026-10-26 | run at commit 7c93780 |
+| E23 | Test suite | 310 passed | `python -m pytest -q`, Windows, 103 s, 2026-10-26 | run at commit 02704a0 |
 
 ## 10 Failure cases and limitations
 
-Nine cases were run against the live endpoint with both policies (`docs/FAILURE_GALLERY.md`). It works as built for: too far (2.71 px/mm, refused, `move_closer`); board out of frame (0 corners, no number, `reposition_marker`); extreme tilt of 66.6 degrees (refused, `oblique`). It does **not** refuse in these cases: mild blur (the capture is certified (green) through one wide crack, with a wide interval, while 7 of 8 are flagged); a real photo at 42 degrees tilt with blur (amber for 1 of 4 cracks); synthetic glare of 4 % and 12 % (the capture passes, because the learned gate has no glare threshold). The LLM chose `reposition_marker` for a heavily blurred frame where its own prompt says `reshoot_steadier`, and its sentences sometimes cite a wrong number.
+Nine cases were run against the live endpoint with both policies (`docs/FAILURE_GALLERY.md`). It works as built for: too far (2.71 px/mm, refused, `move_closer`); board out of frame (0 corners, no number, `reposition_marker`); extreme tilt of 66.6 degrees (refused, `oblique`). It does **not** refuse in these cases: mild blur (the capture is certified (green) through one wide crack, with a wide interval, while 7 of 8 are flagged); a real photo at 42 degrees tilt with blur (amber for 1 of 4 cracks); synthetic glare of 4 % and 12 % (the capture passes, because the learned gate has no glare threshold). Before the guardrail the LLM chose `reposition_marker` for a heavily blurred frame where its own prompt says `reshoot_steadier` and sometimes cited a wrong number; the guardrail now catches both, and the gallery was re-recorded with it.
 
 * **One sheet, one phone, one session.** No real concrete crack has been measured against a microscope; a real crack edge is less defined than a printed stroke.
 * **Targets not met.** MAE 0.070 mm against the 0.05 mm target; thin cracks did not improve; 2 and 3 mm strokes are under-read by about 0.15 mm.
 * **Small calibration set** (21 photo groups); the guarantee is empirical (section 5).
 * **The gate is per crack**, so a capture can count as certified through its widest crack; read each crack's own tier and interval.
-* **The agent study is a simulation** (section 6). The live LLM prompt is not the one measured.
+* **The agent study is a simulation** (section 6). The live LLM prompt is not the one measured, the 0 % rule violations hold by construction, and Claude Haiku 4.5 was not evaluated.
 * **COOL is a tie** here, costs 7.2 % more at list price, is not bitwise identical, and its default multithreaded component labelling crashes.
 * **Requirements on the user:** a printed board at 100 % scale lying flat in the crack's plane, a camera with focus, 20 to 45 cm distance. Thin cracks (0.3 to 0.5 mm) need about 10 to 20 px/mm to pass.
 * **No crack re-identification across visits**; the operator names the joint (the earlier LightGlue plan was not built).
@@ -246,7 +244,7 @@ PROHORI gives a width, how far to trust it, and what to do next. It gives no saf
 git clone https://github.com/hozaifa1/prohori.git && cd prohori
 python -m venv .venv && . .venv/bin/activate     # Python 3.12; Windows Git Bash: . .venv/Scripts/activate
 pip install -r requirements-test.txt && pip install -r requirements-eval.txt
-python -m pytest -q                              # 309 passed at commit 7c93780; AWS mocked with moto
+python -m pytest -q                              # 310 passed at commit 02704a0; AWS mocked with moto
 uvicorn service.app:app --port 8000              # local service
 gh release download v1.0-submission -R hozaifa1/prohori -p "prohori-*.zip" -p SHA256SUMS.txt
 sha256sum -c SHA256SUMS.txt && unzip -o prohori-panel-data-v1.zip && unzip -o prohori-agent-ablation-v1.zip
@@ -256,7 +254,7 @@ python eval/cool_loop_report.py                  # developer-loop tables and fig
 bash infra/up.sh && bash infra/cool_live.sh up   # AWS deploy (own account)
 ```
 
-OpenCV is pinned to `opencv-contrib-python-headless==5.0.0.93` for every result except the COOL runs. The release `v1.0-submission` holds `prohori-panel-data-v1.zip` (89,874,441 bytes, sha256 `39bb139dc2bffaceb094036688949b18c80bca7c04eec7c0bbe945f3fcd30a9f`: 29 panel photos, gate-calibration manifests, frozen splits, render config) and `prohori-agent-ablation-v1.zip` (653,963 bytes, sha256 `94c519bbdbc5b1475979d28f171dbc3b84a1ad67137126881f5929bd7a43b5bf`: episode logs, LLM ledger, prompts, pre-registration hashes). The table of commands per result is in the README. The width evaluation cannot be fully reproduced from the bundle (the 500 renders are 1.1 GB and the krkCMd profile data is separate); the panel, gate, agent and COOL results can. The COOL runs need a c8g instance and the Marketplace AMI.
+OpenCV is pinned to `opencv-contrib-python-headless==5.0.0.93` for every result except the COOL runs. The release `v1.0-submission` holds `prohori-panel-data-v1.zip` (89,874,441 bytes, sha256 `39bb139dc2bffaceb094036688949b18c80bca7c04eec7c0bbe945f3fcd30a9f`: 29 panel photos, gate-calibration manifests, frozen splits, render config) and `prohori-agent-ablation-v1.zip` (700,497 bytes, sha256 `c264e8a820d75d9cbb195a56ea9c74b9c1dae45206ef3af5e3d0b23fa3edca75`: episode logs including P2g, LLM ledger, prompts, pre-registration hashes). The table of commands per result is in the README. The width evaluation cannot be fully reproduced from the bundle (the 500 renders are 1.1 GB and the krkCMd profile data is separate); the panel, gate, agent and COOL results can. The COOL runs need a c8g instance and the Marketplace AMI.
 
 ## References
 

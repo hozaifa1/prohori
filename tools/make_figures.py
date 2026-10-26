@@ -168,8 +168,8 @@ def agent_workflow():
 
     box(ax, 7.3, 7.3, 7.2, 2.65, "Derived by code (agent.py), not by the model", ["failing_checks with the number behind each reason", "all_failures_marginal, crack_measured", "widen_now_allowed (>= 2 failed tries, marginal)", "abandon_now_allowed (4th failed capture)", "history: last 6 steps, prior_indicative_captures"], "agent", fs=8.8)
     box(ax, 7.3, 4.25, 3.4, 2.75, "Policy P1: rules", ["fixed if/else cascade,", "same inputs.", "Always available.", "Fallback for the", "LLM policy."], "agent", fs=8.8)
-    box(ax, 11.1, 4.25, 3.4, 2.75, "Policy P2: Bedrock LLM", ["Converse API, Nova Lite,", "temperature 0, forced tool", "choose_action(action,", "instruction, rationale).", "Select policy=llm in the app."], "agent", fs=8.8)
-    box(ax, 7.3, 1.0, 7.2, 2.95, "Guardrails (code, after the model answers)", ["accept only if the gate is certified or indicative;", "an uncertified capture can never be accepted;", "certified capture: only accept (one optional retake if indicative);", "invalid action / empty text / API error / 200 calls per day", "reached -> rules policy decides instead; decide() never raises", "instruction <= 140 characters; rationale is stored in the trace"], "bad", fs=8.8)
+    box(ax, 11.1, 4.25, 3.4, 2.75, "Policy P2: Bedrock LLM", ["Converse API, Nova Lite,", "temperature 0, forced tool", "choose_action(action,", "instruction, rationale).", "llm is the default policy."], "agent", fs=8.8)
+    box(ax, 7.3, 1.0, 7.2, 2.95, "Guardrails (code, after the model answers)", ["an uncertified capture is never accepted; a certified one only accepted", "answer checked against the numbers: values, counts, a number cited", "violation -> one re-ask with the findings", "still wrong: rules action; real-number template sentence", "invalid action / empty text / API error / 200 calls per day -> rules", "instruction <= 140 characters; guardrail record stored in the trace"], "bad", fs=8.8)
 
     box(ax, 14.9, 7.4, 6.9, 2.55, "Seven actions", ["accept   |   accept_with_widened_uncertainty", "move_closer   (low_resolution, thin crack)", "reshoot_steadier   (blurry, bad outline)", "relight   (glare, noise)", "reposition_marker   (board lost/cropped, tilt, crack out of frame)", "abandon_and_log   (4th failed capture)"], "agent", fs=8.8)
     box(ax, 14.9, 5.0, 6.9, 2.0, "Instruction to the operator", ["one short sentence that names the number,", "e.g. \"Move closer: the board is 2.71 px/mm\"", "shown in the app next to the overlay"], "user", fs=8.8)
@@ -246,6 +246,7 @@ def dev_loop():
 
 
 if __name__ == "__main__":
-    architecture()
-    agent_workflow()
-    dev_loop()
+    import sys
+    todo = sys.argv[1:] or ["architecture", "agent_workflow", "dev_loop"]
+    for name in todo:
+        globals()[name]()

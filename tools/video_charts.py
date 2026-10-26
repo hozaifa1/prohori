@@ -2,19 +2,19 @@
 
 Usage:
     python tools/video_charts.py                         # everything
-    python tools/video_charts.py ablation gate width cool failures svg
+    python tools/video_charts.py ablation faithfulness gate width cool failures svg
     python tools/video_charts.py ablation --ablation-md eval/results/agent_ablation_v2.md --ablation-out ablation_v2.png
 
 Inputs are re-read from the result files each time (nothing is hard-coded except labels):
-    eval/results/agent_ablation.md        compound subset, recovery within 3 actions  -> ablation.png / ablation_v2.png
+    eval/results/agent_ablation.md        compound subset, recovery within 3 actions  -> ablation_v2.png
+    eval/results/agent_ablation.md        instruction faithfulness (P1, P2, P2g)       -> faithfulness.png
     eval/results/gate_summary.json        held-out risk / coverage per CRC level      -> gate_risk_coverage.png
     eval/results/width_eval_specimens_shipped.csv, width_eval_tables.csv              -> width_error.png
     eval/results/cool_agentloop/trace.jsonl                                           -> cool_latency.png
     docs/exhibits/gallery/*.json + overlays                                           -> failure_gallery.png
     docs/figures/{architecture,agent_workflow}.svg                                    -> *_full.png + zoomed crops
 
-After the agent rerun: write the new table to a markdown file with the same layout as agent_ablation.md and run
-    python tools/video_charts.py ablation --ablation-md <new.md> --ablation-out ablation_v2.png
+The ablation chart has five bars (P0 random, P1 rules, P2 AI agent, P2g AI agent + fact-check, P* ideal rule ceiling).
 """
 from __future__ import annotations
 
@@ -70,7 +70,7 @@ def save(fig, name: str):
 # ------------------------------------------------------------------ 1. agent ablation
 def parse_ablation(md: Path):
     """compound-subset row of the 'recovery within 3 actions' headline table.
-    Cell format: '85% [75, 94]'. Columns: P0 random, P1 rules, P2 LLM, P* label rule."""
+    Cell format: '85% [75, 94]'. Columns: P0 random, P1 rules, P2 LLM, P2g LLM + guardrail, P* label rule."""
     text = md.read_text(encoding="utf-8")
     sec = text.split("## Headline", 1)[1].split("###", 1)[0]
     for line in sec.splitlines():
@@ -78,7 +78,7 @@ def parse_ablation(md: Path):
             cells = [c.strip() for c in line.strip("|").split("|")]
             n = int(cells[1])
             vals = []
-            for c in cells[2:6]:
+            for c in cells[2:7]:
                 m = re.match(r"(\d+)% \[(\d+), (\d+)\]", c)
                 vals.append(tuple(int(x) for x in m.groups()))
             return n, vals
@@ -87,21 +87,23 @@ def parse_ablation(md: Path):
 
 def chart_ablation(md: Path, out_name: str):
     n, vals = parse_ablation(md)
-    labels = ["Random\nactions", "Fixed rules\n(we wrote)", "AI agent\n(LLM)", "Label ceiling\n(upper bound)"]
-    colors = ["#6b7f93", vc.BLUE, vc.AMBER, vc.SURFACE2]
+    labels = ["P0\nRandom", "P1\nFixed rules", "P2\nAI agent", "P2g\nAI agent +\nfact-check", "P*\nIdeal rule\nceiling"]
+    colors = ["#6b7f93", vc.BLUE, "#c98d1a", vc.AMBER, vc.SURFACE2]
     fig, plt = new_fig()
-    header(fig, "Agent ablation, held-out simulator episodes",
+    header(fig, "Agent ablation, 100 held-out simulator episodes",
            "Several problems at once: who gets it certified?",
            f"Episodes certified within 3 agent actions, compound-failure subset (n = {n}). Whiskers: 95% bootstrap CI.")
-    ax = fig.add_axes([0.09, 0.17, 0.86, 0.60])
+    ax = fig.add_axes([0.07, 0.19, 0.89, 0.57])
+    k = len(vals)
     for i, (v, lo, hi) in enumerate(vals):
-        edge = vc.MUTED if i == 3 else colors[i]
-        ax.bar(i, v, width=0.62, color=colors[i], edgecolor=edge, linewidth=3, linestyle="--" if i == 3 else "-", zorder=3)
+        last = i == k - 1
+        edge = vc.MUTED if last else colors[i]
+        ax.bar(i, v, width=0.66, color=colors[i], edgecolor=edge, linewidth=3, linestyle="--" if last else "-", zorder=3)
         ax.errorbar(i, v, yerr=[[v - lo], [hi - v]], color=vc.TEXT, capsize=14, capthick=3, elinewidth=3, zorder=4)
         ax.text(i, hi + 3.0, f"{v}%", ha="center", va="bottom", fontproperties=fp("b", 72),
-                color=vc.AMBER if i == 2 else vc.TEXT)
-    ax.set_xticks(range(4))
-    ax.set_xticklabels(labels, fontproperties=fp("s", 32), color=vc.TEXT)
+                color=vc.AMBER if i == 3 else vc.TEXT)
+    ax.set_xticks(range(k))
+    ax.set_xticklabels(labels, fontproperties=fp("s", 30), color=vc.TEXT, linespacing=1.15)
     ax.set_ylim(0, 112)
     ax.set_yticks([0, 25, 50, 75, 100])
     ax.set_yticklabels([f"{t}%" for t in (0, 25, 50, 75, 100)], fontproperties=fp("m", 22))
@@ -109,7 +111,47 @@ def chart_ablation(md: Path, out_name: str):
     ax.tick_params(length=0, pad=14)
     for s in ax.spines.values():
         s.set_visible(False)
-    footer(fig, f"Source: {md.relative_to(ROOT).as_posix()}  |  the agent sees only OpenCV's numbers  |  simulator study")
+    footer(fig, f"Source: {md.relative_to(ROOT).as_posix()}  |  the agent sees only OpenCV's numbers  |  simulator study, fact-check = code guardrail")
+    save(fig, out_name)
+
+
+def parse_faithfulness(md: Path):
+    """'instruction faithfulness' row of the instruction-text checklist: '91% [88, 94]' for P1, P2, P2g."""
+    for line in md.read_text(encoding="utf-8").splitlines():
+        if line.startswith("| **instruction faithfulness**"):
+            cells = [c.strip() for c in line.strip("|").split("|")]
+            vals = []
+            for c in cells[1:4]:
+                m = re.match(r"(\d+)% \[(\d+), (\d+)\]", c)
+                vals.append(tuple(int(x) for x in m.groups()))
+            return vals
+    raise ValueError("faithfulness row not found in " + str(md))
+
+
+def chart_faithfulness(md: Path, out_name: str = "faithfulness.png"):
+    vals = parse_faithfulness(md)
+    labels = ["P1\nFixed rules", "P2\nAI agent", "P2g\nAI agent +\nfact-check"]
+    colors = [vc.BLUE, "#c98d1a", vc.AMBER]
+    fig, plt = new_fig()
+    header(fig, "Agent ablation, instruction text, 100 held-out episodes",
+           "Does the instruction quote the right measured number?",
+           "Share of instructions that cite a measured number and contain no wrong number or claim. Whiskers: 95% CI.")
+    ax = fig.add_axes([0.09, 0.19, 0.86, 0.57])
+    for i, (v, lo, hi) in enumerate(vals):
+        ax.bar(i, v, width=0.6, color=colors[i], edgecolor=colors[i], linewidth=3, zorder=3)
+        ax.errorbar(i, v, yerr=[[v - lo], [hi - v]], color=vc.TEXT, capsize=14, capthick=3, elinewidth=3, zorder=4)
+        ax.text(i, hi + 3.0, f"{v}%", ha="center", va="bottom", fontproperties=fp("b", 84),
+                color=vc.AMBER if i == 2 else vc.TEXT)
+    ax.set_xticks(range(3))
+    ax.set_xticklabels(labels, fontproperties=fp("s", 32), color=vc.TEXT, linespacing=1.15)
+    ax.set_ylim(0, 115)
+    ax.set_yticks([0, 25, 50, 75, 100])
+    ax.set_yticklabels([f"{t}%" for t in (0, 25, 50, 75, 100)], fontproperties=fp("m", 22))
+    ax.grid(axis="y", color=vc.LINE, lw=1.5, zorder=0)
+    ax.tick_params(length=0, pad=14)
+    for s in ax.spines.values():
+        s.set_visible(False)
+    footer(fig, f"Source: {md.relative_to(ROOT).as_posix()}  |  automated check by code, not a human rating  |  simulator study")
     save(fig, out_name)
 
 
@@ -350,19 +392,16 @@ def render_svgs():
 # ------------------------------------------------------------------ main
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
-    ap.add_argument("what", nargs="*", default=["ablation", "gate", "width", "cool", "pareto", "failures", "svg"])
+    ap.add_argument("what", nargs="*", default=["ablation", "faithfulness", "gate", "width", "cool", "pareto", "failures", "svg"])
     ap.add_argument("--ablation-md", default=str(RES / "agent_ablation.md"))
-    ap.add_argument("--ablation-out", default=None, help="file name inside docs/video/assets/charts (default: ablation.png and ablation_v2.png)")
+    ap.add_argument("--ablation-out", default="ablation_v2.png", help="file name inside docs/video/assets/charts")
     a = ap.parse_args()
     FONTS = vc.setup_matplotlib()
     for w in a.what:
         if w == "ablation":
-            md = Path(a.ablation_md)
-            if a.ablation_out:
-                chart_ablation(md, a.ablation_out)
-            else:
-                chart_ablation(md, "ablation.png")
-                chart_ablation(md, "ablation_v2.png")  # slot: identical until regenerated after the agent rerun
+            chart_ablation(Path(a.ablation_md), a.ablation_out)
+        elif w == "faithfulness":
+            chart_faithfulness(Path(a.ablation_md))
         elif w == "gate":
             chart_gate()
         elif w == "width":

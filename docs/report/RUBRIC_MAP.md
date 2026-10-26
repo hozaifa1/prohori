@@ -6,7 +6,7 @@ For judges and for me. One line per criterion. Paths are relative to the reposit
 
 | Criterion (weight) | Evidence |
 |---|---|
-| Technical execution (30) | OpenCV 5 pipeline `src/prohori/measure.py`; module and call-site table in `docs/report/REPORT.md` section 3; method in section 4; held-out width results `eval/results/width_eval.md`; gate `eval/results/gate_report.md`; 309 tests in `tests/` (309 passed on 7c93780); pre-registrations `research/AGENT_PREREG.md`, `research/WIDTH_AUTORESEARCH.md`, `research/GATE_NOTES.md`. |
+| Technical execution (30) | OpenCV 5 pipeline `src/prohori/measure.py`; module and call-site table in `docs/report/REPORT.md` section 3; method in section 4; held-out width results `eval/results/width_eval.md`; gate `eval/results/gate_report.md`; 310 tests in `tests/` (310 passed on 02704a0); pre-registrations `research/AGENT_PREREG.md`, `research/WIDTH_AUTORESEARCH.md`, `research/GATE_NOTES.md`. |
 | Innovation (20) | Conformal risk control per crack on a width measurement with two tiers (`gate_report.md`; `research/LITERATURE.md` states no 2024 to 2026 crack-width paper found does this); grey-level width with a toner-corrected truth (`WIDTH_AUTORESEARCH.md` section 3); pre-registered agent ablation; developer-agent loop on COOL (`eval/results/cool_agentloop/`). |
 | Real-world impact (20) | Report section 2 (Rana Plaza, ACI 224R-01 thresholds, users); `docs/ENTRY_PROHORI.md`; `research/ADDENDUM.md` (verified ACI table); phone web app `service/static/`; video script opening `docs/video/SCRIPT.md`. |
 | User experience (10) | Web app with demo samples, overlay, per-crack tier and interval, instruction text and Agent trace panel (`service/static/`, screenshots in `docs/demo/screens*/`); README "Try it in 30 seconds"; approval page `/api/approve/<token>`. |
@@ -29,8 +29,8 @@ For judges and for me. One line per criterion. Paths are relative to the reposit
 |---|---|
 | Substantive OpenCV 5 plus agent (30) | The agent's only input is OpenCV-derived numbers (`src/prohori/agent.py`; `docs/figures/agent_workflow.png`); the OpenCV pipeline is in `measure.py`; report sections 3 and 6. |
 | Orchestration and autonomy (25) | Seven actions with a forced tool call, derived flags (`failing_checks`, `widen_now_allowed`, `abandon_now_allowed`), retake loop, joint history and escalation (`history.py`, `escalate.py`); workflow figure; developer-agent loop `cool_agentloop/trace.jsonl` (19 records). |
-| Task effectiveness (20) | Pre-registered simulator ablation `eval/results/agent_ablation.md` (recovery 62 % rules, 85 % LLM on compound episodes; rerun pending); live trace `docs/TRACE_EXHIBIT.md` (`move_closer` then `accept`); `docs/FAILURE_GALLERY.md`. |
-| Failure handling and human control (15) | Guardrails and rules fallback in `agent.py` (tests in `tests/test_agent.py`, `tests/test_guardrail.py`); human approval page and SNS (`research/SERVICE_NOTES.md` section 3); gallery of cases where the system does and does not refuse; 200-per-day cap. |
+| Task effectiveness (20) | Pre-registered simulator ablation `eval/results/agent_ablation.md` (compound episodes, recovery within 3 actions: 62 % rules, 85 % AI agent, 88 % AI agent with fact-check, 88 % plain-code ceiling; +25.0 points over rules [+12.5, +37.5]; instructions faithful 91 / 54 / 99 %); live trace `docs/TRACE_EXHIBIT.md` (`move_closer` then `accept`, guardrail record included); `docs/FAILURE_GALLERY.md`. |
+| Failure handling and human control (15) | Guardrails (action rules, instruction fact-check, one re-ask, template fallback) and rules fallback in `agent.py` (tests in `tests/test_agent.py`, `tests/test_guardrail.py`); human approval page and SNS (`research/SERVICE_NOTES.md` section 3); gallery of cases where the system does and does not refuse; 200-per-day cap. |
 | User experience (10) | Instruction text shown beside the overlay, Agent trace panel, policy selector (README "Try it in 30 seconds"); `docs/demo/screens*/`. |
 
 **Agentic qualifying-bar items.** Workflow diagram: `docs/figures/agent_workflow.png`. Trace where OpenCV output changes a later action: `docs/TRACE_EXHIBIT.md` and `docs/exhibits/trace_exhibit.json`. Evaluation of task success, failure handling, observability and human control: `agent_ablation.md`, `FAILURE_GALLERY.md`, trace panel and CloudWatch, approval page. Developer-agent workflow: `docs/figures/dev_agent_loop.png`, `eval/results/cool_agentloop/`.
@@ -42,20 +42,18 @@ OpenCV 5 for substantive analysis (`measure.py`); AWS component (EC2 on Graviton
 ## Gaps and risks I noticed
 
 1. **No video yet.** The Devpost field is `VIDEO_URL_TBD`. The video script's numbers need re-checking (see item 9).
-2. **Agent re-run pending.** The guardrail and Claude Haiku 4.5 results (P2g, P3) are not in `agent_ablation.md`. The live box (commit dade6d5) runs neither the guardrail text checks nor, by default, Haiku. The report, Devpost and eval rows E12 to E14 carry the `AGENT_RESULTS_PENDING` marker.
-3. **PDF not built.** `docs/report/Prohori_Technical_Report.pdf` does not exist yet. The report links point to it.
+2. **Claude Haiku 4.5 was not evaluated.** P2g (Nova Lite + guardrail) is in `agent_ablation.md` and the live box (build b3e9907) runs it as the default policy `llm`. P3 (Haiku 4.5) produced no results because the AWS account has not submitted Anthropic's use-case form. The compound-recovery gain of P2g over P2 (+2.1 points [-10.4, +14.6]) is not detectable, and P2g equals the plain-code ceiling; the 0 % rule violations hold by construction.
+3. **PDF.** `docs/report/Prohori_Technical_Report.pdf` is built from `REPORT.md` by `python tools/make_report_pdf.py`; rebuild it after any edit to the report.
 4. **No field validation.** One printed panel, one phone, one session; no real concrete crack against a microscope.
 5. **Accuracy Target not met.** MAE 0.070 mm against the 0.05 mm target; thin cracks did not improve on real photos; 2.0 and 3.0 mm specimens are under-read by 0.14 to 0.16 mm.
 6. **Gate guarantee is empirical.** Risk within alpha in 69 of 100 splits (0.05) and 76 of 100 (0.01); hardest time-contiguous block 6.09 % risk and 27.2 % wrong given passing. The 0.3 mm interval bin covers 86.3 %.
-7. **Agent study is a simulator.** One cheap model, about 100 episodes, one annotator; no human rating of instruction text; the live prompt was not measured. The LLM's instruction text had a wrong number or claim in live traces.
+7. **Agent study is a simulator.** One cheap model, about 100 episodes, one annotator; no human rating of instruction text; the live prompt was not measured (its guardrail checks are unit-tested only). Before the guardrail the LLM's instruction text had a wrong number or claim in live traces; the guardrail catches those in the recorded exhibits and raised faithfulness from 54 % to 99 % in the simulator.
 8. **COOL is a tie.** No speed win (0.994x) and +7.2 % cost at list price. The build label "COOL 3.1" cannot be proven from the AMI. The AMI name contains "Graviton5" while the instances are Graviton4. The crash bug report was drafted but not sent anywhere.
-9. **Video script claims.** `docs/video/SCRIPT.md` says thin-crack spread is "much smaller than a recent published method"; `width_eval.md` calls that comparison context, not head-to-head (and the thin-crack ratio is 1.10 against 0.89). It says a limit "checked on photos it never saw" while risk is within alpha in only 69 of 100 splits. It uses "about five in a hundred", which is stale (now 3.2 % and 11.5 %).
-10. **Stale files that disagree with current results.**
-    - README and `research/GATE_NOTES.md` section 7 say the 0.3, 1.0 and 2.0 mm interval bins are under 90 %; the current `gate_report.md` gives 86.3 %, 90.2 % and 90.5 %.
-    - README gives 267 tests; the local suite is 309.
-    - README, the architecture and agent-workflow figures, `TRACE_EXHIBIT.md` and `FAILURE_GALLERY.md` name Nova Lite as the live model. The code default is Haiku 4.5.
-    - The agent-workflow figure shows the pre-7c93780 guardrail.
+9. **Video script claims.** The script's agent numbers are simulator results (88 and 62 in 100 on compound episodes, 99 % faithful instructions) and are said as such. Its published-comparison line is context, not a head-to-head (`width_eval.md`; thin-crack ratio 1.10 against 0.89, wide-crack COV 7.0 % against 5.8 %). The "97 of 100 green readings" line is a mean over splits; risk is within alpha in 69 of 100 of them.
+10. **Remaining known inconsistencies.**
+    - `research/GATE_NOTES.md` section 7 says the 0.3, 1.0 and 2.0 mm interval bins are under 90 %; the current `gate_report.md` gives 86.3 %, 90.2 % and 90.5 % (README was corrected).
     - The README and exhibits use "certified" for cracks that pass at the amber level, while the tier "certified" is the strict level.
     - `eval/results/synth_validation.md`, `krkcmd_report.md` and the numbers in `GATE_NOTES.md` section 7 describe the legacy estimator.
+    - The agent study measured the legacy-gate prompt; the live prompt differs.
 11. **Security note.** `GET /api/trace/<session>` is unauthenticated, and SSH is open to one /24 of the operator's address. The security group and role are documented; no external review was done.
 12. **Instance-hours differ by study.** 2.198 h (COOL benchmark) and 2.66 h (developer loop); anyone quoting a single "COOL spend" figure must add them.
