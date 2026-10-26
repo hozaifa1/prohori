@@ -211,9 +211,29 @@ td:last-child { font-size:32px; }
 """)
 
 
+def crash_card() -> str:
+    # one-sentence card for the COOL crash story (REPORT.md: multithreaded connectedComponents, worked around with CCL_BBDT)
+    return page("""
+<div style="display:flex;flex-direction:column;justify-content:center;height:100%;gap:40px">
+  <div class=tag>COOL on Graviton4 &nbsp;/&nbsp; OpenCV 5.1.0-dev</div>
+  <div class=rule></div>
+  <div style="font:750 88px/1.08 Geist;max-width:1600px"><span style="color:var(--bad)">COOL-only crash</span> with &gt;1 thread:</div>
+  <div style="display:flex;gap:36px;align-items:center;flex-wrap:wrap">
+    <div class=chip>found</div><div class=arrow>&rarr;</div><div class=chip>documented</div><div class=arrow>&rarr;</div><div class=chip style="color:var(--ok);border-color:#2a6b45">worked around</div>
+  </div>
+  <div class="mono muted" style="font:500 34px/1.3 'Geist Mono'">workaround: <span class=amber>CCL_BBDT</span> connected-components path</div>
+  <div class="mono muted" style="font:500 22px/1.3 'Geist Mono';position:absolute;left:140px;bottom:44px">
+Source: eval/results/cool/20261025T002750Z/REPORT.md. Crash: multithreaded connectedComponents.</div>
+</div>""", """
+.chip { font:600 46px/1 Geist; padding:22px 34px; border:2px solid var(--line); border-radius:18px; background:var(--surface); }
+.arrow { font:600 46px/1 Geist; color:var(--muted); }
+""")
+
+
 CARDS = {
     "title": title_card, "closing": closing_card, "rana_plaza": rana_card,
     "crack_comparator": comparator_card, "cool_vs_pip": cool_card, "published_comparison": published_card,
+    "crash": crash_card,
 }
 
 if __name__ == "__main__":
@@ -221,7 +241,11 @@ if __name__ == "__main__":
     with sync_playwright() as pw:
         b = pw.chromium.launch()
         pg = b.new_page(viewport={"width": 1920, "height": 1080}, device_scale_factor=1)
+        import sys
+        only = sys.argv[1:] or list(CARDS)
         for name, fn in CARDS.items():
+            if name not in only:
+                continue
             pg.set_content(fn(), wait_until="load")
             pg.evaluate("document.fonts.ready")
             pg.wait_for_timeout(400)

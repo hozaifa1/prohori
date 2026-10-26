@@ -29,3 +29,6 @@ infra/state.env
 
 # personal photos and raw voice for the demo video (not published)
 docs/video/raw/
+
+# final demo video (large; uploaded to YouTube, rebuild with tools/make_video.py)
+docs/video/Prohori_demo.mp4
