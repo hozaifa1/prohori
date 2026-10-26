@@ -20,7 +20,7 @@ Word count of the spoken text: about 640 words, about 4:35 at 140 words per minu
 
 ## Numbers used, and where they come from (check before the final edit)
 
-- "about five in a hundred": certified-but-wrong rate, CRC gate, `eval/results/gate_report.md` (to be re-checked after the gate refit on the new widths).
+- "about 97 of every 100 green readings": strict level, mean held-out P(wrong | certified) 3.2 %, `eval/results/gate_report.md` (refit on the shipped widths, 2026-10-25).
 - 85 / 62 / 2 %: `eval/results/agent_ablation.md`, compound subset, recovery within 3 actions, n = 48.
 - 0.070 mm all cracks, 0.056 mm certified, held-out TEST: `eval/results/width_eval.md`.
 - 13 % vs 22 % COV below 0.5 mm: `eval/results/width_eval.md` vs Hassouna et al., Sci. Rep. 2026.
