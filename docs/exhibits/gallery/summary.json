@@ -8,9 +8,17 @@
   ],
   "llm": {
    "action": "move_closer",
-   "instruction": "Move closer: the board is 2.71 px/mm, a 0.5 mm crack needs about 20.",
+   "instruction": "Move closer: only 2.4 px/mm here, aim for 8 or more.",
    "policy_used": "llm",
-   "model": "us.amazon.nova-lite-v1:0"
+   "model": "us.amazon.nova-lite-v1:0",
+   "guardrail": {
+    "violations": [
+     "cites 20 px/mm but no such value was measured or defined (known px/mm values: 2.43, 2.51, 2.62, 2.71, 2.8, 2.92)"
+    ],
+    "reask": true,
+    "repaired": true,
+    "action_rejected": false
+   }
   },
   "gate": {
    "tier": "refused",
@@ -47,9 +55,17 @@
   ],
   "llm": {
    "action": "reposition_marker",
-   "instruction": "Reposition the marker to ensure the board is fully visible.",
+   "instruction": "Board not found: put the whole board beside the crack and retake (0 of 24 corners).",
    "policy_used": "llm",
-   "model": "us.amazon.nova-lite-v1:0"
+   "model": "us.amazon.nova-lite-v1:0",
+   "guardrail": {
+    "violations": [
+     "cites no measured number: rule 1 says to name the measured number that triggered the action"
+    ],
+    "reask": true,
+    "repaired": true,
+    "action_rejected": false
+   }
   },
   "gate": {
    "tier": null,
@@ -86,9 +102,17 @@
   ],
   "llm": {
    "action": "accept",
-   "instruction": "Accept the capture: one crack is certified.",
+   "instruction": "Accept the capture: one crack is certified with a width of 1.4987 mm.",
    "policy_used": "llm",
-   "model": "us.amazon.nova-lite-v1:0"
+   "model": "us.amazon.nova-lite-v1:0",
+   "guardrail": {
+    "violations": [
+     "cites no measured number: rule 1 says to name the measured number that triggered the action"
+    ],
+    "reask": true,
+    "repaired": false,
+    "action_rejected": false
+   }
   },
   "gate": {
    "tier": "certified",
@@ -122,10 +146,19 @@
    1536
   ],
   "llm": {
-   "action": "reposition_marker",
-   "instruction": "Reposition the board to cover all corners.",
+   "action": "reshoot_steadier",
+   "instruction": "Hold steady and retake: the whole frame is soft (sharpness 6) and the board was not found.",
    "policy_used": "llm",
-   "model": "us.amazon.nova-lite-v1:0"
+   "model": "us.amazon.nova-lite-v1:0",
+   "guardrail": {
+    "violations": [
+     "board not found and blur_var 6 is below 100: the whole frame is blurred: choose reshoot_steadier, not reposition_marker (rule 2a)",
+     "cites no measured number: rule 1 says to name the measured number that triggered the action"
+    ],
+    "reask": true,
+    "repaired": true,
+    "action_rejected": false
+   }
   },
   "gate": {
    "tier": null,
@@ -162,9 +195,17 @@
   ],
   "llm": {
    "action": "accept",
-   "instruction": "Accept the capture; report the certified widths and flagged cracks with their wider ranges.",
+   "instruction": "Certified 1 of 4 cracks. Best: 2.90 mm (90% range 2.26 to 3.53). Indicative reading: use it with the range. Flagged ones are marked.",
    "policy_used": "llm",
-   "model": "us.amazon.nova-lite-v1:0"
+   "model": "us.amazon.nova-lite-v1:0",
+   "guardrail": {
+    "violations": [
+     "cites no measured number: rule 1 says to name the measured number that triggered the action"
+    ],
+    "reask": true,
+    "repaired": true,
+    "action_rejected": false
+   }
   },
   "gate": {
    "tier": "indicative",
@@ -201,7 +242,13 @@
    "action": "reposition_marker",
    "instruction": "Reposition the marker: the angle is too steep at 66.63 degrees.",
    "policy_used": "llm",
-   "model": "us.amazon.nova-lite-v1:0"
+   "model": "us.amazon.nova-lite-v1:0",
+   "guardrail": {
+    "violations": [],
+    "reask": false,
+    "repaired": false,
+    "action_rejected": false
+   }
   },
   "gate": {
    "tier": "refused",
@@ -240,7 +287,13 @@
    "action": "accept",
    "instruction": "Accept the capture: 5 cracks are certified, 3 are flagged with reasons.",
    "policy_used": "llm",
-   "model": "us.amazon.nova-lite-v1:0"
+   "model": "us.amazon.nova-lite-v1:0",
+   "guardrail": {
+    "violations": [],
+    "reask": false,
+    "repaired": false,
+    "action_rejected": false
+   }
   },
   "gate": {
    "tier": "certified",
@@ -275,9 +328,18 @@
   ],
   "llm": {
    "action": "accept",
-   "instruction": "Accept the capture; all cracks are certified.",
+   "instruction": "Accept the capture; 4 of 7 cracks are certified.",
    "policy_used": "llm",
-   "model": "us.amazon.nova-lite-v1:0"
+   "model": "us.amazon.nova-lite-v1:0",
+   "guardrail": {
+    "violations": [
+     "says 'all cracks are certified' but 4 of 7 cracks are certified",
+     "cites no measured number: rule 1 says to name the measured number that triggered the action"
+    ],
+    "reask": true,
+    "repaired": false,
+    "action_rejected": false
+   }
   },
   "gate": {
    "tier": "certified",
@@ -312,9 +374,15 @@
   ],
   "llm": {
    "action": "accept",
-   "instruction": "Accept the capture; 4 cracks are certified, 4 are flagged with wider ranges.",
+   "instruction": "Accept the capture: 4 cracks are certified, 4 are flagged with wider intervals.",
    "policy_used": "llm",
-   "model": "us.amazon.nova-lite-v1:0"
+   "model": "us.amazon.nova-lite-v1:0",
+   "guardrail": {
+    "violations": [],
+    "reask": false,
+    "repaired": false,
+    "action_rejected": false
+   }
   },
   "gate": {
    "tier": "certified",

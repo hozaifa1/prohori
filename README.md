@@ -16,9 +16,9 @@ Entry to the OpenCV AI Competition 2026 (Agentic Vision and Best Use of COOL awa
 1. Open https://184-194-241-186.sslip.io on a phone or a laptop.
 2. Tap **Demo samples**. Pick "Much too far away": the gate refuses every crack and the agent says to move closer. Then pick "Closer shot": the same photo at a usable distance, and 5 of 8 cracks are certified.
 3. Try "Board out of frame" (no board, no number, the agent asks to reposition) and "Blurry and skewed".
-4. Open **Agent trace** at the bottom of the result to see the observation, the gate reasons and the decision for each step. In the policy selector, **llm** uses Amazon Bedrock (Nova Lite); **rules** is the baseline.
+4. Open **Agent trace** at the bottom of the result to see the observation, the gate reasons and the decision for each step. In the policy selector, **llm** (the default) uses Amazon Bedrock (Nova Lite) behind a code-side guardrail that checks every answer; **rules** is the baseline. The result card shows which policy and model decided and what the guardrail did.
 5. Own photo: print `data/print/PRINT_ME_test_panel_A4.pdf` at 100 % (it has the ChArUco board and eight printed test cracks of 0.3 to 3.0 mm), photograph it with a phone from 20 to 45 cm with the whole board in frame, and upload it.
-6. API: `curl -F image=@photo.jpg -F policy=rules https://184-194-241-186.sslip.io/api/measure`, then `GET /api/trace/<session_id>`, `GET /health`.
+6. API: `curl -F image=@photo.jpg https://184-194-241-186.sslip.io/api/measure`, then `GET /api/trace/<session_id>`, `GET /health`.
 
 A worked trace is in [docs/TRACE_EXHIBIT.md](docs/TRACE_EXHIBIT.md); bad-capture cases are in [docs/FAILURE_GALLERY.md](docs/FAILURE_GALLERY.md).
 
@@ -91,13 +91,22 @@ The 90 % conformal width interval covers 91.5 % of held-out readings overall (me
 
 Simulated capture episodes (100 held-out), recovery to a certified capture within three actions:
 
-| Subset | n | Random | Rules (P1) | LLM Nova Lite (P2) | Label-rule ceiling |
-|---|---|---|---|---|---|
-| single-cause failure | 20 | 30 % | 95 % | 100 % | 100 % |
-| compound failure | 48 | 2 % | 62 % [48, 75] | 85 % [75, 94] | 88 % |
-| all recoverable | 68 | 10 % | 72 % [62, 82] | 90 % [82, 96] | 91 % |
+| Subset | n | Random | Rules (P1) | LLM Nova Lite (P2) | LLM Nova Lite + guardrail (P2g) | Label-rule ceiling |
+|---|---|---|---|---|---|---|
+| single-cause failure | 20 | 30 % | 95 % | 100 % | 100 % | 100 % |
+| compound failure | 48 | 2 % | 62 % [48, 75] | 85 % [75, 94] | 88 % [77, 96] | 88 % |
+| all recoverable | 68 | 10 % | 72 % [62, 82] | 90 % [82, 96] | 91 % [84, 97] | 91 % |
 
-P2 minus P1 on compound episodes: +22.9 points, 95 % CI [+8.3, +37.5]. The LLM prompt was tuned on a separate dev set and the label rule written as plain code does about as well (88 %), so this shows that an LLM following written rules matches those rules in code, not that it reasons better. The study ran on the simulator, before the two-tier gate was installed, and was not re-run.
+P2 minus P1 on compound episodes: +22.9 points, 95 % CI [+8.3, +37.5]. P2g minus P1: +25.0 points [+12.5, +37.5]; P2g minus P2: +2.1 [-10.4, +14.6], so the guardrail did not change recovery detectably. The LLM prompt was tuned on a separate dev set and the label rule written as plain code does about as well (88 %), so this shows that an LLM following written rules matches those rules in code, not that it reasons better.
+
+What the guardrail changed is the text and the rule-keeping (Addendum B of the pre-registration, 100 held-out episodes):
+
+| | Rules (P1) | LLM (P2) | LLM + guardrail (P2g) |
+|---|---|---|---|
+| instructions that cite a measured number and contain no wrong number or claim | 91 % | 54 % | 99 % |
+| decisions that break a hard rule of the agent's prompt | 24 % | 19 % | 0 % |
+
+The guardrail sent 58 % of the model's first answers back for a re-ask and replaced the sentence in 36 % of decisions (cost: 1.6 model calls per decision, US$0.06 for the whole 100-episode run). A Claude Haiku 4.5 run (P3) was planned but could not be done: Bedrock rejects the model until the account submits Anthropic's use-case form, so the live model is Nova Lite. The study ran on the simulator, before the two-tier gate was installed, and was not re-run.
 
 ### COOL on Graviton4 (`eval/results/cool/20261025T002750Z/REPORT.md`, `eval/results/cool_agentloop/README.md`)
 
@@ -152,7 +161,7 @@ uvicorn service.app:app --host 0.0.0.0 --port 8000
 # open http://localhost:8000
 ```
 
-The default policy is `rules`. Without AWS credentials `policy=llm` falls back to `rules` (the response says why in `fallback_reason`). To use Bedrock locally, export AWS credentials for a role that can call `bedrock:InvokeModel` on `us.amazon.nova-lite-v1:0` and set `PROHORI_BEDROCK_MODEL=us.amazon.nova-lite-v1:0`. Environment variables and API are in [service/README.md](service/README.md). Evidence is stored only after faces are blurred; if the face model is missing nothing is persisted.
+The default policy is `llm` (Nova Lite behind the guardrail; `infra/agent.env`), and `PROHORI_DEFAULT_POLICY=rules` changes it. Without AWS credentials, with the daily cap used up, or if the model keeps breaking a hard rule, `policy=llm` falls back to `rules` (the response says why in `fallback_reason`). To use Bedrock locally, export AWS credentials for a role that can call `bedrock:InvokeModel` on `us.amazon.nova-lite-v1:0` and set `PROHORI_BEDROCK_MODEL=us.amazon.nova-lite-v1:0`. Environment variables and API are in [service/README.md](service/README.md). Evidence is stored only after faces are blurred; if the face model is missing nothing is persisted.
 
 ## Deploy to AWS
 
@@ -194,6 +203,7 @@ sha256sum -c SHA256SUMS.txt && unzip -o prohori-panel-data-v1.zip && unzip -o pr
 | Agent ablation report (`agent_ablation.md`, `.csv`, `.png`) | `python eval/agent_ablation.py report` | agent bundle. Overwrites the file in `eval/results/`; `git diff` shows any difference |
 | Agent free policies, re-run (no model calls) | `python eval/agent_ablation.py run --split test --policies p0,p1,pstar` | agent bundle |
 | Agent LLM policy, re-run | `python eval/agent_ablation.py run --split test --policies p2 --tag test_final` | Bedrock access to Nova Lite, about USD 0.04 |
+| Agent with guardrail, re-run | `python eval/agent_ablation.py run --split test --policies p2g` | Bedrock access to Nova Lite, about USD 0.06 |
 | Panel-photo table (`panel_photos_*.md`) | `python eval/run_panel_photos.py --tag repro` | panel bundle |
 | Gate calibration set from the photos | `python eval/gate_make_dataset.py --cfg shipped --variants 120 --workers 4` (hours); `--table-only` rebuilds the table from the stored manifest | panel bundle |
 | Width evaluation (`width_eval.md`) | `python eval/width_eval.py build`, then `python eval/width_final.py --split test --go` (refuses to run twice on one machine; the bundle does not contain the lock file) | panel bundle, the 500 renders, krkCMd data (see below) |
@@ -219,7 +229,7 @@ Short list; the details sit next to the numbers in the linked files.
 * **Accuracy targets not met.** MAE 0.070 mm over all gate states (target 0.05 mm). Cracks under 0.5 mm did not improve over the previous estimator. The 2 and 3 mm specimens are under-read by 0.14 to 0.16 mm. (`width_eval.md`)
 * **Small calibration set.** The gate learned from degraded copies of 21 photo groups. Its risk guarantee is only checked empirically on held-out photos (risk under target in 69 of 100 splits); it is not claimed for new surfaces, lighting or phones. Interval coverage at 0.3, 1.0 and 2.0 mm stays a little under 90 % when whole photos are held out. (`gate_report.md`, `GATE_NOTES.md`)
 * **The gate is per crack, and does not react to everything.** A capture counts as certified when one crack is certified, so a blurred photo can be "certified" through its widest crack (with a wide interval). The learned gate has no separate glare threshold; moderate glare is not refused. (`docs/FAILURE_GALLERY.md`)
-* **The agent study is a simulation.** The LLM's gain over the rules is measured on a simulator with assumed failure distributions, one cheap model and a cooperative operator; the lower end of the interval is under the pre-registered +10 points; the prompt was tuned on dev episodes; the study predates the two-tier gate. The LLM's instruction text sometimes cites a wrong number or says "all cracks certified" when some are not (57 % of its instructions cite a number as asked, against 91 % for the rules). The human rating of instruction text was not done. (`agent_ablation.md`, `docs/TRACE_EXHIBIT.md`)
+* **The agent study is a simulation.** The LLM's gain over the rules is measured on a simulator with assumed failure distributions, one cheap model and a cooperative operator; the lower end of the interval is under the pre-registered +10 points; the prompt was tuned on dev episodes; the study predates the two-tier gate and measures the older prompt, not the prompt the live service uses. Without the guardrail the LLM's text sometimes cited a wrong number or said "all cracks certified" when some were not (54 % faithful against 91 % for the rules); the guardrail raises that to 99 % in the simulation, partly because it swaps in the rules wording for 36 % of decisions, and its checks are code, so they can be too strict or miss a claim. The Claude Haiku 4.5 run was not possible (account form). The human rating of instruction text was not done. (`agent_ablation.md`, `docs/TRACE_EXHIBIT.md`)
 * **COOL is a tie for this workload.** It runs the workload correctly on Graviton4 but is not faster than the pip wheel (1.014x), costs 6.8 % more per frame at list price, is not bitwise identical to the pip build, ships no opencv_contrib, and its default multithreaded connected-components call crashes the process (the code uses `CCL_BBDT` instead). The 23 % speed-up of the developer loop comes from changes to this repository's Python code and also applies to the pip build. (`cool/.../REPORT.md`, `cool_agentloop/README.md`)
 * **Requirements on the user.** A printed board at 100 % scale lying flat in the crack's plane, a phone camera with focus, and a distance of roughly 20 to 45 cm. Thin cracks (0.3 to 0.5 mm) need about 10 to 20 px/mm to certify.
 * **No crack tracking across visits.** The operator names the joint; the system does not re-identify cracks (the earlier LightGlue plan was dropped).

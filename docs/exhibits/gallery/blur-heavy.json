@@ -6,10 +6,19 @@
   1536
  ],
  "llm": {
-  "action": "reposition_marker",
-  "instruction": "Reposition the board to cover all corners.",
+  "action": "reshoot_steadier",
+  "instruction": "Hold steady and retake: the whole frame is soft (sharpness 6) and the board was not found.",
   "policy_used": "llm",
-  "model": "us.amazon.nova-lite-v1:0"
+  "model": "us.amazon.nova-lite-v1:0",
+  "guardrail": {
+   "violations": [
+    "board not found and blur_var 6 is below 100: the whole frame is blurred: choose reshoot_steadier, not reposition_marker (rule 2a)",
+    "cites no measured number: rule 1 says to name the measured number that triggered the action"
+   ],
+   "reask": true,
+   "repaired": true,
+   "action_rejected": false
+  }
  },
  "gate": {
   "tier": null,

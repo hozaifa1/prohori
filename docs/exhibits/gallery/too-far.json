@@ -7,9 +7,17 @@
  ],
  "llm": {
   "action": "move_closer",
-  "instruction": "Move closer: the board is 2.71 px/mm, a 0.5 mm crack needs about 20.",
+  "instruction": "Move closer: only 2.4 px/mm here, aim for 8 or more.",
   "policy_used": "llm",
-  "model": "us.amazon.nova-lite-v1:0"
+  "model": "us.amazon.nova-lite-v1:0",
+  "guardrail": {
+   "violations": [
+    "cites 20 px/mm but no such value was measured or defined (known px/mm values: 2.43, 2.51, 2.62, 2.71, 2.8, 2.92)"
+   ],
+   "reask": true,
+   "repaired": true,
+   "action_rejected": false
+  }
  },
  "gate": {
   "tier": "refused",

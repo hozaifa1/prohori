@@ -9,7 +9,13 @@
   "action": "reposition_marker",
   "instruction": "Reposition the marker: the angle is too steep at 66.63 degrees.",
   "policy_used": "llm",
-  "model": "us.amazon.nova-lite-v1:0"
+  "model": "us.amazon.nova-lite-v1:0",
+  "guardrail": {
+   "violations": [],
+   "reask": false,
+   "repaired": false,
+   "action_rejected": false
+  }
  },
  "gate": {
   "tier": "refused",

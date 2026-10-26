@@ -7,9 +7,17 @@
  ],
  "llm": {
   "action": "accept",
-  "instruction": "Accept the capture; report the certified widths and flagged cracks with their wider ranges.",
+  "instruction": "Certified 1 of 4 cracks. Best: 2.90 mm (90% range 2.26 to 3.53). Indicative reading: use it with the range. Flagged ones are marked.",
   "policy_used": "llm",
-  "model": "us.amazon.nova-lite-v1:0"
+  "model": "us.amazon.nova-lite-v1:0",
+  "guardrail": {
+   "violations": [
+    "cites no measured number: rule 1 says to name the measured number that triggered the action"
+   ],
+   "reask": true,
+   "repaired": true,
+   "action_rejected": false
+  }
  },
  "gate": {
   "tier": "indicative",

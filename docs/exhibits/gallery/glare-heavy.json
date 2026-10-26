@@ -7,9 +7,18 @@
  ],
  "llm": {
   "action": "accept",
-  "instruction": "Accept the capture; all cracks are certified.",
+  "instruction": "Accept the capture; 4 of 7 cracks are certified.",
   "policy_used": "llm",
-  "model": "us.amazon.nova-lite-v1:0"
+  "model": "us.amazon.nova-lite-v1:0",
+  "guardrail": {
+   "violations": [
+    "says 'all cracks are certified' but 4 of 7 cracks are certified",
+    "cites no measured number: rule 1 says to name the measured number that triggered the action"
+   ],
+   "reask": true,
+   "repaired": false,
+   "action_rejected": false
+  }
  },
  "gate": {
   "tier": "certified",

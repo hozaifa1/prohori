@@ -9,7 +9,13 @@
   "action": "accept",
   "instruction": "Accept the capture: 5 cracks are certified, 3 are flagged with reasons.",
   "policy_used": "llm",
-  "model": "us.amazon.nova-lite-v1:0"
+  "model": "us.amazon.nova-lite-v1:0",
+  "guardrail": {
+   "violations": [],
+   "reask": false,
+   "repaired": false,
+   "action_rejected": false
+  }
  },
  "gate": {
   "tier": "certified",

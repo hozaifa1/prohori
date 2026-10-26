@@ -122,6 +122,9 @@ def cmd_gallery(a) -> None:
             g, o = m["gate"], m["observation"]
             rec[pol] = {"action": res["decision"]["action"], "instruction": res["decision"]["instruction"],
                         "policy_used": res["decision"].get("policy"), "model": res["decision"].get("model")}
+            if res["decision"].get("guardrail") is not None:
+                gr_ = res["decision"]["guardrail"]
+                rec[pol]["guardrail"] = {k: gr_.get(k) for k in ("violations", "reask", "repaired", "action_rejected")}
             if pol == "llm":
                 rec["gate"] = {"tier": g.get("tier"), "certified": g.get("certified"), "reasons": g.get("reasons"),
                                "cracks_certified": g.get("cracks_certified"), "cracks_total": g.get("cracks_total")}
