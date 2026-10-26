@@ -30,6 +30,15 @@ Limits: 15 MB upload, longest side capped at 4096 px, 30 requests per minute per
 
 Environment: `PROHORI_VERSION` (shown in `/health`), `PROHORI_INSTANCE` (skip the IMDS lookup).
 
+Agent settings (applied by `infra/push.sh` from `infra/agent.env`):
+
+| Env var | Meaning |
+|---|---|
+| `PROHORI_DEFAULT_POLICY` | policy used when the request has no `policy` field: `llm` (default on the live box) or `rules` |
+| `PROHORI_BEDROCK_MODEL` / `PROHORI_BEDROCK_FALLBACK_MODELS` | primary Bedrock model and comma-separated fallbacks, tried in order; then the rules policy |
+| `PROHORI_LLM_DAILY_CAP` | LLM decisions per UTC day (default 200); the rules policy answers after that |
+| `PROHORI_GUARDRAIL` | `0` turns the output checker off (default on; every LLM answer is validated by `agent.validate_decision` and the decision carries a `guardrail` record) |
+
 History, escalation and privacy (see `research/SERVICE_NOTES.md`):
 
 | Env var | Meaning |

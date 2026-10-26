@@ -89,6 +89,10 @@ test,P0 random,all,false_abandon_of_recoverable,0.5588,0.4394,0.6769,68
 test,P0 random,all,instr_within_140,1.0000,1.0000,1.0000,356
 test,P0 random,all,instr_cites_number,0.0000,0.0000,0.0000,356
 test,P0 random,all,instr_matches_action,0.8455,0.8112,0.8792,356
+test,P0 random,all,instr_faithful,0.0000,0.0000,0.0000,356
+test,P0 random,all,instr_violation_rate,0.1545,0.1208,0.1888,356
+test,P0 random,all,instr_no_measured_number,1.0000,1.0000,1.0000,356
+test,P0 random,all,rule_violation_rate,0.8483,0.8128,0.8824,356
 test,P0 random,all,fallback_steps,0.0000,nan,nan,356
 test,P1 rules,single (S),recovery@3,0.9500,0.8500,1.0000,20
 test,P1 rules,single (S),recovery@6,0.9500,0.8500,1.0000,20
@@ -180,6 +184,10 @@ test,P1 rules,all,false_abandon_of_recoverable,0.2500,0.1493,0.3571,68
 test,P1 rules,all,instr_within_140,1.0000,1.0000,1.0000,271
 test,P1 rules,all,instr_cites_number,0.9114,0.8763,0.9444,271
 test,P1 rules,all,instr_matches_action,1.0000,1.0000,1.0000,271
+test,P1 rules,all,instr_faithful,0.9114,0.8763,0.9444,271
+test,P1 rules,all,instr_violation_rate,0.0000,0.0000,0.0000,271
+test,P1 rules,all,instr_no_measured_number,0.0886,0.0556,0.1237,271
+test,P1 rules,all,rule_violation_rate,0.2435,0.1825,0.3021,271
 test,P1 rules,all,fallback_steps,0.0000,nan,nan,271
 test,P2 LLM (Nova Lite),single (S),recovery@3,1.0000,1.0000,1.0000,20
 test,P2 LLM (Nova Lite),single (S),recovery@6,1.0000,1.0000,1.0000,20
@@ -271,7 +279,112 @@ test,P2 LLM (Nova Lite),all,false_abandon_of_recoverable,0.1029,0.0357,0.1803,68
 test,P2 LLM (Nova Lite),all,instr_within_140,1.0000,1.0000,1.0000,261
 test,P2 LLM (Nova Lite),all,instr_cites_number,0.5670,0.4943,0.6388,261
 test,P2 LLM (Nova Lite),all,instr_matches_action,0.9962,0.9880,1.0000,261
+test,P2 LLM (Nova Lite),all,instr_faithful,0.5402,0.4677,0.6107,261
+test,P2 LLM (Nova Lite),all,instr_violation_rate,0.0268,0.0084,0.0485,261
+test,P2 LLM (Nova Lite),all,instr_no_measured_number,0.4521,0.3811,0.5249,261
+test,P2 LLM (Nova Lite),all,rule_violation_rate,0.1916,0.1458,0.2379,261
 test,P2 LLM (Nova Lite),all,fallback_steps,0.0000,nan,nan,261
+test,P2g Nova Lite + guardrail,single (S),recovery@3,1.0000,1.0000,1.0000,20
+test,P2g Nova Lite + guardrail,single (S),recovery@6,1.0000,1.0000,1.0000,20
+test,P2g Nova Lite + guardrail,single (S),correct_outcome,1.0000,1.0000,1.0000,20
+test,P2g Nova Lite + guardrail,single (S),abandon_rate,0.0000,0.0000,0.0000,20
+test,P2g Nova Lite + guardrail,single (S),widen_rate,0.0000,0.0000,0.0000,20
+test,P2g Nova Lite + guardrail,single (S),turns_to_certified_median,1.0000,1.0000,1.0000,20
+test,P2g Nova Lite + guardrail,single (S),turns_to_certified_mean,1.2500,1.1000,1.4500,20
+test,P2g Nova Lite + guardrail,single (S),action_acc_acceptable,1.0000,1.0000,1.0000,25
+test,P2g Nova Lite + guardrail,single (S),action_acc_strict,1.0000,1.0000,1.0000,25
+test,P2g Nova Lite + guardrail,single (S),addresses_a_failure,1.0000,1.0000,1.0000,25
+test,P2g Nova Lite + guardrail,single (S),wrong_action_rate,0.0000,0.0000,0.0000,25
+test,P2g Nova Lite + guardrail,single (S),escalation_precision_vs_rule,nan,nan,nan,0
+test,P2g Nova Lite + guardrail,single (S),escalation_recall_vs_rule,nan,nan,nan,0
+test,P2g Nova Lite + guardrail,single (S),usable@3_posthoc,1.0000,1.0000,1.0000,20
+test,P2g Nova Lite + guardrail,compound (X+C2+C3),recovery@3,0.8750,0.7708,0.9583,48
+test,P2g Nova Lite + guardrail,compound (X+C2+C3),recovery@6,0.8750,0.7708,0.9583,48
+test,P2g Nova Lite + guardrail,compound (X+C2+C3),correct_outcome,0.8750,0.7708,0.9583,48
+test,P2g Nova Lite + guardrail,compound (X+C2+C3),abandon_rate,0.0625,0.0000,0.1458,48
+test,P2g Nova Lite + guardrail,compound (X+C2+C3),widen_rate,0.0625,0.0000,0.1458,48
+test,P2g Nova Lite + guardrail,compound (X+C2+C3),turns_to_certified_median,2.0000,2.0000,2.0000,42
+test,P2g Nova Lite + guardrail,compound (X+C2+C3),turns_to_certified_mean,2.2143,2.0250,2.3953,42
+test,P2g Nova Lite + guardrail,compound (X+C2+C3),action_acc_acceptable,1.0000,1.0000,1.0000,114
+test,P2g Nova Lite + guardrail,compound (X+C2+C3),action_acc_strict,0.9649,0.9304,0.9915,114
+test,P2g Nova Lite + guardrail,compound (X+C2+C3),addresses_a_failure,1.0000,1.0000,1.0000,114
+test,P2g Nova Lite + guardrail,compound (X+C2+C3),wrong_action_rate,0.0000,0.0000,0.0000,114
+test,P2g Nova Lite + guardrail,compound (X+C2+C3),escalation_precision_vs_rule,1.0000,1.0000,1.0000,3
+test,P2g Nova Lite + guardrail,compound (X+C2+C3),escalation_recall_vs_rule,1.0000,1.0000,1.0000,3
+test,P2g Nova Lite + guardrail,compound (X+C2+C3),usable@3_posthoc,0.9375,0.8542,1.0000,48
+test,P2g Nova Lite + guardrail,recoverable (S+X+C2+C3),recovery@3,0.9118,0.8382,0.9706,68
+test,P2g Nova Lite + guardrail,recoverable (S+X+C2+C3),recovery@6,0.9118,0.8382,0.9706,68
+test,P2g Nova Lite + guardrail,recoverable (S+X+C2+C3),correct_outcome,0.9118,0.8382,0.9706,68
+test,P2g Nova Lite + guardrail,recoverable (S+X+C2+C3),abandon_rate,0.0441,0.0000,0.1029,68
+test,P2g Nova Lite + guardrail,recoverable (S+X+C2+C3),widen_rate,0.0441,0.0000,0.1029,68
+test,P2g Nova Lite + guardrail,recoverable (S+X+C2+C3),turns_to_certified_median,2.0000,2.0000,2.0000,62
+test,P2g Nova Lite + guardrail,recoverable (S+X+C2+C3),turns_to_certified_mean,1.9032,1.7258,2.0806,62
+test,P2g Nova Lite + guardrail,recoverable (S+X+C2+C3),action_acc_acceptable,1.0000,1.0000,1.0000,139
+test,P2g Nova Lite + guardrail,recoverable (S+X+C2+C3),action_acc_strict,0.9712,0.9416,0.9930,139
+test,P2g Nova Lite + guardrail,recoverable (S+X+C2+C3),addresses_a_failure,1.0000,1.0000,1.0000,139
+test,P2g Nova Lite + guardrail,recoverable (S+X+C2+C3),wrong_action_rate,0.0000,0.0000,0.0000,139
+test,P2g Nova Lite + guardrail,recoverable (S+X+C2+C3),escalation_precision_vs_rule,1.0000,1.0000,1.0000,3
+test,P2g Nova Lite + guardrail,recoverable (S+X+C2+C3),escalation_recall_vs_rule,1.0000,1.0000,1.0000,3
+test,P2g Nova Lite + guardrail,recoverable (S+X+C2+C3),usable@3_posthoc,0.9559,0.8971,1.0000,68
+test,P2g Nova Lite + guardrail,hopeless (H),recovery@3,0.0000,0.0000,0.0000,16
+test,P2g Nova Lite + guardrail,hopeless (H),recovery@6,0.0000,0.0000,0.0000,16
+test,P2g Nova Lite + guardrail,hopeless (H),correct_outcome,1.0000,1.0000,1.0000,16
+test,P2g Nova Lite + guardrail,hopeless (H),abandon_rate,1.0000,1.0000,1.0000,16
+test,P2g Nova Lite + guardrail,hopeless (H),widen_rate,0.0000,0.0000,0.0000,16
+test,P2g Nova Lite + guardrail,hopeless (H),turns_to_certified_median,nan,nan,nan,16
+test,P2g Nova Lite + guardrail,hopeless (H),turns_to_certified_mean,nan,nan,nan,16
+test,P2g Nova Lite + guardrail,hopeless (H),action_acc_acceptable,1.0000,1.0000,1.0000,64
+test,P2g Nova Lite + guardrail,hopeless (H),action_acc_strict,0.9531,0.8750,1.0000,64
+test,P2g Nova Lite + guardrail,hopeless (H),addresses_a_failure,1.0000,1.0000,1.0000,64
+test,P2g Nova Lite + guardrail,hopeless (H),wrong_action_rate,0.0000,0.0000,0.0000,64
+test,P2g Nova Lite + guardrail,hopeless (H),escalation_precision_vs_rule,1.0000,1.0000,1.0000,16
+test,P2g Nova Lite + guardrail,hopeless (H),escalation_recall_vs_rule,1.0000,1.0000,1.0000,16
+test,P2g Nova Lite + guardrail,hopeless (H),usable@3_posthoc,0.0000,0.0000,0.0000,16
+test,P2g Nova Lite + guardrail,constrained (M),recovery@3,0.0625,0.0000,0.1875,16
+test,P2g Nova Lite + guardrail,constrained (M),recovery@6,0.0625,0.0000,0.1875,16
+test,P2g Nova Lite + guardrail,constrained (M),correct_outcome,0.9375,0.8125,1.0000,16
+test,P2g Nova Lite + guardrail,constrained (M),abandon_rate,0.0000,0.0000,0.0000,16
+test,P2g Nova Lite + guardrail,constrained (M),widen_rate,0.9375,0.8125,1.0000,16
+test,P2g Nova Lite + guardrail,constrained (M),turns_to_certified_median,1.0000,1.0000,1.0000,1
+test,P2g Nova Lite + guardrail,constrained (M),turns_to_certified_mean,1.0000,1.0000,1.0000,1
+test,P2g Nova Lite + guardrail,constrained (M),action_acc_acceptable,1.0000,1.0000,1.0000,47
+test,P2g Nova Lite + guardrail,constrained (M),action_acc_strict,0.9787,0.9348,1.0000,47
+test,P2g Nova Lite + guardrail,constrained (M),addresses_a_failure,1.0000,1.0000,1.0000,47
+test,P2g Nova Lite + guardrail,constrained (M),wrong_action_rate,0.0000,0.0000,0.0000,47
+test,P2g Nova Lite + guardrail,constrained (M),escalation_precision_vs_rule,nan,nan,nan,0
+test,P2g Nova Lite + guardrail,constrained (M),escalation_recall_vs_rule,nan,nan,nan,0
+test,P2g Nova Lite + guardrail,constrained (M),usable@3_posthoc,0.9375,0.8125,1.0000,16
+test,P2g Nova Lite + guardrail,all,recovery@3,0.6300,0.5300,0.7200,100
+test,P2g Nova Lite + guardrail,all,recovery@6,0.6300,0.5300,0.7200,100
+test,P2g Nova Lite + guardrail,all,correct_outcome,0.9300,0.8800,0.9800,100
+test,P2g Nova Lite + guardrail,all,abandon_rate,0.1900,0.1200,0.2700,100
+test,P2g Nova Lite + guardrail,all,widen_rate,0.1800,0.1100,0.2600,100
+test,P2g Nova Lite + guardrail,all,turns_to_certified_median,2.0000,2.0000,2.0000,63
+test,P2g Nova Lite + guardrail,all,turns_to_certified_mean,1.8889,1.7121,2.0645,63
+test,P2g Nova Lite + guardrail,all,action_acc_acceptable,1.0000,1.0000,1.0000,250
+test,P2g Nova Lite + guardrail,all,action_acc_strict,0.9680,0.9421,0.9883,250
+test,P2g Nova Lite + guardrail,all,addresses_a_failure,1.0000,1.0000,1.0000,250
+test,P2g Nova Lite + guardrail,all,wrong_action_rate,0.0000,0.0000,0.0000,250
+test,P2g Nova Lite + guardrail,all,escalation_precision_vs_rule,1.0000,1.0000,1.0000,19
+test,P2g Nova Lite + guardrail,all,escalation_recall_vs_rule,1.0000,1.0000,1.0000,19
+test,P2g Nova Lite + guardrail,all,usable@3_posthoc,0.8000,0.7200,0.8800,100
+test,P2g Nova Lite + guardrail,all,escalation_precision_vs_truth,0.8421,0.6667,1.0000,19
+test,P2g Nova Lite + guardrail,all,escalation_recall_vs_truth,1.0000,1.0000,1.0000,16
+test,P2g Nova Lite + guardrail,all,false_abandon_of_recoverable,0.0441,0.0000,0.0968,68
+test,P2g Nova Lite + guardrail,all,instr_within_140,1.0000,1.0000,1.0000,250
+test,P2g Nova Lite + guardrail,all,instr_cites_number,0.9920,0.9796,1.0000,250
+test,P2g Nova Lite + guardrail,all,instr_matches_action,1.0000,1.0000,1.0000,250
+test,P2g Nova Lite + guardrail,all,instr_faithful,0.9920,0.9796,1.0000,250
+test,P2g Nova Lite + guardrail,all,instr_violation_rate,0.0000,0.0000,0.0000,250
+test,P2g Nova Lite + guardrail,all,instr_no_measured_number,0.0080,0.0000,0.0204,250
+test,P2g Nova Lite + guardrail,all,rule_violation_rate,0.0000,0.0000,0.0000,250
+test,P2g Nova Lite + guardrail,all,guard_first_pass_violation,0.5760,0.4981,0.6540,250
+test,P2g Nova Lite + guardrail,all,guard_reask,0.5760,0.4981,0.6540,250
+test,P2g Nova Lite + guardrail,all,guard_fixed_by_reask,0.2120,0.1660,0.2587,250
+test,P2g Nova Lite + guardrail,all,guard_repaired,0.3560,0.2920,0.4223,250
+test,P2g Nova Lite + guardrail,all,guard_action_rejected,0.0080,0.0000,0.0204,250
+test,P2g Nova Lite + guardrail,all,guard_rationale_withheld,0.6040,0.5415,0.6615,250
+test,P2g Nova Lite + guardrail,all,fallback_steps,2.0000,nan,nan,250
 test,P* label rule (ceiling),single (S),recovery@3,1.0000,1.0000,1.0000,20
 test,P* label rule (ceiling),single (S),recovery@6,1.0000,1.0000,1.0000,20
 test,P* label rule (ceiling),single (S),correct_outcome,1.0000,1.0000,1.0000,20
@@ -362,6 +475,10 @@ test,P* label rule (ceiling),all,false_abandon_of_recoverable,0.0441,0.0000,0.09
 test,P* label rule (ceiling),all,instr_within_140,1.0000,1.0000,1.0000,251
 test,P* label rule (ceiling),all,instr_cites_number,0.0000,0.0000,0.0000,251
 test,P* label rule (ceiling),all,instr_matches_action,0.8845,0.8450,0.9213,251
+test,P* label rule (ceiling),all,instr_faithful,0.0000,0.0000,0.0000,251
+test,P* label rule (ceiling),all,instr_violation_rate,0.1155,0.0787,0.1550,251
+test,P* label rule (ceiling),all,instr_no_measured_number,1.0000,1.0000,1.0000,251
+test,P* label rule (ceiling),all,rule_violation_rate,0.0000,0.0000,0.0000,251
 test,P* label rule (ceiling),all,fallback_steps,0.0000,nan,nan,251
 secondary_big_free_policies,P0 random,single (S),recovery@3,0.2500,0.1900,0.3100,200
 secondary_big_free_policies,P0 random,single (S),recovery@6,0.2950,0.2350,0.3600,200
@@ -453,6 +570,10 @@ secondary_big_free_policies,P0 random,all,false_abandon_of_recoverable,0.4559,0.
 secondary_big_free_policies,P0 random,all,instr_within_140,1.0000,1.0000,1.0000,3304
 secondary_big_free_policies,P0 random,all,instr_cites_number,0.0000,0.0000,0.0000,3304
 secondary_big_free_policies,P0 random,all,instr_matches_action,0.8496,0.8373,0.8616,3304
+secondary_big_free_policies,P0 random,all,instr_faithful,0.0000,0.0000,0.0000,3304
+secondary_big_free_policies,P0 random,all,instr_violation_rate,0.1504,0.1384,0.1627,3304
+secondary_big_free_policies,P0 random,all,instr_no_measured_number,1.0000,1.0000,1.0000,3304
+secondary_big_free_policies,P0 random,all,rule_violation_rate,0.8502,0.8379,0.8625,3304
 secondary_big_free_policies,P0 random,all,fallback_steps,0.0000,nan,nan,3304
 secondary_big_free_policies,P1 rules,single (S),recovery@3,0.9350,0.9000,0.9650,200
 secondary_big_free_policies,P1 rules,single (S),recovery@6,0.9350,0.9000,0.9650,200
@@ -544,6 +665,10 @@ secondary_big_free_policies,P1 rules,all,false_abandon_of_recoverable,0.1912,0.1
 secondary_big_free_policies,P1 rules,all,instr_within_140,1.0000,1.0000,1.0000,2640
 secondary_big_free_policies,P1 rules,all,instr_cites_number,0.9098,0.8991,0.9204,2640
 secondary_big_free_policies,P1 rules,all,instr_matches_action,1.0000,1.0000,1.0000,2640
+secondary_big_free_policies,P1 rules,all,instr_faithful,0.9098,0.8991,0.9204,2640
+secondary_big_free_policies,P1 rules,all,instr_violation_rate,0.0000,0.0000,0.0000,2640
+secondary_big_free_policies,P1 rules,all,instr_no_measured_number,0.0902,0.0796,0.1009,2640
+secondary_big_free_policies,P1 rules,all,rule_violation_rate,0.2136,0.1958,0.2315,2640
 secondary_big_free_policies,P1 rules,all,fallback_steps,0.0000,nan,nan,2640
 secondary_big_free_policies,P* label rule (ceiling),single (S),recovery@3,0.9850,0.9650,1.0000,200
 secondary_big_free_policies,P* label rule (ceiling),single (S),recovery@6,0.9850,0.9650,1.0000,200
@@ -635,4 +760,8 @@ secondary_big_free_policies,P* label rule (ceiling),all,false_abandon_of_recover
 secondary_big_free_policies,P* label rule (ceiling),all,instr_within_140,1.0000,1.0000,1.0000,2541
 secondary_big_free_policies,P* label rule (ceiling),all,instr_cites_number,0.0000,0.0000,0.0000,2541
 secondary_big_free_policies,P* label rule (ceiling),all,instr_matches_action,0.8638,0.8507,0.8764,2541
+secondary_big_free_policies,P* label rule (ceiling),all,instr_faithful,0.0000,0.0000,0.0000,2541
+secondary_big_free_policies,P* label rule (ceiling),all,instr_violation_rate,0.1362,0.1236,0.1493,2541
+secondary_big_free_policies,P* label rule (ceiling),all,instr_no_measured_number,1.0000,1.0000,1.0000,2541
+secondary_big_free_policies,P* label rule (ceiling),all,rule_violation_rate,0.0000,0.0000,0.0000,2541
 secondary_big_free_policies,P* label rule (ceiling),all,fallback_steps,0.0000,nan,nan,2541

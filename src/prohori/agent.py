@@ -1438,6 +1438,7 @@ def _llm(observation, gate, cracks, history, t0, guardrail: bool | None = None) 
                     instruction = template_instruction(action, observation, gate, cracks, history)
                     gr["repaired"] = True
             riv, _ = check_instruction(None, rationale, observation, gate, cracks, history)  # type: ignore[arg-type]
+            riv = [x for x in riv if not x.startswith("cites no measured number")]   # a rationale may be number-free
             if riv:
                 rationale = "Model rationale withheld: it cited values that do not match the measurements."
                 gr["rationale_withheld"] = True

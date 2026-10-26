@@ -349,3 +349,9 @@ def test_guardrail_dict_is_json_serialisable(fake):
     fake(tool_resp(instruction="All cracks certified."), tool_resp(instruction="Move closer."))
     r = agent.decide(*FAR, CRACK, [], policy="llm")
     json.dumps(r)
+
+
+def test_number_free_rationale_is_kept(fake):
+    fake(tool_resp(instruction=GOOD_TEXT, rationale="The board is too far away."))
+    r = agent.decide(*FAR, CRACK, [], policy="llm")
+    assert r["guardrail"]["rationale_withheld"] is False and r["rationale"] == "The board is too far away."

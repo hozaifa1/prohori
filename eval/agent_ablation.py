@@ -536,7 +536,19 @@ v2 was selected and run once on the held-out split. Dev results are noisy at n =
 """
 
 
-INTERPRETATION_B = "(pending: written after the Addendum B runs)"
+INTERPRETATION_B = """**P3 (Claude Haiku 4.5) was not run.** Bedrock refused every call with `ResourceNotFoundException: Model use case details have not been submitted for this account`, for the `us.` and the `global.` Haiku 4.5 profiles. That is an Anthropic form that only the account owner can submit. The 50 dev-format decisions all fell back to the rules policy (ledger tag `p3_devfmt`, 0 USD). So the pre-registered live-default rule ("P3 meets or beats P2 and has higher faithfulness") cannot be met, and the live model stays Nova Lite. Nothing below says anything about Claude models.
+
+**P2g (Nova Lite + guardrail), compound subset, recovery within 3 actions.** 88% [77, 96], against 85% for P2 and 62% for P1. P2g - P1 is +25.0 points [+12.5, +37.5], so for the first time the lower end of the interval clears the +10 bar. P2g - P2 is +2.1 [-10.4, +14.6]: no detectable difference between the guarded and the unguarded model, as the pre-registered expectation (within 8 points) said. Single-cause episodes are unchanged (100%).
+
+**What the guardrail did.**
+1. Instruction faithfulness went from 54% [47, 61] (P2) to 99% [98, 100] (P2g); P1 is 91%. Most of P2's gap was text that cited no measured number (45% of its instructions), not wrong numbers (3% had a wrong number or claim). The wrong-number check caught few errors on this simulator because Nova's legacy-prompt text rarely mis-states a value; the review's errors came from the live CRC-gate prompt, which this study does not measure.
+2. Decisions that break a hard prompt rule fell from 19% (P2) to 0%. The frozen P1 breaks them in 24% of decisions.
+3. The first answer had a violation in 58% of decisions. A re-ask fixed 21% of all decisions; 36% still had a violation and got the rules template wording instead (the model's action was kept); 1% (2 decisions) had an action that stayed invalid and went to the rules policy. Nova Lite's own wording is therefore the operator's text in only about two thirds of decisions.
+4. Cost: 392 model calls for 250 decisions (1.6 per decision), US$0.06 for the test run, call latency p50 about 1.0 s, p95 1.4 s; a re-asked decision takes two such calls in sequence.
+
+**Why the recovery gain over P2 is small and what it means.** The action check is the prompt's own rule set, which is also what the label policy P* encodes. With it enforced, P2g's action matches the label set in 100% of decisions on uncertified captures and the primary label action in 97% (P2: 81% / 78%), and its recovery equals P* (88% compound). That is expected, not a discovery: the guardrail turns "LLM following the written rules" into "LLM whose answer is overridden by the written rules whenever it deviates". Nova Lite's contribution is the wording of the instruction (under a validator) and a policy that can still choose among the actions the rules allow; this study cannot show it reasons better than P*. False abandon of recoverable episodes dropped to 4% (P2 10%, P1 25%).
+
+**Limits added by Addendum B.** The study measures the legacy-gate prompt on the simulator; the live service uses the CRC-gate prompt, whose guardrail checks are covered by unit tests only. The validator and P* share their source (the prompt's rules), so 0% rule violations for P2g and for P* is by construction. The 54% to 99% faithfulness gain is partly a property of the check "cites a measured number", which the template wording satisfies by design. Faithfulness says the numbers and claims in the text are right; it does not say the advice is good, and the human 1-to-5 rating is still not done."""
 
 
 def fmt(r: dict, pct: bool = True) -> str:

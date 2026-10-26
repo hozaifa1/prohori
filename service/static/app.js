@@ -448,6 +448,16 @@
     return h("span", null, label ? label + " " : "", h("b", { text: value }));
   }
 
+  // What the code-side checker did to the model's answer (agent.py guardrail): nothing, a re-ask, or a text repair.
+  function guardText(d) {
+    const g = d && d.guardrail;
+    if (!g || typeof g !== "object") return "";
+    if (g.action_rejected) return "action rejected, rules used";
+    if (g.repaired) return "text replaced by rules wording";
+    if (g.reask) return "fixed after re-ask";
+    return "checked";
+  }
+
   function render(data, roundTripMs) {
     const m = data.measurement || {};
     const d = data.decision || {};
@@ -467,6 +477,9 @@
     const meta = $("banner-meta");
     meta.replaceChildren(metaSpan("policy", d.policy || "n/a"));
     if (d.model) meta.append(metaSpan("model", d.model));
+    const gtxt = guardText(d);
+    if (gtxt) meta.append(metaSpan("guardrail", gtxt));
+    if (d.fallback_reason) meta.append(h("span", { class: "fb", text: `fallback: ${String(d.fallback_reason).replace(/_/g, " ").slice(0, 60)}` }));
     if (num(d.latency_ms)) meta.append(metaSpan("agent", `${fmtMs(d.latency_ms)} ms`));
     meta.append(metaSpan("server", `${Math.round(data.server_ms)} ms`), metaSpan("round trip", `${(roundTripMs / 1000).toFixed(1)} s`));
     const red = data.redaction;
@@ -671,6 +684,7 @@
       meta.append(h("span", null, h("b", { text: `Step ${i + 1}` }), s.ts ? ` ${hhmmss(s.ts)}` : ""));
       meta.append(metaSpan("policy", d.policy || s.policy_requested || "n/a"));
       if (d.model) meta.append(metaSpan("model", d.model));
+      if (guardText(d)) meta.append(metaSpan("guardrail", guardText(d)));
       const vis = s.timing_ms && num(s.timing_ms.total) ? s.timing_ms.total : s.server_ms;
       if (num(vis)) meta.append(metaSpan("vision", `${Math.round(vis)} ms`));
       if (num(d.latency_ms)) meta.append(metaSpan("agent", `${fmtMs(d.latency_ms)} ms`));
@@ -782,8 +796,9 @@
   $("btn-new").addEventListener("click", newInspection);
   $("btn-retake").addEventListener("click", () => setView("capture"));
   $("overlay-img").addEventListener("click", () => $("overlay-wrap").classList.toggle("zoom"));
-  $("policy").value = pref.get("prohori.policy", "rules");
-  $("policy").addEventListener("change", (e) => pref.set("prohori.policy", e.target.value));
+  // v2 key: the default became the AI agent (with a code-checked guardrail), so an old stored "rules" choice is not carried over
+  $("policy").value = pref.get("prohori.policy.v2", "llm");
+  $("policy").addEventListener("change", (e) => pref.set("prohori.policy.v2", e.target.value));
 
   fetch("/health").then((r) => r.json()).then((j) => {
     const foot = $("foot");

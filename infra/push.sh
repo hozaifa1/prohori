@@ -11,6 +11,7 @@ AWS="${AWS:-aws}"
 command -v "$AWS" >/dev/null || AWS="/c/Program Files/Amazon/AWSCLIV2/aws.exe"
 cd "$(dirname "$0")/.."
 source infra/state.env
+source infra/agent.env   # AGENT_POLICY, AGENT_BEDROCK_MODEL, AGENT_BEDROCK_FALLBACK_MODELS, AGENT_LLM_DAILY_CAP
 export AWS_REGION="$REGION"
 REF="${REF:-HEAD}"   # e.g. REF=demo-2026-10-21 to redeploy the demo build
 SHA=$(git rev-parse --short "$REF^{commit}")
@@ -43,6 +44,10 @@ setenv() { sed -i "/^\$1=/d" /etc/prohori.env; echo "\$1=\$2" >> /etc/prohori.en
 setenv PROHORI_VERSION $SHA
 setenv PROHORI_SNS_TOPIC_ARN "${TOPIC:-}"
 setenv PROHORI_PUBLIC_URL https://$PUBLIC_HOST
+setenv PROHORI_DEFAULT_POLICY $AGENT_POLICY
+setenv PROHORI_BEDROCK_MODEL $AGENT_BEDROCK_MODEL
+setenv PROHORI_BEDROCK_FALLBACK_MODELS $AGENT_BEDROCK_FALLBACK_MODELS
+setenv PROHORI_LLM_DAILY_CAP $AGENT_LLM_DAILY_CAP
 chown -R prohori:prohori /opt/prohori
 ln -sfn \$D /opt/prohori/current
 systemctl restart prohori
