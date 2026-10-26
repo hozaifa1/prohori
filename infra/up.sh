@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # One-command, idempotent AWS setup for the Prohori demo endpoint.
 # Creates: budget alarm, private encrypted S3 bucket, DynamoDB trace table,
-# least-privilege EC2 role, security group, key pair, t4g.small (Graviton2,
+# least-privilege EC2 role (incl. logs for the /prohori/service group; see infra/observability.sh), security group, key pair, t4g.small (Graviton2,
 # Ubuntu 24.04 arm64) with an Elastic IP. TLS comes from Caddy + Let's Encrypt
 # on <ip>.sslip.io, because phone cameras only open on HTTPS.
 # Usage: bash infra/up.sh   (run from the repo root, AWS CLI logged in)
@@ -77,7 +77,9 @@ cat > infra/.gen/policy.json <<EOF
   "Resource":"arn:aws:dynamodb:$REGION:$ACCT:table/$TABLE"},
  {"Sid":"Escalate","Effect":"Allow","Action":["sns:Publish"],"Resource":"$TOPIC"},
  {"Sid":"Evidence","Effect":"Allow","Action":["s3:PutObject"],"Resource":"arn:aws:s3:::$BUCKET/evidence/*"},
- {"Sid":"Deploy","Effect":"Allow","Action":["s3:GetObject"],"Resource":"arn:aws:s3:::$BUCKET/deploy/*"}
+ {"Sid":"Deploy","Effect":"Allow","Action":["s3:GetObject"],"Resource":"arn:aws:s3:::$BUCKET/deploy/*"},
+ {"Sid":"Logs","Effect":"Allow","Action":["logs:CreateLogStream","logs:PutLogEvents","logs:DescribeLogStreams"],
+  "Resource":"arn:aws:logs:$REGION:$ACCT:log-group:/prohori/service:*"}
 ]}
 EOF
 if ! "$AWS" iam get-role --role-name "$ROLE" >/dev/null 2>&1; then

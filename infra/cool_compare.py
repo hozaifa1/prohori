@@ -3,7 +3,7 @@
   python infra/cool_compare.py <base-url-A> <base-url-B> [--tol 0.005] [--dir service/static/samples]
 
 POSTs every *.jpg in --dir to /api/measure (form field `image`) on both endpoints and compares, per crack id: gate tier,
-certified flag, width_mm (and the other width columns).  Exit 1 if any tier differs or any width differs by more than --tol mm.
+certified flag, width_mm, uncertainty_mm, length_mm (the black-core diagnostic column is printed, not gated).  Exit 1 if any tier differs or any width differs by more than --tol mm.
 """
 from __future__ import annotations
 
@@ -44,19 +44,22 @@ def main() -> int:
         tiers_same = ({k: (v.get("tier"), v.get("certified")) for k, v in ca.items()}
                       == {k: (v.get("tier"), v.get("certified")) for k, v in cb.items()})
         gate_same = (ma.get("gate") or {}).get("tier") == (mb.get("gate") or {}).get("tier")
-        dmax = 0.0
+        dmax = dcore = 0.0   # dmax: headline columns (tolerance applies); dcore: black-core diagnostic column (info only)
         for k in ca.keys() & cb.keys():
             for col in ("width_mm", "uncertainty_mm", "length_mm", "width_blackcore_mm"):
                 x, y = ca[k].get(col), cb[k].get(col)
                 if isinstance(x, (int, float)) and isinstance(y, (int, float)):
-                    dmax = max(dmax, abs(x - y))
+                    if col == "width_blackcore_mm":
+                        dcore = max(dcore, abs(x - y))
+                    else:
+                        dmax = max(dmax, abs(x - y))
         ok = tiers_same and gate_same and ca.keys() == cb.keys() and dmax <= args.tol
         print(f"{os.path.basename(f):22s} cracks {len(ca)}/{len(cb)}  tiers {'same' if tiers_same else 'DIFF'}  "
               f"gate {(ma.get('gate') or {}).get('tier')}/{(mb.get('gate') or {}).get('tier')}  "
-              f"max|d| {dmax:.4f} mm  {'OK' if ok else 'FAIL'}")
+              f"max|d| width/unc/length {dmax:.4f} mm (blackcore diag {dcore:.4f})  {'OK' if ok else 'FAIL'}")
         worst = max(worst, dmax)
         bad += not ok
-    print(f"worst |d| = {worst:.4f} mm over all columns; images failing: {bad}")
+    print(f"worst |d| = {worst:.4f} mm over width_mm / uncertainty_mm / length_mm; images failing: {bad}")
     return 1 if bad else 0
 
 
