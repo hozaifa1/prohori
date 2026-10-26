@@ -1,0 +1,13 @@
+cv2 threads 4, PROHORI_THREADS=4, frames 44  (ms, median: first start, last end, sum of calls, calls/frame)
+TOTAL              start     0.0  end   143.7  busy   143.7  calls 1
+_detect_board      start     1.1  end    25.8  busy    24.7  calls 1
+_board_quality     start    39.3  end    69.1  busy    29.7  calls 1
+_edge_sigma        start    39.4  end    56.5  busy    17.3  calls 1
+_locate_cracks     start    39.3  end    74.6  busy    36.1  calls 1
+_match_specimens   start    74.6  end    80.0  busy     5.2  calls 1
+_extract_roi       start    81.2  end    87.6  busy    13.8  calls 8
+_measure_roi       start    88.9  end   140.5  busy   180.3  calls 8
+_bg_map            start    46.2  end   126.0  busy    19.5  calls 9
+_thin              start    64.5  end   137.2  busy    79.7  calls 20
+_longest_path      start    65.6  end   138.5  busy    19.5  calls 20
+_noise_sigma       start    48.7  end    68.6  busy    19.2  calls 1

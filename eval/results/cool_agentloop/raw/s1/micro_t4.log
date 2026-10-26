@@ -1,0 +1,53 @@
+{
+ "cv2": "5.1.0-dev",
+ "threads": 4,
+ "n_masks": 92,
+ "mask_px_median": 20970,
+ "mask_fg_median": 5255,
+ "thin": {
+  "numpy_shim_old": {
+   "exact_vs_shim": true,
+   "mean_ms_per_mask": 1.8153413043478261,
+   "total_ms": 167.0114
+  },
+  "sparse_incremental_in_tree": {
+   "exact_vs_shim": true,
+   "mean_ms_per_mask": 1.105387195652174,
+   "total_ms": 101.695622
+  },
+  "dense_filter2D_LUT": {
+   "exact_vs_shim": true,
+   "mean_ms_per_mask": 2.1468814565217396,
+   "total_ms": 197.51309400000002
+  }
+ },
+ "resize_ms": {
+  "AREA_s0.488 (detect input)": 7.419191,
+  "AREA_s0.30 (locator canvas)": 5.262112500000001,
+  "AREA_x0.5 (exact 2x)": 0.156784,
+  "x0.5 then AREA to 2000 side": 3.477451,
+  "x0.5 then AREA to 0.30": 2.0062745,
+  "AREA half->0.6 only (given half)": 1.7710949999999999,
+  "AREA half->0.976 only (given half)": 3.274617
+ },
+ "bg_map_ms": {
+  "total _bg_map(2000x500)": 2.616216,
+  "resize AREA f32 /4": 0.373645,
+  "max+clip+astype u8": 0.0472525,
+  "medianBlur u8 k=31": 1.1508455,
+  "astype f32 * scale": 0.017283500000000007,
+  "GaussianBlur f32 sigma=k/3": 0.753994,
+  "resize LINEAR f32 up x4": 0.133983
+ },
+ "warp_ms": {
+  "warpPerspective LINEAR": 2.279209,
+  "map build (numpy, f32)": 17.284431,
+  "remap f32 maps LINEAR": 1.279217,
+  "remap 16SC2 maps LINEAR": 0.8464125,
+  "convertMaps f32->16SC2": 1.395682,
+  "LINEAR vs remap16: max |diff| grey levels / share differing": [
+   4,
+   0.06605568647988129
+  ]
+ }
+}

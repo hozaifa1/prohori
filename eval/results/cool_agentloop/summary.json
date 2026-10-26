@@ -1,0 +1,335 @@
+{
+ "cool_4_threads": {
+  "HEAD (1c1ac4f) + harness shims": {
+   "runs": [
+    "F_head_cool_t4_A",
+    "F_head_cool_t4_B",
+    "F_head_cool_t4_C"
+   ],
+   "p50": [
+    186.6,
+    187.2,
+    184.4
+   ],
+   "p95": [
+    324.8,
+    324.0,
+    324.3
+   ],
+   "mean": [
+    203.7,
+    206.3,
+    202.8
+   ],
+   "stage_p50_first_run": {
+    "decode": 51.5,
+    "detect": 28.9,
+    "rectify": 42.7,
+    "measure": 27.8,
+    "other": 31.4,
+    "analyze": 139.6,
+    "e2e": 186.6
+   }
+  },
+  "final, exact (1c0a708)": {
+   "runs": [
+    "F_f1_cool_t4_A",
+    "F_f1_cool_t4_B",
+    "F_f1_cool_t4_C"
+   ],
+   "p50": [
+    143.1,
+    142.1,
+    143.8
+   ],
+   "p95": [
+    206.5,
+    210.1,
+    207.6
+   ],
+   "mean": [
+    148.3,
+    149.6,
+    149.6
+   ],
+   "stage_p50_first_run": {
+    "decode": 53.4,
+    "detect": 29.0,
+    "rectify": 44.5,
+    "measure": 11.0,
+    "other": 2.4,
+    "analyze": 91.8,
+    "e2e": 143.1
+   }
+  },
+  "final + output-changing resize (8d13353)": {
+   "runs": [
+    "F_f2_cool_t4_A"
+   ],
+   "p50": [
+    131.8
+   ],
+   "p95": [
+    197.6
+   ],
+   "mean": [
+    139.1
+   ],
+   "stage_p50_first_run": {
+    "decode": 52.3,
+    "detect": 23.8,
+    "rectify": 41.1,
+    "measure": 11.3,
+    "other": 2.5,
+    "analyze": 82.5,
+    "e2e": 131.8
+   }
+  }
+ },
+ "cool_1_thread": {
+  "HEAD": {
+   "e2e_p50_ms": 307.2,
+   "e2e_p95_ms": 450.3,
+   "e2e_mean_ms": 312.1,
+   "sweep": {
+    "4x1": {
+     "fps": 11.95,
+     "p50_ms": 333.8,
+     "p95_ms": 467.9
+    }
+   }
+  },
+  "final exact, Python threads on": {
+   "e2e_p50_ms": 225.7,
+   "e2e_p95_ms": 275.5,
+   "e2e_mean_ms": 219.9,
+   "sweep": {
+    "4x1": {
+     "fps": 13.57,
+     "p50_ms": 305.5,
+     "p95_ms": 388.2
+    },
+    "2x2": {
+     "fps": 10.21,
+     "p50_ms": 195.9,
+     "p95_ms": 254.6
+    },
+    "1x4": {
+     "fps": 6.69,
+     "p50_ms": 147.2,
+     "p95_ms": 203.6
+    }
+   }
+  },
+  "final exact, PROHORI_THREADS=1": {
+   "e2e_p50_ms": 276.4,
+   "e2e_p95_ms": 355.4,
+   "e2e_mean_ms": 272.7,
+   "sweep": {
+    "4x1": {
+     "fps": 13.78,
+     "p50_ms": 298.4,
+     "p95_ms": 369.4
+    },
+    "2x2": {
+     "fps": 9.39,
+     "p50_ms": 215.6,
+     "p95_ms": 287.6
+    },
+    "1x4": {
+     "fps": 5.85,
+     "p50_ms": 168.9,
+     "p95_ms": 235.3
+    }
+   }
+  }
+ },
+ "pip": {
+  "HEAD pip 4T": {
+   "e2e_p50_ms": 188.9,
+   "e2e_p95_ms": 309.4,
+   "e2e_mean_ms": 202.5,
+   "sweep": null
+  },
+  "final pip 4T": {
+   "e2e_p50_ms": 142.2,
+   "e2e_p95_ms": 207.8,
+   "e2e_mean_ms": 149.2,
+   "sweep": null
+  },
+  "HEAD pip 1T": {
+   "e2e_p50_ms": 304.5,
+   "e2e_p95_ms": 474.0,
+   "e2e_mean_ms": 320.6,
+   "sweep": {
+    "4x1": {
+     "fps": 11.81,
+     "p50_ms": 328.9,
+     "p95_ms": 486.5
+    },
+    "1x4": {
+     "fps": 4.85,
+     "p50_ms": 196.7,
+     "p95_ms": 309.0
+    }
+   }
+  },
+  "final pip 1T": {
+   "e2e_p50_ms": 224.3,
+   "e2e_p95_ms": 278.0,
+   "e2e_mean_ms": 220.8,
+   "sweep": {
+    "4x1": {
+     "fps": 13.65,
+     "p50_ms": 295.6,
+     "p95_ms": 381.2
+    },
+    "1x4": {
+     "fps": 6.59,
+     "p50_ms": 148.7,
+     "p95_ms": 210.0
+    }
+   }
+  },
+  "final pip 1T PROHORI_THREADS=1": {
+   "e2e_p50_ms": 273.2,
+   "e2e_p95_ms": 354.5,
+   "e2e_mean_ms": 270.8,
+   "sweep": {
+    "4x1": {
+     "fps": 13.91,
+     "p50_ms": 294.5,
+     "p95_ms": 369.6
+    }
+   }
+  }
+ },
+ "throughput_cost": [
+  {
+   "build": "COOL HEAD",
+   "config": "4x1",
+   "fps": 11.98,
+   "p50_ms": 332.6,
+   "p95_ms": 469.3,
+   "usd_per_hour": 0.16952,
+   "usd_per_1000_frames": 0.00393
+  },
+  {
+   "build": "COOL HEAD",
+   "config": "2x2",
+   "fps": 7.98,
+   "p50_ms": 242.2,
+   "p95_ms": 375.0,
+   "usd_per_hour": 0.16952,
+   "usd_per_1000_frames": 0.0059
+  },
+  {
+   "build": "COOL HEAD",
+   "config": "1x4",
+   "fps": 4.84,
+   "p50_ms": 195.4,
+   "p95_ms": 324.8,
+   "usd_per_hour": 0.16952,
+   "usd_per_1000_frames": 0.00974
+  },
+  {
+   "build": "COOL final",
+   "config": "4x1",
+   "fps": 13.57,
+   "p50_ms": 305.5,
+   "p95_ms": 388.2,
+   "usd_per_hour": 0.16952,
+   "usd_per_1000_frames": 0.00347
+  },
+  {
+   "build": "COOL final",
+   "config": "2x2",
+   "fps": 10.21,
+   "p50_ms": 195.9,
+   "p95_ms": 254.6,
+   "usd_per_hour": 0.16952,
+   "usd_per_1000_frames": 0.00461
+  },
+  {
+   "build": "COOL final",
+   "config": "1x4",
+   "fps": 6.69,
+   "p50_ms": 147.2,
+   "p95_ms": 203.6,
+   "usd_per_hour": 0.16952,
+   "usd_per_1000_frames": 0.00704
+  },
+  {
+   "build": "COOL final PROHORI_THREADS=1",
+   "config": "4x1",
+   "fps": 13.78,
+   "p50_ms": 298.4,
+   "p95_ms": 369.4,
+   "usd_per_hour": 0.16952,
+   "usd_per_1000_frames": 0.00342
+  },
+  {
+   "build": "COOL final PROHORI_THREADS=1",
+   "config": "2x2",
+   "fps": 9.39,
+   "p50_ms": 215.6,
+   "p95_ms": 287.6,
+   "usd_per_hour": 0.16952,
+   "usd_per_1000_frames": 0.00501
+  },
+  {
+   "build": "COOL final PROHORI_THREADS=1",
+   "config": "1x4",
+   "fps": 5.85,
+   "p50_ms": 168.9,
+   "p95_ms": 235.3,
+   "usd_per_hour": 0.16952,
+   "usd_per_1000_frames": 0.00805
+  },
+  {
+   "build": "pip HEAD",
+   "config": "4x1",
+   "fps": 11.81,
+   "p50_ms": 328.9,
+   "p95_ms": 486.5,
+   "usd_per_hour": 0.15952,
+   "usd_per_1000_frames": 0.00375
+  },
+  {
+   "build": "pip HEAD",
+   "config": "1x4",
+   "fps": 4.85,
+   "p50_ms": 196.7,
+   "p95_ms": 309.0,
+   "usd_per_hour": 0.15952,
+   "usd_per_1000_frames": 0.00914
+  },
+  {
+   "build": "pip final",
+   "config": "4x1",
+   "fps": 13.65,
+   "p50_ms": 295.6,
+   "p95_ms": 381.2,
+   "usd_per_hour": 0.15952,
+   "usd_per_1000_frames": 0.00325
+  },
+  {
+   "build": "pip final",
+   "config": "1x4",
+   "fps": 6.59,
+   "p50_ms": 148.7,
+   "p95_ms": 210.0,
+   "usd_per_hour": 0.15952,
+   "usd_per_1000_frames": 0.00672
+  },
+  {
+   "build": "pip final PROHORI_THREADS=1",
+   "config": "4x1",
+   "fps": 13.91,
+   "p50_ms": 294.5,
+   "p95_ms": 369.6,
+   "usd_per_hour": 0.15952,
+   "usd_per_1000_frames": 0.00319
+  }
+ ]
+}

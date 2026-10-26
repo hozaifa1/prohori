@@ -1,0 +1,16 @@
+{
+ "n_inputs": 85,
+ "n_panel": 29,
+ "bitwise_identical_all": false,
+ "bitwise_identical_panel": false,
+ "n_frames_differing": 47,
+ "panel_cracks": 168,
+ "panel_cracks_missing_in_one": 0,
+ "tier_flips": 2,
+ "certified_flips": 1,
+ "max_abs_dw_mm": 0.1322000000000001,
+ "max_abs_dmm_any_field": 2.0,
+ "worst": "raw/IMG20261019080802_BURST000_COVER.jpg:C8",
+ "tol_mm": 0.005,
+ "pass": false
+}

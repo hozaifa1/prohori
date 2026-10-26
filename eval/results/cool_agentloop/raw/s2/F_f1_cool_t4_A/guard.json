@@ -1,0 +1,16 @@
+{
+ "n_inputs": 85,
+ "n_panel": 29,
+ "bitwise_identical_all": true,
+ "bitwise_identical_panel": true,
+ "n_frames_differing": 0,
+ "panel_cracks": 168,
+ "panel_cracks_missing_in_one": 0,
+ "tier_flips": 0,
+ "certified_flips": 0,
+ "max_abs_dw_mm": 0.0,
+ "max_abs_dmm_any_field": 0.0,
+ "worst": null,
+ "tol_mm": 0.005,
+ "pass": true
+}

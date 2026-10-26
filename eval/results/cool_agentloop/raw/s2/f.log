@@ -1,0 +1,77 @@
+[F_head_cool_t4_A] cv2 5.1.0-dev /opt/cool/python_3.12/site-packages/cv2/python-3.12/cv2.cpython-312-aarch64-linux-gnu.so threads=4 compat=thin+bbdt(shim) frames=85 src=/home/ubuntu/trees/head
+[F_head_cool_t4_A] e2e p50 186.6 ms  p95 324.8  mean 203.7  analyze p50 139.6  (87s)
+[F_head_cool_t4_A] profile (cProfile): cv2 41%, python 33%, numpy 22%, builtin 3%
+      19.97 ms/frame  11.7%  cv2    <method 'detectBoard' of 'cv2.aruco.CharucoD 
+      16.66 ms/frame   9.8%  cv2    <resize> 
+      15.46 ms/frame   9.1%  numpy  <method 'reduce' of 'numpy.ufunc' objects> 
+      12.25 ms/frame   7.2%  python thinning_zs /home/ubuntu/trees/head/eval/cool_compat.py:39
+       8.13 ms/frame   4.8%  cv2    <warpPerspective> 
+       8.01 ms/frame   4.7%  numpy  <method 'partition' of 'numpy.ndarray' objec 
+       7.08 ms/frame   4.2%  python _longest_path prohori/measure.py:297
+       6.72 ms/frame   3.9%  python _locate_cracks prohori/measure.py:369
+[F_f1_cool_t4_A] cv2 5.1.0-dev /opt/cool/python_3.12/site-packages/cv2/python-3.12/cv2.cpython-312-aarch64-linux-gnu.so threads=4 compat=none(none) frames=85 src=/home/ubuntu/trees/f1
+[F_f1_cool_t4_A] e2e p50 143.1 ms  p95 206.5  mean 148.3  analyze p50 91.8  (63s)
+[F_f1_cool_t4_A] profile (cProfile): cv2 58%, python 21%, numpy 18%, builtin 3%
+      20.10 ms/frame  18.8%  cv2    <method 'detectBoard' of 'cv2.aruco.CharucoD 
+      15.40 ms/frame  14.4%  cv2    <resize> 
+       5.13 ms/frame   4.8%  cv2    <warpPerspective> 
+       3.89 ms/frame   3.6%  python _thin prohori/measure.py:338
+       3.33 ms/frame   3.1%  numpy  <method 'reduce' of 'numpy.ufunc' objects> 
+       3.24 ms/frame   3.0%  python bfs prohori/measure.py:518
+       2.70 ms/frame   2.5%  cv2    <GaussianBlur> 
+       1.82 ms/frame   1.7%  builtin <method 'append' of 'list' objects> 
+[F_f2_cool_t4_A] cv2 5.1.0-dev /opt/cool/python_3.12/site-packages/cv2/python-3.12/cv2.cpython-312-aarch64-linux-gnu.so threads=4 compat=none(none) frames=85 src=/home/ubuntu/trees/f2
+[F_f2_cool_t4_A] e2e p50 131.8 ms  p95 197.6  mean 139.1  analyze p50 82.5  (59s)
+ "bitwise_identical_all": true,
+ "tier_flips": 0,
+ "max_abs_dw_mm": 0.0,
+ "pass": true
+ "bitwise_identical_all": false,
+ "tier_flips": 1,
+ "max_abs_dw_mm": 0.11979999999999968,
+ "pass": false
+[F_head_cool_t4_B] cv2 5.1.0-dev /opt/cool/python_3.12/site-packages/cv2/python-3.12/cv2.cpython-312-aarch64-linux-gnu.so threads=4 compat=thin+bbdt(shim) frames=85 src=/home/ubuntu/trees/head
+[F_head_cool_t4_B] e2e p50 187.2 ms  p95 324.0  mean 206.3  analyze p50 140.7  (88s)
+[F_f1_cool_t4_B] cv2 5.1.0-dev /opt/cool/python_3.12/site-packages/cv2/python-3.12/cv2.cpython-312-aarch64-linux-gnu.so threads=4 compat=none(none) frames=85 src=/home/ubuntu/trees/f1
+[F_f1_cool_t4_B] e2e p50 142.1 ms  p95 210.1  mean 149.6  analyze p50 92.8  (64s)
+[F_head_cool_t1] cv2 5.1.0-dev /opt/cool/python_3.12/site-packages/cv2/python-3.12/cv2.cpython-312-aarch64-linux-gnu.so threads=1 compat=thin(shim) frames=85 src=/home/ubuntu/trees/head
+[F_head_cool_t1] e2e p50 307.2 ms  p95 450.3  mean 312.1  analyze p50 256.1  (80s)
+[F_head_cool_t1] sweep 4x1: 11.95 fps  e2e p50 334 p95 468 ms
+corrupted size vs. prev_size
+corrupted size vs. prev_size
+[F_head_cool_t1] sweep 2x2: FAILED BrokenProcessPool: A process in the process pool was terminated abruptly while the future was running or pending.
+corrupted size vs. prev_size
+[F_head_cool_t1] sweep 1x4: FAILED BrokenProcessPool: A process in the process pool was terminated abruptly while the future was running or pending.
+[F_f1_cool_t1] cv2 5.1.0-dev /opt/cool/python_3.12/site-packages/cv2/python-3.12/cv2.cpython-312-aarch64-linux-gnu.so threads=1 compat=none(none) frames=85 src=/home/ubuntu/trees/f1
+[F_f1_cool_t1] e2e p50 225.7 ms  p95 275.5  mean 219.9  analyze p50 173.6  (56s)
+[F_f1_cool_t1] sweep 4x1: 13.57 fps  e2e p50 305 p95 388 ms
+[F_f1_cool_t1] sweep 2x2: 10.21 fps  e2e p50 196 p95 255 ms
+[F_f1_cool_t1] sweep 1x4: 6.69 fps  e2e p50 147 p95 204 ms
+[F_f1p1_cool_t1] cv2 5.1.0-dev /opt/cool/python_3.12/site-packages/cv2/python-3.12/cv2.cpython-312-aarch64-linux-gnu.so threads=1 compat=none(none) frames=85 src=/home/ubuntu/trees/f1
+[F_f1p1_cool_t1] e2e p50 276.4 ms  p95 355.4  mean 272.7  analyze p50 226.3  (70s)
+[F_f1p1_cool_t1] sweep 4x1: 13.78 fps  e2e p50 298 p95 369 ms
+[F_f1p1_cool_t1] sweep 2x2: 9.39 fps  e2e p50 216 p95 288 ms
+[F_f1p1_cool_t1] sweep 1x4: 5.85 fps  e2e p50 169 p95 235 ms
+[F_head_pip_t4] cv2 5.0.0 /home/ubuntu/venv_pip/lib/python3.12/site-packages/cv2/__init__.py threads=4 compat=none(none) frames=85 src=/home/ubuntu/trees/head
+[F_head_pip_t4] e2e p50 188.9 ms  p95 309.4  mean 202.5  analyze p50 145.4  (86s)
+[F_f1_pip_t4] cv2 5.0.0 /home/ubuntu/venv_pip/lib/python3.12/site-packages/cv2/__init__.py threads=4 compat=none(none) frames=85 src=/home/ubuntu/trees/f1
+[F_f1_pip_t4] e2e p50 142.2 ms  p95 207.8  mean 149.2  analyze p50 93.7  (64s)
+ "bitwise_identical_all": true,
+ "tier_flips": 0,
+ "max_abs_dw_mm": 0.0,
+ "pass": true
+[F_head_pip_t1] cv2 5.0.0 /home/ubuntu/venv_pip/lib/python3.12/site-packages/cv2/__init__.py threads=1 compat=none(none) frames=85 src=/home/ubuntu/trees/head
+[F_head_pip_t1] e2e p50 304.5 ms  p95 474.0  mean 320.6  analyze p50 258.6  (82s)
+[F_head_pip_t1] sweep 4x1: 11.81 fps  e2e p50 329 p95 486 ms
+[F_head_pip_t1] sweep 1x4: 4.85 fps  e2e p50 197 p95 309 ms
+[F_f1_pip_t1] cv2 5.0.0 /home/ubuntu/venv_pip/lib/python3.12/site-packages/cv2/__init__.py threads=1 compat=none(none) frames=85 src=/home/ubuntu/trees/f1
+[F_f1_pip_t1] e2e p50 224.3 ms  p95 278.0  mean 220.8  analyze p50 174.2  (56s)
+[F_f1_pip_t1] sweep 4x1: 13.65 fps  e2e p50 296 p95 381 ms
+[F_f1_pip_t1] sweep 1x4: 6.59 fps  e2e p50 149 p95 210 ms
+[F_f1p1_pip_t1] cv2 5.0.0 /home/ubuntu/venv_pip/lib/python3.12/site-packages/cv2/__init__.py threads=1 compat=none(none) frames=85 src=/home/ubuntu/trees/f1
+[F_f1p1_pip_t1] e2e p50 273.2 ms  p95 354.5  mean 270.8  analyze p50 223.0  (69s)
+[F_f1p1_pip_t1] sweep 4x1: 13.91 fps  e2e p50 294 p95 370 ms
+[F_f1_cool_t4_C] cv2 5.1.0-dev /opt/cool/python_3.12/site-packages/cv2/python-3.12/cv2.cpython-312-aarch64-linux-gnu.so threads=4 compat=none(none) frames=85 src=/home/ubuntu/trees/f1
+[F_f1_cool_t4_C] e2e p50 143.8 ms  p95 207.6  mean 149.6  analyze p50 91.9  (64s)
+[F_head_cool_t4_C] cv2 5.1.0-dev /opt/cool/python_3.12/site-packages/cv2/python-3.12/cv2.cpython-312-aarch64-linux-gnu.so threads=4 compat=thin+bbdt(shim) frames=85 src=/home/ubuntu/trees/head
+[F_head_cool_t4_C] e2e p50 184.4 ms  p95 324.3  mean 202.8  analyze p50 139.7  (86s)
