@@ -1,0 +1,46 @@
+{
+ "a_certified": {
+  "loaded": 0.5,
+  "dialog_ready_good-straight": 8.67,
+  "pick_good-straight": 13.02,
+  "result_1": 17.81,
+  "end": 43.82
+ },
+ "b_agent_loop": {
+  "loaded": 0.5,
+  "dialog_ready_move-closer": 6.33,
+  "pick_move-closer": 10.78,
+  "result_1": 14.88,
+  "retake_tap": 27.31,
+  "dialog_ready_closer": 33.07,
+  "pick_closer": 37.44,
+  "result_2": 41.56,
+  "end": 58.06
+ },
+ "c_indicative": {
+  "loaded": 0.5,
+  "dialog_ready_blurry-oblique": 9.16,
+  "pick_blurry-oblique": 13.55,
+  "result_1": 17.82,
+  "end": 32.37
+ },
+ "c_hold_steady": {
+  "loaded": 0.5,
+  "dialog_ready_blurry-oblique": 12.14,
+  "pick_blurry-oblique": 16.39,
+  "result_1": 19.8,
+  "end": 34.36
+ },
+ "d_trace": {
+  "loaded": 0.5,
+  "dialog_ready_move-closer": 6.07,
+  "pick_move-closer": 10.33,
+  "result_1": 14.68,
+  "dialog_ready_closer": 20.02,
+  "pick_closer": 24.31,
+  "result_2": 27.73,
+  "trace_start": 33.1,
+  "steps_2": 33.11,
+  "end": 52.69
+ }
+}
