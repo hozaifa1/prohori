@@ -66,4 +66,4 @@ OpenCV 5, ArUco / ChArUco, COOL (Cloud Optimized OpenCV), Arm KleidiCV, AWS Grav
 * Technical report (PDF in the repository): docs/report/Prohori_Technical_Report.pdf (source: docs/report/REPORT.md)
 * Rubric map: docs/report/RUBRIC_MAP.md
 * Data bundles: https://github.com/hozaifa1/prohori/releases/tag/v1.0-submission
-* Video (5 minutes or less): VIDEO_URL_TBD
+* Video (5 minutes or less): https://youtu.be/TFY_xzDJWNI

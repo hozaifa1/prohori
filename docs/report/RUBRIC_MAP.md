@@ -41,7 +41,7 @@ OpenCV 5 for substantive analysis (`measure.py`); AWS component (EC2 on Graviton
 
 ## Gaps and risks I noticed
 
-1. **No video yet.** The Devpost field is `VIDEO_URL_TBD`. The video script's numbers need re-checking (see item 9).
+1. **Video:** https://youtu.be/TFY_xzDJWNI (3:39, unlisted, captions burned in; built from the recorded voice-over with `tools/make_video.py`).
 2. **Claude Haiku 4.5 was not evaluated.** P2g (Nova Lite + guardrail) is in `agent_ablation.md` and the live box (build b3e9907) runs it as the default policy `llm`. P3 (Haiku 4.5) produced no results because the AWS account has not submitted Anthropic's use-case form. The compound-recovery gain of P2g over P2 (+2.1 points [-10.4, +14.6]) is not detectable, and P2g equals the plain-code ceiling; the 0 % rule violations hold by construction.
 3. **PDF.** `docs/report/Prohori_Technical_Report.pdf` is built from `REPORT.md` by `python tools/make_report_pdf.py`; rebuild it after any edit to the report.
 4. **No field validation.** One printed panel, one phone, one session; no real concrete crack against a microscope.

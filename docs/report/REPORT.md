@@ -1,7 +1,7 @@
 # PROHORI: crack width in millimetres from a phone photo, with a calibrated "refuse when unsure" gate and a recapture agent
 
 Technical report, OpenCV AI Competition 2026 (Overall, Best Use of COOL, Agentic Vision). Solo entry: Hozaifa, University of Dhaka.
-Live endpoint: https://184-194-241-186.sslip.io. Code: https://github.com/hozaifa1/prohori (Apache-2.0). Every number below is copied from a file in the repository; the file is named next to it.
+Live endpoint: https://184-194-241-186.sslip.io. Code: https://github.com/hozaifa1/prohori (Apache-2.0). Video: https://youtu.be/TFY_xzDJWNI. Every number below is copied from a file in the repository; the file is named next to it.
 
 Terms used throughout. "Certified (green)" is the strict tier. "Indicative (amber)" is the looser tier. A crack "passes the gate" if it is green or amber. "Refused" means no number is endorsed.
 

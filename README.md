@@ -34,7 +34,7 @@ A worked trace is in [docs/TRACE_EXHIBIT.md](docs/TRACE_EXHIBIT.md); bad-capture
 | Trace where OpenCV output changes a later decision | [docs/TRACE_EXHIBIT.md](docs/TRACE_EXHIBIT.md) |
 | Developer-agent workflow (COOL optimisation loop) | [docs/figures/dev_agent_loop.png](docs/figures/dev_agent_loop.png), [eval/results/cool_agentloop/](eval/results/cool_agentloop/README.md) |
 | Working public endpoint | https://184-194-241-186.sslip.io |
-| Video, 5 minutes or less | linked from the submission page; the script is [docs/video/SCRIPT.md](docs/video/SCRIPT.md) |
+| Video, 5 minutes or less | https://youtu.be/TFY_xzDJWNI (script: [docs/video/SCRIPT.md](docs/video/SCRIPT.md), captions: [docs/video/Prohori_demo.srt](docs/video/Prohori_demo.srt)) |
 | Evaluation evidence, failure cases, limitations | [Results](#headline-results), [docs/FAILURE_GALLERY.md](docs/FAILURE_GALLERY.md), [Limitations](#limitations) |
 
 ## Architecture
